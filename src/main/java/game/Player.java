@@ -1,26 +1,26 @@
 package game;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Objects;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Player {
-    private final String id;
+    private final Long id;
     private final Card[] hand;
-    private final ArrayList<Card> collectedCards;
+    private final CopyOnWriteArrayList<Card> collectedCards;
 
     /**
      * Constructor for player.
      * @param id Unique identifier for the player. Expressed as an alphanumerical value.
-     * @throws IllegalArgumentException If id is null or empty.
+     * @throws IllegalArgumentException If id is negative or zero.
      */
-    public Player(String id) throws IllegalArgumentException {
-        if (id == null || id.isEmpty())
-            throw new IllegalArgumentException("id is null");
+    public Player(Long id) throws IllegalArgumentException {
+        if (id <= 0)
+            throw new IllegalArgumentException("id is not valid");
         this.id = id;
         hand = new Card[3];
-        collectedCards = new ArrayList<>();
+        collectedCards = new CopyOnWriteArrayList<>();
     }
 
     /**
@@ -121,7 +121,7 @@ public class Player {
         collectedCards.clear();
     }
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
@@ -129,7 +129,7 @@ public class Player {
         return hand;
     }
 
-    public ArrayList<Card> getCollectedCards() {
+    public CopyOnWriteArrayList<Card> getCollectedCards() {
         return collectedCards;
     }
 

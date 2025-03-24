@@ -2,13 +2,15 @@ package game;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Game {
     private static final int nOfCardShuffle = 10;
 
-    private final String id;
+    private final Long id;
 
-    private final ArrayList<Player> players;
+    protected final CopyOnWriteArrayList<Player> players;
 
     private final Card[] deck;
     private Card[] board;
@@ -26,20 +28,21 @@ public class Game {
     /**
      * Constructor for class game.
      * @param id Unique identifier for game.
-     * @throws IllegalArgumentException If id is null or empty.
+     * @throws IllegalArgumentException If id negative or zero.
      */
-    public Game(String id) throws IllegalArgumentException {
-        if (id == null || id.isEmpty())
-            throw new IllegalArgumentException("id is null");
+    public Game(Long id) throws IllegalArgumentException {
+        if (id <= 0)
+            throw new IllegalArgumentException("id is not valid");
         this.id = id;
 
-        players = new ArrayList<>();
+        players = new CopyOnWriteArrayList<>();
+        gameOver = true;
 
         deck = new Card[40];
 
         for (int suit = 0; suit < Card.Suit.values().length; suit++) {
             for (int value = 0; value < Card.Value.values().length; value++) {
-                deck[suit * 10 + value] = new Card(Card.Suit.values()[suit], Card.Value.values()[value]);
+                deck[suit * 10 + value] = new Card(Card.Suit.values()[suit].name(), Card.Value.values()[value].name());
             }
         }
     }
@@ -52,9 +55,74 @@ public class Game {
     public void addPlayer(Player player) throws IllegalArgumentException {
         if (player == null)
             throw new IllegalArgumentException("Player cannot be null");
+        if (!isGameOver())
+            throw new RuntimeException("Cannot add player while the game is running");
         if (players.contains(player))
             throw new IllegalArgumentException("Cannot add the same player 2 times");
         players.add(player);
+    }
+
+    /**
+     * Remove player from the game.
+     * @param id Player to remove.
+     * @throws IllegalArgumentException If player id is null, negative or zero.
+     */
+    public void removePlayer(Long id) throws IllegalArgumentException {
+        if (id == null || id <= 0)
+            throw new IllegalArgumentException("Player id cannot be null, negative or zero");
+        if (!isGameOver())
+            throw new RuntimeException("Cannot remove player while the game is running");
+
+        Optional<Player> playerToRemove = getPlayer(id);
+
+        if (playerToRemove.isEmpty())
+            throw new IllegalArgumentException("Player with id " + id + " not found");
+        players.remove(playerToRemove.get());
+    }
+
+    /**
+     * Find the player.
+     * @param id Id of the player to find.
+     * @return The Optional of the player.
+     * @throws IllegalArgumentException If player id is null, negative or zero.
+     */
+    public Optional<Player> getPlayer(Long id) throws IllegalArgumentException {
+        if (id == null || id <= 0)
+            throw new IllegalArgumentException("Player id cannot be null, negative or zero");
+
+        for (Player p: players)
+            if (p.getId().equals(id))
+                return Optional.of(p);
+        return Optional.empty();
+    }
+
+    /**
+     * Find the index of the player in players array.
+     * @param id Id of the player to find.
+     * @return The index of the player. If the player is not found it returns -1.
+     * @throws IllegalArgumentException If player id is null, negative or zero.
+     */
+    public int getPlayerIdx(Long id) {
+        if (id == null || id <= 0)
+            throw new IllegalArgumentException("Player id cannot be null, negative or zero");
+
+        if (getPlayer(id).isPresent())
+            return players.indexOf(getPlayer(id).get());
+        return -1;
+    }
+
+
+    /**
+     * Check if player exist by the id.
+     * @param id Id of the player to find.
+     * @return True if the player is found, otherwise false.
+     * @throws IllegalArgumentException If player id is null, negative or zero.
+     */
+    public boolean playerExists(Long id) throws IllegalArgumentException {
+        if (id == null || id <= 0)
+            throw new IllegalArgumentException("Player id cannot be null, negative or zero");
+
+        return getPlayer(id).isPresent();
     }
 
     /**
@@ -197,6 +265,14 @@ public class Game {
         return players.get(idx);
     }
 
+    public long getTurnPlayerId() {
+        return players.get(turn).getId();
+    }
+
+    public Card[] getBoard() {
+        return board;
+    }
+
     public Card getBriscolaCard() {
         return deck[deck.length - 1];
     }
@@ -205,8 +281,12 @@ public class Game {
         return gameOver;
     }
 
-    public String getId() {
+    public long getId() {
         return id;
+    }
+
+    public int getNPlayers() {
+        return players.size();
     }
 
     /**

@@ -1,5 +1,7 @@
 package game;
 
+import lombok.Builder;
+
 import java.util.Objects;
 
 public class Card {
@@ -46,10 +48,22 @@ public class Card {
      * @see Suit
      * @see Value
      */
-    public Card(Suit suit, Value value) {
-        this.suit = suit;
-        this.value = value;
+    public Card(String suit, String value) {
+        this.suit = Suit.valueOf(suit);
+        this.value = Value.valueOf(value);
     }
+
+//    /**
+//     * Constructor for class card.
+//     * @param suit The suit of the card.
+//     * @param value The value if the card.
+//     * @see Suit
+//     * @see Value
+//     */
+//    public Card(Suit suit, Value value) {
+//        this.suit = suit;
+//        this.value = value;
+//    }
 
     public static Card getWinningCard(Card card1, Card card2) {
         return card1.getSuit() == card2.getSuit() ?
