@@ -28,4 +28,12 @@ public class Token {
     public Long getPlayerId() {
         return playerId;
     }
+
+    @Override
+    public String toString() {
+        return "{" +
+                "roomId=" + roomId +
+                ", playerId=" + playerId +
+                '}';
+    }
 }

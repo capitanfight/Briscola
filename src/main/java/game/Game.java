@@ -1,6 +1,5 @@
 package game;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -10,7 +9,7 @@ public class Game {
 
     private final Long id;
 
-    protected final CopyOnWriteArrayList<Player> players;
+    private final CopyOnWriteArrayList<Player> players;
 
     private final Card[] deck;
     private Card[] board;
@@ -125,6 +124,10 @@ public class Game {
         return getPlayer(id).isPresent();
     }
 
+    public boolean isEmpty() {
+        return players.isEmpty();
+    }
+
     /**
      * Initialize the remaining variables and start the game.
      * @throws RuntimeException If players size is not 2 or 4.
@@ -201,7 +204,7 @@ public class Game {
             firsPlayer = players.indexOf(turnWinner);
             turn = firsPlayer;
 
-            drawCards();
+            drawCard();
         } else
             end();
     }
@@ -210,6 +213,18 @@ public class Game {
      * Make the player draw new cards.
      */
     private void drawCards() {
+        for (Player player : players) {
+            for (int i = 0; i < player.getHand().length; i++) {
+                player.drawCard(deck[cardIdx]);
+                cardIdx++;
+            }
+        }
+    }
+
+    /**
+     * Make the player draw new card.
+     */
+    private void drawCard() {
         for (Player player : players) {
             player.drawCard(deck[cardIdx]);
             cardIdx++;
@@ -266,7 +281,9 @@ public class Game {
     }
 
     public long getTurnPlayerId() {
-        return players.get(turn).getId();
+        if (!players.isEmpty())
+            return players.get(turn).getId();
+        return -1;
     }
 
     public Card[] getBoard() {
@@ -289,6 +306,10 @@ public class Game {
         return players.size();
     }
 
+    public CopyOnWriteArrayList<Player> getPlayers() {
+        return players;
+    }
+
     /**
      * Get the number that represent the winning team/player.
      * @return Number that represent the winning team/player or -1 if the game is not over.
@@ -299,7 +320,7 @@ public class Game {
 
     @Override
     public String toString() {
-        return "Game{" +
+        return "Game{\n" +
                 "players=" + players + '\n' +
                 "deck=" + Arrays.toString(deck) + '\n' +
                 "board=" + Arrays.toString(board) + '\n' +

@@ -53,10 +53,9 @@ public class Room extends Game {
 
     @Override
     public String toString() {
-        return "Room{" +
-                "name='" + name + '\'' +
-                ", isPlayerReady=" + isPlayerReady +
-                ", players=" + players +
-                "} " + super.toString();
+        return "Room{" + '\n' +
+                "name='" + name + "'\n" +
+                "isPlayerReady=" + isPlayerReady + "\n\n" +
+                super.toString() + "\n}";
     }
 }

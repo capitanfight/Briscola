@@ -22,6 +22,11 @@ public class RoomService {
         return roomLocalRepository.getAll();
     }
 
+    public void rmvRooms() {
+        for (Room room : getAllRooms())
+            roomLocalRepository.remove(room.getId());
+    }
+
     public Room getRoomById(long roomId) {
         return roomLocalRepository.getRoomById(roomId);
     }
@@ -50,6 +55,9 @@ public class RoomService {
     public void rmvPlayer(Token token) {
         checkForTokenValidity(token);
         roomLocalRepository.getRoomById(token.getRoomId()).removePlayer(token.getPlayerId());
+
+        if (roomLocalRepository.getRoomById(token.getRoomId()).isEmpty())
+            roomLocalRepository.remove(token.getRoomId());
     }
 
     public void setPlayerReady(Token token, boolean ready) throws RuntimeException {

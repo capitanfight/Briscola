@@ -26,7 +26,18 @@ public class RoomLocalRepository {
         rooms.put(room.getId(), room);
     }
 
+    public void remove(long id) {
+        rooms.remove(id);
+    }
+
     public boolean existsById(long id) {
         return rooms.containsKey(id);
+    }
+
+    @Override
+    public String toString() {
+        return "RoomLocalRepository{" +
+                "rooms=" + rooms +
+                '}';
     }
 }

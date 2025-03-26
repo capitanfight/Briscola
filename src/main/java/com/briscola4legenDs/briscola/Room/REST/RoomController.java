@@ -10,7 +10,10 @@ import java.util.Collection;
 
 @RestController
 @RequestMapping(path = "api/room")
+@CrossOrigin(origins = "*")
 public class RoomController {
+    // TODO: cambiare il token facendolo diventare un singolo hash che verra' salvato nel db insieme a roomId e playerId
+
     private final RoomService roomService;
 
     @Autowired
@@ -21,6 +24,11 @@ public class RoomController {
     @GetMapping
     public Collection<Room> getAllRooms() {
         return roomService.getAllRooms();
+    }
+
+    @DeleteMapping
+    public void removeAllRooms() {
+        roomService.rmvRooms();
     }
 
     @GetMapping(path = "{id:\\d+}")
@@ -58,9 +66,9 @@ public class RoomController {
         return roomService.getBriscolaCard(id);
     }
 
-    @GetMapping(path = "player/hand")
-    public Card[] getPlayerHand(@RequestBody Token token) {
-        return roomService.getHand(token);
+    @GetMapping(path = "{roomId:\\d+}/player/{playerId:\\d+}/hand")
+    public Card[] getPlayerHand(@PathVariable long roomId, @PathVariable long playerId) {
+        return roomService.getHand(new Token(roomId, playerId));
     }
 
     @GetMapping(path = "{id:\\d+}/turn/id")
