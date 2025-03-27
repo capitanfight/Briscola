@@ -38,6 +38,7 @@ public class Player {
             if (card.equals(hand[i])) {
                 hand[i] = null;
                 found = true;
+                break;
             }
         }
 
@@ -119,6 +120,15 @@ public class Player {
      */
     public void clearCollectedCards() {
         collectedCards.clear();
+    }
+
+    public boolean isHandEmpty() {
+        boolean res = true;
+
+        for (Card c: hand)
+            res = res && c == null;
+
+        return res;
     }
 
     public Long getId() {

@@ -10,7 +10,6 @@ import java.util.Collection;
 
 @RestController
 @RequestMapping(path = "api/room")
-@CrossOrigin(origins = "*")
 public class RoomController {
     // TODO: cambiare il token facendolo diventare un singolo hash che verra' salvato nel db insieme a roomId e playerId
 
@@ -89,5 +88,15 @@ public class RoomController {
     @GetMapping(path = "{id:\\d+}/gameOver")
     public boolean isGameOver(@PathVariable long id) {
         return roomService.isGameOver(id);
+    }
+
+    @GetMapping(path = "{id:\\d+}/winner")
+    public long[] getWinner(@PathVariable long id) {
+        return roomService.getWinner(id);
+    }
+
+    @GetMapping(path = "{id:\\d+}/points")
+    public int[] getPoints(@PathVariable long id) {
+        return roomService.getPoints(id);
     }
 }

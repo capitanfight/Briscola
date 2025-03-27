@@ -67,7 +67,8 @@ public class Card {
 
     public static Card getWinningCard(Card card1, Card card2) {
         return card1.getSuit() == card2.getSuit() ?
-                (card1.getValue().isCountedForPoints() && card2.getValue().isCountedForPoints()) ?
+                ((card1.getValue().isCountedForPoints() && card2.getValue().isCountedForPoints())
+                        || !(card1.getValue().isCountedForPoints() || card2.getValue().isCountedForPoints())) ?
                         (card1.getValue().getValue() > card2.getValue().getValue() ? card1 : card2) :
                         (card1.getValue().isCountedForPoints()) ?
                             card1 :

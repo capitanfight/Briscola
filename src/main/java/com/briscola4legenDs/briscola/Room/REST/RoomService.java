@@ -107,6 +107,16 @@ public class RoomService {
         return roomLocalRepository.getRoomById(gameId).isGameOver();
     }
 
+    public long[] getWinner(long gameId) {
+        checkForRoomIdValidity(gameId);
+        return roomLocalRepository.getRoomById(gameId).getWinner();
+    }
+
+    public int[] getPoints(long gameId) {
+        checkForRoomIdValidity(gameId);
+        return roomLocalRepository.getRoomById(gameId).getPoints();
+    }
+
     private boolean checkIfGameCanStart(long gameId) {
         checkForRoomIdValidity(gameId);
 

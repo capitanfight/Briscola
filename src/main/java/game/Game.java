@@ -1,5 +1,8 @@
 package game;
 
+import lombok.Getter;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -23,6 +26,7 @@ public class Game {
     private boolean gameOver;
 
     private int winner;
+    private int[] points;
 
     /**
      * Constructor for class game.
@@ -174,8 +178,8 @@ public class Game {
      */
     private void shuffleDeck() {
         for (int nOfShuffles = 0; nOfShuffles < nOfCardShuffle; nOfShuffles++) {
-            for (int cards = 0; cards < deck.length; cards++) {
-                int idx = (int) Math.floor(Math.random() * (deck.length - cards) + cards);
+            for (int cards = 0; cards < deck.length - 1; cards++) {
+                int idx = (int) Math.floor(Math.random() * (deck.length - cards - 1) + cards + 1);
 
                 Card temp = deck[cards];
                 deck[cards] = deck[idx];
@@ -195,16 +199,20 @@ public class Game {
      * Update the turn.
      */
     private void newTurn() {
-        if (cardIdx != deck.length) {
-            Player turnWinner = getTurnWinner();
+        boolean allHandEmpty = true;
+        for (Player p : players)
+            allHandEmpty = allHandEmpty && p.isHandEmpty();
 
-            turnWinner.collectCard(board);
-            clearBoard();
 
+        Player turnWinner = getTurnWinner();
+
+        turnWinner.collectCard(board);
+        clearBoard();
+        if (!allHandEmpty) {
             firsPlayer = players.indexOf(turnWinner);
             turn = firsPlayer;
-
-            drawCard();
+            if (cardIdx != deck.length)
+                drawCard();
         } else
             end();
     }
@@ -244,7 +252,7 @@ public class Game {
     private void end() {
         gameOver = true;
 
-        int[] points = new int[] {0, 0};
+        points = new int[] {0, 0};
         for (int i = 0; i < players.size(); i++) {
             points[i % 2] += players.get(i).countPoints();
         }
@@ -254,10 +262,10 @@ public class Game {
 
     private Player getTurnWinner() {
         Card winningCard = board[firsPlayer];
-        int idx = 0;
+        int idx = firsPlayer;
 
         for (int i = 0; i < board.length; i++) {
-            Card card = board[idx];
+            Card card = board[i];
 
             if (card == null)
                 throw new RuntimeException("Cannot get the turn winner because the turn is not over");
@@ -270,10 +278,14 @@ public class Game {
 
                 idx = winner.equals(card) ? i : idx;
                 winningCard = winner;
-            }
-            else if (card.getSuit() == briscola) {
-                winningCard = card;
+            } else if (card.getSuit() == briscola) {
                 idx = i;
+                winningCard = card;
+            } else {
+                Card winner = Card.getWinningCard(winningCard, card);
+
+                idx = winner.equals(card) ? i : idx;
+                winningCard = winner;
             }
         }
 
@@ -306,16 +318,25 @@ public class Game {
         return players.size();
     }
 
-    public CopyOnWriteArrayList<Player> getPlayers() {
-        return players;
-    }
+//    public CopyOnWriteArrayList<Player> getPlayers() {
+//        return players;
+//    }
 
     /**
      * Get the number that represent the winning team/player.
      * @return Number that represent the winning team/player or -1 if the game is not over.
      */
-    public int getWinner() {
-        return gameOver ? -1 : winner;
+    public long[] getWinner() {
+        long[] winnerTeam = new long[players.size()/2];
+
+        for (int i = winner; i < players.size(); i += 2)
+            winnerTeam[i / 2] = players.get(i).getId();
+
+        return gameOver ? winnerTeam : null;
+    }
+
+    public int[] getPoints() {
+        return points;
     }
 
     @Override
