@@ -14,7 +14,7 @@ public class RoomLocalRepository {
         rooms = new ConcurrentHashMap<>();
     }
 
-    public Collection<Room> getAll() {
+    public Collection<Room> getAllRooms() {
         return rooms.values();
     }
 

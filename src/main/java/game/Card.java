@@ -53,18 +53,12 @@ public class Card {
         this.value = Value.valueOf(value);
     }
 
-//    /**
-//     * Constructor for class card.
-//     * @param suit The suit of the card.
-//     * @param value The value if the card.
-//     * @see Suit
-//     * @see Value
-//     */
-//    public Card(Suit suit, Value value) {
-//        this.suit = suit;
-//        this.value = value;
-//    }
-
+    /**
+     * Return the winning card between the two, disregarding the suit of the briscola.
+     * @param card1 First played card.
+     * @param card2 Last played card.
+     * @return Winning card.
+     */
     public static Card getWinningCard(Card card1, Card card2) {
         return card1.getSuit() == card2.getSuit() ?
                 ((card1.getValue().isCountedForPoints() && card2.getValue().isCountedForPoints())

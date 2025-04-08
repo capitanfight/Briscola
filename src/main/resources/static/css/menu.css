@@ -1,0 +1,208 @@
+*{
+    box-sizing: border-box;
+    /*border: 2px solid black;*/
+}
+
+body{
+    margin: 0;
+    height: 200vh;
+}
+
+/*prima immagine con tavolo*/
+.bgImg{
+    width: 100%;
+    height: auto;
+
+}
+
+/*rendere l' immagine più scura*/
+#darkerImg{
+    filter: brightness(50%);
+}
+
+/*menu*/ 
+#menu-page, #menu{
+    display: flex;
+    width: 100%;
+    justify-content: center;
+}
+
+/*intera pagina del menu*/
+#menu-page{  
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+    background-color: #043920;
+    transition: transform 0.5s ease-in-out;
+}
+
+/*parte alta della pagina*/
+#menu{
+    padding: 0;
+}
+
+/*voci di navigazione*/
+.menu{
+    display: flex;  
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 100%;
+    text-align: center;
+    line-height: 150px;
+    padding: 20px;
+    margin: 60px;
+}
+
+.menu img{
+    width: 50px;
+    height: auto;
+    vertical-align: middle;
+}
+
+/*logo briscola4legenDs*/
+#logo{
+    height: 100px!important;
+    width: auto!important;
+}
+
+/*voci di navigazione*/
+a{
+    text-decoration: none;
+    color: #c28c46;
+    font-weight: bold;
+    transition: color 0.3s ease, transform 0.2s ease;
+}
+
+a:hover{
+    color:#520000;
+    transform: scale(1.1);
+}
+
+
+/*decorazioni nella parte alta del menu*/
+#decorations{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/*immagine decorazione parte alta*/
+#decorations img{
+    width: 100%;
+    height: 250px;
+}
+
+/*parte bassa del menu*/
+#content{
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px;
+}
+
+/*contenuto della parte bassa*/
+.content-card{
+    flex: 1;
+    text-align: center;
+    position: relative;
+    display: inline-block;
+}
+
+/*immagine che inserisce un frame*/
+.frame{
+    height: 500px;
+    width: 500px;
+    display: block;
+}
+
+.content-card img{
+    width: 100%;
+}
+
+/*logo carte*/
+#logoDalNegro{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+#logoDalNegro img{
+    height: 300px;
+    width: auto;
+}
+
+/*tutto ciò che si trova scritto all'interno delle content-cards*/
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+}
+
+.overlay h1, 
+.overlay p, 
+.overlay button {
+    z-index: 2; 
+}
+
+.overlay p{
+    color: #c28c46;
+}
+
+.overlay h1{
+    color: #520000;
+    font-size: 70px;
+}
+
+/*pulsanti*/
+button {
+    background-color: #520000;
+    color: #c28c46;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    margin-top: 10px;
+    border-radius: 10px;
+    box-shadow: 7px 7px 10px rgba(0, 0, 0, 0.7);
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+button:hover{
+    background-color: #3c0202;
+    transform: scale(1.1);
+}
+
+#new-game{
+    height: 80px;
+    width: 150px;
+    border-radius: 30px;
+    font-weight: bold;
+    background-color: #8b0101;
+}
+/*animazioni*/
+
+/*il contenuto compare gradualmente quando carico la pagina*/
+#menu-page, #content {
+    opacity: 0;
+    transform: translateY(-20px);
+    animation: fadeIn 1s ease-out forwards;
+}
+
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+

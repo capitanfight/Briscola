@@ -1,5 +1,7 @@
 package com.briscola4legenDs.briscola.Room;
 
+import java.util.Objects;
+
 public class Token {
     private final Long roomId;
     private final Long playerId;
@@ -27,6 +29,18 @@ public class Token {
 
     public Long getPlayerId() {
         return playerId;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Token token)) return false;
+        return Objects.equals(getRoomId(), token.getRoomId()) && Objects.equals(getPlayerId(), token.getPlayerId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getRoomId(), getPlayerId());
     }
 
     @Override

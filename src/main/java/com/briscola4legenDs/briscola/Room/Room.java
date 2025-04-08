@@ -47,6 +47,20 @@ public class Room extends Game {
         isPlayerReady.remove(idx);
     }
 
+//    public long[] getPlayersIds() {
+//        CopyOnWriteArrayList<Player> players = getPlayers();
+//        long[] ids = new long[players.size()];
+//
+//        for (int i = 0; i < players.size(); i++)
+//            ids[i] = players.get(i).getId();
+//
+//        return ids;
+//    }
+
+    public CopyOnWriteArrayList<Boolean> getIsPlayerReady() {
+        return isPlayerReady;
+    }
+
     public String getName() {
         return name;
     }

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="it" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Briscola4legenDs - menu</title>
+        <link rel="stylesheet" href="css/menu.css">
+    </head>
+    <body>
+        
+        <div class="background">
+            <img class="bgImg" id="darkerImg" src="img/background 1st page.png" alt="background image">
+        </div>
+
+        <div id="menu-page">
+            <div id="menu">
+                <div class="menu">
+                    <img id="logo" src="img/logo.png" alt="logo">
+<!--                    <a href="login.html">ACCOUNT</a>-->
+                    <a href=""><img src="img/podiumIcon.png" alt="podium"></a>
+                </div>
+                <div id="decorations">
+                    <img src="img/menuDecorations1.png" alt="">
+                </div>
+                <div class="menu">
+                    <a href="">SIMULAZIONE</a>
+                    <a href="">FAQ</a>
+                    <a th:href="@{/settings}"><img src="img/settingsIcon.png" alt="settings"></a>
+                </div>
+            </div>
+
+            <div id="content">
+                <div class="content-card">
+                    <img class="frame" src="img/frame.png" alt="frame">
+                    <div class="overlay">
+                        <h1>Storia</h1>
+                        <p>Questo è un paragrafo</p>
+                        <button>Scopri di più</button>
+                    </div>
+                </div>
+                <div class="content-card">
+                    <img id="title" src="img/title.png" alt="title">
+                    <div id="logoDalNegro">
+                        <img src="img/logoDalNegro.png" alt="logo Dal Negro">
+                    </div>
+                        <a th:href="@{/startGame}">
+                            <button id="new-game">INIZIA UNA NUOVA <br> PARTITA</button>
+                        </a>
+                </div>
+                <div class="content-card">
+                    <img class="frame" src="img/frame.png" alt="frame">
+                    <div class="overlay">
+                        <h1>Regole</h1>
+                        <p>Questo è un paragrafo</p>
+                        <button>Scopri di più</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script src="js/menu.js"></script>
+    </body>
+</html>

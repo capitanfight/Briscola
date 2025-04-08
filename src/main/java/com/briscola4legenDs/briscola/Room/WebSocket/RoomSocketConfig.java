@@ -10,6 +10,6 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 public class RoomSocketConfig implements WebSocketConfigurer {
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(new RoomSocketHandler(), "/room");
+        registry.addHandler(new RoomSocketHandler(), "/room").setAllowedOrigins("*");
     }
 }

@@ -1,5 +1,6 @@
 package com.briscola4legenDs.briscola.Room.REST;
 
+import com.briscola4legenDs.briscola.Assets.RESTInfo;
 import com.briscola4legenDs.briscola.Room.Room;
 import com.briscola4legenDs.briscola.Room.Token;
 import game.Card;
@@ -98,5 +99,121 @@ public class RoomController {
     @GetMapping(path = "{id:\\d+}/points")
     public int[] getPoints(@PathVariable long id) {
         return roomService.getPoints(id);
+    }
+
+    @GetMapping(path = "info")
+    public RESTInfo[] getInfo() {
+        return new RESTInfo[] {
+                new RESTInfo(
+                        "api/room",
+                        "GET",
+                        "GetAll(): Collection<Room>",
+                        "Get all the rooms."
+                        ),
+                new RESTInfo(
+                        "api/room",
+                        "DELETE",
+                        "removeAllRooms(): void",
+                        "Remove all the available rooms."
+                ),
+                new RESTInfo(
+                        "api/room/{id}",
+                        "GET",
+                        "getRoomById(id): Room",
+                        "Id: long -> The id of the room",
+                        "Get the room with the specified ID."
+                ),
+                new RESTInfo(
+                        "api/room/{id}/name",
+                        "GET",
+                        "getName(id): String",
+                        "Id: long -> The id of the room",
+                        "Get the name of the room with the specified ID."
+                ),
+                new RESTInfo(
+                        "api/room/{name}",
+                        "GET",
+                        "createRoom(name): long",
+                        "Name: String -> The name of the new room",
+                        "Generate a new room and return the id."
+                ),
+                new RESTInfo(
+                        "api/room/player",
+                        "POST",
+                        "addPlayer(token): void",
+                        "body: { roomId: long -> The id of the room, playerId: long -> The id of the player }",
+                        "Add the player to the desired room."
+                ),
+                new RESTInfo(
+                        "api/room/player",
+                        "REMOVE",
+                        "removePlayer(token): void",
+                        "body: { roomId: long -> The id of the room, playerId: long -> The id of the player }",
+                        "Add the player to the desired room."
+                ),
+                new RESTInfo(
+                        "api/room/player/{state}",
+                        "PUT",
+                        "setPlayerReady(token, state): void",
+                        "body: { roomId: long -> The id of the room, playerId: long -> The id of the player }, state: boolean -> If the player is ready or not",
+                        "Set the status of the player."
+                ),
+                new RESTInfo(
+                        "api/room/{id}/briscola",
+                        "GET",
+                        "getBriscolaCard(id): Card",
+                        "Id: long -> The id of the room",
+                        "Get the briscola card of the specified room."
+                ),
+                new RESTInfo(
+                        "api/room/{roomId}/player/{playerId}/hand",
+                        "GET",
+                        "getPlayerHand(roomId, playerId): Card[]",
+                        "roomId: long -> The id of the room, playerId: long -> The id of the player",
+                        "Get the hand of the specified player in the specified room."
+                ),
+                new RESTInfo(
+                        "api/room/{id}/turn/id",
+                        "GET",
+                        "getTurnPlayerId(id): long",
+                        "Id: long -> The id of the room",
+                        "Get the if of the player who is about to play."
+                ),
+                new RESTInfo(
+                        "api/room/{id}/playCard",
+                        "POST",
+                        "playCard(id, card): void",
+                        "Id: long -> The id of the room, body: { suit: String -> Suit of the card, value: String -> Value of the card}",
+                        "Play the specified card."
+                ),
+                new RESTInfo(
+                        "api/room/{id}/turn/id",
+                        "GET",
+                        "getBoard(id): Card[]",
+                        "Id: long -> The id of the room",
+                        "Get the if of the player who is about to play."
+                ),
+                new RESTInfo(
+                        "api/room/{id}/gameOver",
+                        "GET",
+                        "isGameOver(id): boolean",
+                        "Id: long -> The id of the room",
+                        "Get if the game is over."
+                ),
+                new RESTInfo(
+                        "api/room/{id}/winner",
+                        "GET",
+                        "getWinner(id): long[]",
+                        "Id: long -> The id of the room",
+                        "Get the player/team of winner/s."
+                ),
+                new RESTInfo(
+                        "api/room/{id}/points",
+                        "GET",
+                        "getPoints(id): int[]",
+                        "Id: long -> The id of the room",
+                        "Get points of each team."
+                )
+        };
     }
 }

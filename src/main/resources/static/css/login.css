@@ -1,0 +1,87 @@
+body {
+    background-color: #0B3D0B; /* Verde scuro */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+.container {
+    background-color: #800000; /* Rosso scuro */
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    color: #FFD700; /* Oro */
+    width: 300px;
+    border: 2px solid #FFD700;
+}
+
+.container h2 {
+    margin: 0;
+    padding: 10px;
+    background-color: #660000;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+.input-group {
+    margin: 15px 0;
+    text-align: left;
+}
+
+.input-group label {
+    font-weight: bold;
+    display: block;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 8px;
+    border: none;
+    border-radius: 5px;
+    background-color: #550000;
+    color: white;
+}
+
+.input-group input:focus {
+    outline: none;
+    border: 2px solid #FFD700;
+}
+
+.button {
+    background-color: #550000;
+    color: #FFD700;
+    border: 2px solid #FFD700;
+    padding: 10px;
+    width: 100%;
+    cursor: pointer;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+.button:hover {
+    background-color: #660000;
+}
+
+.register-link {
+    margin-top: 10px;
+    font-size: 12px;
+    color: #FFD700;
+}
+
+.register-link a {
+    color: #FFD700;
+    text-decoration: none;
+    font-weight: bold;
+    border: 1px solid #FFD700;
+    padding: 3px;
+    border-radius: 3px;
+}
+
+.register-link a:hover {
+    background-color: #FFD700;
+    color: #550000;
+}

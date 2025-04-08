@@ -122,6 +122,10 @@ public class Player {
         collectedCards.clear();
     }
 
+    /**
+     * Check if the hand is empty.
+     * @return True if the hand is empty, otherwise false.
+     */
     public boolean isHandEmpty() {
         boolean res = true;
 
@@ -137,22 +141,6 @@ public class Player {
 
     public Card[] getHand() {
         return hand;
-    }
-
-    public CopyOnWriteArrayList<Card> getCollectedCards() {
-        return collectedCards;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Player player)) return false;
-        return Objects.equals(getId(), player.getId());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(getId());
     }
 
     @Override

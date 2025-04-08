@@ -1,0 +1,84 @@
+*{
+    border: 2px solid black;
+    box-sizing: border-box;
+}
+
+body{
+    margin: 0;
+    height: 100vh;
+}
+
+#new-game{
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    gap: 10px;
+    padding: 20px;
+    background-color:  #043920;
+    flex: 1; /*l'elemento occupa tutto lo spazio disponibile*/
+    height: 100%;
+    margin: 0;
+}
+
+/*parte info utente*/
+#left{
+    width: 40%;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+}
+
+#userPic{
+    height: 150px;
+    width: 150px;
+}
+
+#user-id{
+    display: flex;
+    align-items: center;
+    height: 50px;
+    width: 200px;
+    border-radius: 20px;
+    padding: 5px;
+    border: 3px solid #c28c46;
+}
+
+
+#right{
+    width: 60%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+}
+
+#back{
+    align-self: flex-end;
+}
+
+#back button {
+    display: block;
+    background-color: #520000;
+    color: #c28c46;
+    border: 2px solid #c28c46;
+    padding: 10px 20px;
+    cursor: pointer;
+    margin-top: 10px;
+    border-radius: 10px;
+    box-shadow: 7px 7px 10px rgba(0, 0, 0, 0.7);
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+button:hover{
+    background-color: #3c0202;
+    transform: scale(1.1);
+}
+
+#friend-box{
+    background-color: white;
+    width: 80%;
+    height: 70%;
+}

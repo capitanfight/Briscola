@@ -1,23 +1,30 @@
 package com.briscola4legenDs.briscola.Room.WebSocket;
 
-import jakarta.persistence.Entity;
+import com.briscola4legenDs.briscola.Room.REST.RoomService;
+import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
-import org.springframework.web.socket.WebSocketMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
+
+import org.json.*;
 
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+@Component
 public class RoomSocketHandler extends TextWebSocketHandler {
+    private RoomService rs;
+
     private static final ConcurrentHashMap<Long, WebSocketSession> sessions = new ConcurrentHashMap<>();
     private static final CopyOnWriteArrayList<WebSocketSession> sessionsWithoutId = new CopyOnWriteArrayList<>();
 
-    enum Code {
-        SET_ID
+    public enum Code {
+        SET_ID,
+        GET_PLAYERS_INSIDE,
+        GET_READY_PLAYERS,
     }
 
     @Override
@@ -27,25 +34,37 @@ public class RoomSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
-        if (sessions.contains(session))
+        if (sessions.contains(session)) {
+            rs.rmvPlayer(getId(session));
             sessions.remove(findId(session));
+        }
         else if (sessionsWithoutId.contains(session))
             sessionsWithoutId.remove(session);
     }
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-        // code;payload
+        JSONObject messageJson = new JSONObject(message.getPayload());
 
-        Code code = Code.values()[Integer.parseInt(message.getPayload().split(";")[0])];
-        String payload = message.getPayload().split(";")[1];
+        Code code = Code.valueOf(messageJson.getString("code"));
+        JSONObject payload = messageJson.getJSONObject("payload");
 
         switch (code) {
             case SET_ID -> {
                 sessionsWithoutId.remove(session);
-                sessions.put(Long.parseLong(payload), session);
+                sessions.put(payload.getLong("id"), session);
             }
+        }
+    }
 
+    public void multicastMessage(Long[] ids, String message) throws IOException {
+        for (long id : ids) {
+            if (!sessions.containsKey(id))
+                throw new IOException("Session " + id + " not found");
+
+            WebSocketSession session = sessions.get(id);
+            if (session.isOpen())
+                session.sendMessage(new TextMessage(message));
         }
     }
 
@@ -53,6 +72,18 @@ public class RoomSocketHandler extends TextWebSocketHandler {
         for (WebSocketSession session : sessions.values())
             if (session.isOpen())
                 session.sendMessage(new TextMessage(message));
+    }
+
+    public void setRoomService(RoomService rs) {
+        this.rs = rs;
+    }
+
+    private long getId(WebSocketSession session) {
+        long id = -1;
+        for (Map.Entry<Long, WebSocketSession> set : sessions.entrySet())
+            if (set.getValue().getId().equals(session.getId()))
+                id = set.getKey();
+        return id;
     }
 
     private long findId(WebSocketSession session) {

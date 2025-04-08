@@ -1,12 +1,12 @@
 package game;
 
-import lombok.Getter;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Game {
     private static final int nOfCardShuffle = 10;
 
@@ -24,6 +24,7 @@ public class Game {
     private int cardIdx;
 
     private boolean gameOver;
+    private boolean isGameStarted;
 
     private int winner;
     private int[] points;
@@ -39,7 +40,8 @@ public class Game {
         this.id = id;
 
         players = new CopyOnWriteArrayList<>();
-        gameOver = true;
+        gameOver = false;
+        isGameStarted = false;
 
         deck = new Card[40];
 
@@ -58,7 +60,7 @@ public class Game {
     public void addPlayer(Player player) throws IllegalArgumentException {
         if (player == null)
             throw new IllegalArgumentException("Player cannot be null");
-        if (!isGameOver())
+        if (isGameStarted && !isGameOver())
             throw new RuntimeException("Cannot add player while the game is running");
         if (players.contains(player))
             throw new IllegalArgumentException("Cannot add the same player 2 times");
@@ -73,7 +75,7 @@ public class Game {
     public void removePlayer(Long id) throws IllegalArgumentException {
         if (id == null || id <= 0)
             throw new IllegalArgumentException("Player id cannot be null, negative or zero");
-        if (!isGameOver())
+        if (isGameStarted && !isGameOver())
             throw new RuntimeException("Cannot remove player while the game is running");
 
         Optional<Player> playerToRemove = getPlayer(id);
@@ -128,6 +130,10 @@ public class Game {
         return getPlayer(id).isPresent();
     }
 
+    /**
+     * Check if there are no players in the game.
+     * @return True if there are no players, otherwise false.
+     */
     public boolean isEmpty() {
         return players.isEmpty();
     }
@@ -140,7 +146,7 @@ public class Game {
         if (players.size() != 2 && players.size() != 4)
             throw new RuntimeException("Invalid number of players");
 
-        gameOver = false;
+        isGameStarted = true;
         cardIdx = 0;
 
         turn = (int) Math.floor(Math.random() * players.size());
@@ -162,7 +168,7 @@ public class Game {
     public void playCard(Card card) throws IllegalArgumentException, RuntimeException {
         if (card == null)
             throw new IllegalArgumentException("Card cannot be null");
-        if (gameOver)
+        if (gameOver || !isGameStarted)
             throw new RuntimeException("Game over");
 
         players.get(turn).playCard(card);
@@ -202,7 +208,6 @@ public class Game {
         boolean allHandEmpty = true;
         for (Player p : players)
             allHandEmpty = allHandEmpty && p.isHandEmpty();
-
 
         Player turnWinner = getTurnWinner();
 
@@ -260,6 +265,10 @@ public class Game {
         winner = points[0] > points[1] ? 0 : 1;
     }
 
+    /**
+     * Get the player who won the turn.
+     * @return Winning player.
+     */
     private Player getTurnWinner() {
         Card winningCard = board[firsPlayer];
         int idx = firsPlayer;
@@ -292,10 +301,30 @@ public class Game {
         return players.get(idx);
     }
 
-    public long getTurnPlayerId() {
-        if (!players.isEmpty())
-            return players.get(turn).getId();
-        return -1;
+    /**
+     * Get the player id of the player who is about to play.
+     * @return Player id of the player who is about to play
+     */
+    public Long getTurnPlayerId() {
+        if (players.isEmpty() || !isGameStarted)
+            return null;
+        return players.get(turn).getId();
+    }
+
+    /**
+     * Get the number/s that represent the winning team/player.
+     * @return Number/s that represent the winning team/player or -1 if the game is not over.
+     */
+    public long[] getWinner() {
+        long[] winnerTeam = new long[players.size()/2];
+
+        if (!isGameStarted || gameOver)
+            return null;
+
+        for (int i = winner; i < players.size(); i += 2)
+            winnerTeam[i / 2] = players.get(i).getId();
+
+        return gameOver || !isGameStarted ? winnerTeam : null;
     }
 
     public Card[] getBoard() {
@@ -318,25 +347,16 @@ public class Game {
         return players.size();
     }
 
-//    public CopyOnWriteArrayList<Player> getPlayers() {
-//        return players;
-//    }
-
-    /**
-     * Get the number that represent the winning team/player.
-     * @return Number that represent the winning team/player or -1 if the game is not over.
-     */
-    public long[] getWinner() {
-        long[] winnerTeam = new long[players.size()/2];
-
-        for (int i = winner; i < players.size(); i += 2)
-            winnerTeam[i / 2] = players.get(i).getId();
-
-        return gameOver ? winnerTeam : null;
-    }
-
     public int[] getPoints() {
         return points;
+    }
+
+    public boolean isGameStarted() {
+        return isGameStarted;
+    }
+
+    public CopyOnWriteArrayList<Player> getPlayers() {
+        return players;
     }
 
     @Override
