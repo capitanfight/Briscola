@@ -1,7 +1,5 @@
 package com.briscola4legenDs.briscola.Assets;
 
-import jakarta.persistence.criteria.CriteriaBuilder;
-
 import java.util.HashMap;
 
 public class PayloadBuilder {

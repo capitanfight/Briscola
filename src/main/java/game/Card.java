@@ -1,7 +1,5 @@
 package game;
 
-import lombok.Builder;
-
 import java.util.Objects;
 
 public class Card {

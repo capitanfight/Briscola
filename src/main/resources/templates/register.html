@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="it" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register Page</title>
+  <link rel="stylesheet" href="/css/login.css">
+</head>
+<body>
+<div class="container">
+  <h2>REGISTER</h2>
+  <form th:action="@{api/user/register}" method="POST">
+    <div class="input-group">
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" required>
+    </div>
+    <div class="input-group">
+      <label for="username">Username</label>
+      <input type="text" id="username" name="username" required>
+    </div>
+    <div class="input-group">
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" required>
+    </div>
+    <button type="submit" class="button">AVANTI</button>
+  </form>
+  <div class="register-link">
+    <p>Hai un account? <a th:href="@{/login}">Log in</a></p>
+  </div>
+</div>
+
+<div th:if="${param.EmailAlreadyTaken}" class="msg error">
+   Email already taken.
+</div>
+<div th:if="${param.UsernameAlreadyTaken}" class="msg">
+  Username already taken.
+</div>
+<div th:if="${param.success}" id="register-msg" class="msg info">
+  You have been registered successfully.
+</div>
+</body>
+</html>
