@@ -1,0 +1,62 @@
+.container {
+    height: clamp(400px, 50%, 500px);
+}
+
+.hide {
+    display: none !important;
+}
+
+#submit-pair {
+    margin-top: 60px;
+
+    display: flex;
+    justify-content: space-between;
+}
+
+.button {
+    margin: 5px;
+}
+
+#profile-picture-list {
+    list-style: none;
+
+    display: flex;
+    justify-content: space-between;
+
+    padding: 0;
+}
+
+.img-container {
+    height: 100px;
+    width: 100px;
+
+    border-radius: 50%;
+    border: 3px solid #d6bd40;
+
+    overflow: hidden;
+}
+
+.img-container > img {
+    transform: translate(-3px, -3px);
+
+    height: inherit;
+    width: inherit;
+}
+
+.bigger {
+    width: clamp(525px, 50%, 600px);
+}
+
+.checklist-button-like {
+    padding: 10px;
+    border-radius: 20px;
+    border: 3px solid transparent;
+}
+
+.checklist-button-like:hover {
+    background-color: #520000;
+}
+
+.checklist-button-like.active {
+    border: 3px solid #0d5300;
+}

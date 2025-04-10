@@ -3,7 +3,7 @@
 }
 
 body {
-    background-color: #0B3D0B; /* Verde scuro */
+    background-color: #043920; /* Verde scuro */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -19,8 +19,14 @@ body {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
     text-align: center;
     color: #FFD700; /* Oro */
-    width: 300px;
     border: 2px solid #FFD700;
+
+    width: clamp(300px, 50%, 400px);
+    height: clamp(312px, 50%, 400px);
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 .container h2 {
@@ -64,6 +70,8 @@ body {
     cursor: pointer;
     border-radius: 5px;
     font-weight: bold;
+
+    margin-top: min(10vh, 30px);
 }
 
 .button:hover {

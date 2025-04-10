@@ -5,34 +5,75 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Register Page</title>
   <link rel="stylesheet" href="/css/login.css">
+  <link rel="stylesheet" href="/css/register.css">
+  <script src="/js/register.js" defer></script>
 </head>
 <body>
-<div class="container">
+<div class="container" id="main-container">
   <h2>REGISTER</h2>
-  <form th:action="@{api/user/register}" method="POST">
-    <div class="input-group">
+
+  <form th:action="@{api/auth/register}" method="POST" id="register-form" onkeydown="return event.key != 'Enter';">
+    <div class="input-group first">
       <label for="email">Email</label>
       <input type="email" id="email" name="email" required>
     </div>
-    <div class="input-group">
+    <div class="input-group first">
       <label for="username">Username</label>
       <input type="text" id="username" name="username" required>
     </div>
-    <div class="input-group">
+    <div class="input-group first">
       <label for="password">Password</label>
       <input type="password" id="password" name="password" required>
     </div>
-    <button type="submit" class="button">AVANTI</button>
+
+    <div class="input-group second hide">
+      <ul id="profile-picture-list">
+        <li class="checklist-button-like active">
+          <div class="img-container">
+            <img src="/img/ProfilePictures/TestImg.jpg" alt="Profile pic">
+          </div>
+        </li>
+        <li class="checklist-button-like">
+          <div class="img-container">
+            <img src="/img/ProfilePictures/china_town.png" alt="Profile pic">
+          </div>
+        </li>
+        <li class="checklist-button-like">
+          <div class="img-container">
+            <img src="/img/ProfilePictures/interstellar.png" alt="Profile pic">
+          </div>
+        </li>
+        <li class="checklist-button-like">
+          <div class="img-container">
+            <img src="/img/ProfilePictures/tree.png" alt="Profile pic">
+          </div>
+        </li>
+      </ul>
+      <div class="hide">
+        <input type="radio" name="imgUrl" class="correlated-check-btn" value="TestImg.jpg" checked>
+        <input type="radio" name="imgUrl" class="correlated-check-btn" value="china_town.png">
+        <input type="radio" name="imgUrl" class="correlated-check-btn" value="interstellar.png">
+        <input type="radio" name="imgUrl" class="correlated-check-btn" value="tree.png">
+      </div>
+    </div>
+
+    <input type="button" id="next-form-btn" value="Next" class="button first">
+
+    <div id="submit-pair" class="second hide">
+      <input type="button" id="back-form-btn" value="Back" class="button">
+      <button type="submit" class="button">Sign up</button>
+    </div>
   </form>
+
   <div class="register-link">
-    <p>Hai un account? <a th:href="@{/login}">Log in</a></p>
+    <p>You have an account? <a th:href="@{/login}">Log in</a></p>
   </div>
 </div>
 
 <div th:if="${param.EmailAlreadyTaken}" class="msg error">
    Email already taken.
 </div>
-<div th:if="${param.UsernameAlreadyTaken}" class="msg">
+<div th:if="${param.UsernameAlreadyTaken}" class="msg error">
   Username already taken.
 </div>
 <div th:if="${param.success}" id="register-msg" class="msg info">

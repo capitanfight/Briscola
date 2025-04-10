@@ -1,17 +1,21 @@
 package com.briscola4legenDs.briscola.User;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.Builder;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.Collections;
+import java.util.List;
 
+@Data
 @Entity
-@Table
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Table
 public class User implements UserDetails {
     @Id
     @SequenceGenerator(
@@ -27,33 +31,15 @@ public class User implements UserDetails {
 
     @Column(unique = true)
     private String email;
+    @Column(unique = true)
     private String username;
+    @JsonIgnore
     private String password;
 
-    private UserRole role = UserRole.USER;
+    private String imageUrl;
 
-    public User() {}
-
-    public User(String email, String username, String password) {
-        setEmail(email);
-        setUsername(username);
-        setPassword(password);
-    }
-
-    public User(Long id, String username, String email, String password) {
-        this.id = id;
-        setEmail(email);
-        setUsername(username);
-        setPassword(password);
-    }
-
-    public User(Long id, String email, String username, String password, UserRole role) {
-        this.id = id;
-        this.email = email;
-        this.username = username;
-        this.password = password;
-        this.role = role;
-    }
+    @Enumerated(EnumType.STRING)
+    private Role role = Role.USER;
 
     public Long getId() {
         return id;
@@ -71,7 +57,11 @@ public class User implements UserDetails {
         return password;
     }
 
-    public UserRole getRole() {
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public Role getRole() {
         return role;
     }
 
@@ -93,9 +83,34 @@ public class User implements UserDetails {
         this.email = email;
     }
 
+    public void setImageUrl(String imageUrl) {
+        if (imageUrl == null || imageUrl.isEmpty())
+            throw new IllegalArgumentException("Image url cannot be null or empty");
+        this.imageUrl = email;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        SimpleGrantedAuthority authority = new SimpleGrantedAuthority(role.name());
-        return Collections.singletonList(authority);
+        return List.of(new SimpleGrantedAuthority(role.name()));
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return UserDetails.super.isAccountNonExpired();
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return UserDetails.super.isAccountNonLocked();
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return UserDetails.super.isCredentialsNonExpired();
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return UserDetails.super.isEnabled();
     }
 }

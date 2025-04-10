@@ -5,23 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login Page</title>
     <link rel="stylesheet" href="/css/login.css">
+    <script src="/js/login.js" type="module" defer></script>
 </head>
 <body>
     <div class="container">
         <h2>LOGIN</h2>
-        <form th:action="@{/login}" method="get">
+        <form th:action="@{/login}" method="POST" id="login">
             <div class="input-group">
-                <label for="username">Username or email</label>
+                <label for="username">Username</label>
                 <input type="text" id="username" name="username" required>
             </div>
             <div class="input-group">
                 <label for="password">Password</label>
                 <input type="password" id="password" name="password" required>
             </div>
-            <button type="submit" class="button">AVANTI</button>
+            <button type="submit" class="button">Log in</button>
         </form>
         <div class="register-link">
-            <p>Non hai un account? <a th:href="@{/register}">Registrati</a></p>
+            <p>You don't hava an account? <a th:href="@{/register}">Sign Up</a></p>
         </div>
     </div>
 

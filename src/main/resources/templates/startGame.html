@@ -1,8 +1,8 @@
 <!-- da fare con js :  
-1) Inserire un id generato casualmente all'interno del div con id: user-id
-2) Modificare la foto con id: userPic con quella scelta dall'utente in base a quelle messe a disposizione
-3) Modificare il nome utente (h1) in base a quello inserito dall'utente
-4) Slide con ridimensionamento tra etichetta amici e stanza privata
+X   1) Inserire un id generato casualmente all'interno del div con id: user-id
+X   2) Modificare la foto con id: userPic con quella scelta dall'utente in base a quelle messe a disposizione
+X   3) Modificare il nome utente (h1) in base a quello inserito dall'utente
+    4) Slide con ridimensionamento tra etichetta amici e stanza privata
 
 ETICHETTA AMICI:
 1) gestire la ricerca di un utente (decidete se farlo tramite nome utente e id o solo id)
@@ -17,23 +17,28 @@ Quando clicco sul pulsante aggiungi:
 
 
 <!DOCTYPE html>
-<html lang="it" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Briscola4legenDs - Inizia una nuova partita</title>
+        <title>Briscola4legenDs - Start a new game</title>
         <link rel="stylesheet" href="/css/friendsMenu.css">
+
+        <script src="/js/startGame.js" type="module" defer></script>
     </head>
     <body>
         <div id="new-game">
             <div id="left">
-                <img src="/img/decoration2.png" alt="immagine decorativa">
-                <img id="userPic" src="/img/ProfilePicture.png" alt="immagine profilo">
-                <h1>NOME UTENTE</h1>
+                <img src="/img/decoration2.png" alt="Decorative image">
+                <div class="img-container" id="profile-pic-container">
+                    <img id="userPic" src="/img/ProfilePictures/blankProfilePicture.png" alt="Profile picture">
+                </div>
+                <h1 id="username"></h1>
                 <div id="user-id">
                     <p>ID</p>
+                    <span id="user-id-label"></span>
                 </div>
-                <img src="/img/decoration2.png" alt="immagine decorativa">
+                <img src="/img/decoration2.png" alt="Decorative image">
             </div>
             
             <div id="right">    

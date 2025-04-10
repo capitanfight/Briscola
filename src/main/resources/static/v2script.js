@@ -1,3 +1,5 @@
+import {cookiesHandler} from "./js/cookiesHandler.js";
+
 const main_path = "http://localhost:8080/api/room"
 const room_name = "Room1"
 
@@ -177,3 +179,15 @@ document.getElementById("joinRoomBtn").addEventListener("click", async () => {
 document.getElementById("ready").addEventListener("click", async () => {
     await setReady(player_id, room_id)
 })
+
+// fetch("http://localhost:8080/api/auth/authenticate", {
+//     method: "POST",
+//     headers: { "Content-Type": "application/json" },
+//     body: JSON.stringify({
+//         username: "ciao",
+//         password: "1234"
+//     }),
+// })
+//     .then(res => res.json())
+//     .then(data => cookiesHandler.setCookie("jwt", data.token, 1))
+//     .catch(err => console.log(err))
