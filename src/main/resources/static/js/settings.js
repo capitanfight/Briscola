@@ -1,7 +1,7 @@
 import {cookiesHandler} from "./cookiesHandler.js";
 
 function redirectHome() {
-    window.location.replace('index');
+    window.location.replace('/');
 }
 
 let audio = true

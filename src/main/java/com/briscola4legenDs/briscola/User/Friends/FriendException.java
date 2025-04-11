@@ -5,6 +5,7 @@ public class FriendException extends RuntimeException {
         USER_ID_NOT_FOUND,
         FRIEND_ALREADY_EXISTS,
         FRIEND_NOT_EXISTS,
+        CANNOT_BE_FRIEND,
     }
 
     private final Type type;

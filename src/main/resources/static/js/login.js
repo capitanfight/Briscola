@@ -6,7 +6,7 @@ document.getElementById("login").addEventListener("submit", function () {
         password: document.getElementById("password").value,
     }
 
-    fetch(`http://localhost:8080/api/user/${loginDTO.username}`)
+    fetch(`/api/user/${loginDTO.username}`)
         .then(response => response.json())
         .then(id => cookiesHandler.setCookie("userId", id, 1))
         .catch(err => console.log(err))

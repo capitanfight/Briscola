@@ -46,20 +46,34 @@ Quando clicco sul pulsante aggiungi:
                     <button>back</button>
                 </div>
                 <div id="friend-box">
-                    <div class="label">
-
+                    <div class="header">
+                        <button class="selection-btn friends selected" id="friends-selector">Friends</button>
+                        <button class="selection-btn rooms" id="rooms-selector">Rooms</button>
                     </div>
-                    <div class="box">
-                        <div id="find">
-
+                    <div class="section friends" id="friends-section">
+                        <div class="pair">
+                            <div class="input-group">
+                                <img src="/img/Logo/search-logo.svg" alt="Search img" id="search-logo">
+                                <label for="friend-name-inp" class="info" id="friend-info-label"></label>
+                                <input type="text"  id="friend-name-inp" name="friend-name-inp">
+                            </div>
+                            <button id="add-friend">Add</button>
                         </div>
-                        <div id="add">
 
-                        </div>
                         <div id="friends-container">
-
+<!--                            <div class="user" userId="">-->
+<!--                                <div class="profile-picture-container">-->
+<!--                                    <img src="/img/ProfilePictures/blankProfilePicture.png" alt="Profile Picture" class="profile-picture">-->
+<!--                                </div>-->
+<!--                                <span class="username">Username</span>-->
+<!--                                <div class="friend-btn-pair">-->
+<!--                                    <button class="invite">Invite</button>-->
+<!--                                    <button class="remove">Remove</button>-->
+<!--                                </div>-->
+<!--                            </div>-->
                         </div>
                     </div>
+                    <div class="section rooms hide" id="rooms-container"></div>
                 </div>
             </div>
         </div>

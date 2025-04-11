@@ -74,6 +74,9 @@ public class UserService {
         if (!userRepository.existsById(friendRelation.getFriendId()))
             throw new FriendException("User with id: %s does not exist".formatted(friendRelation.getFriendId()), FriendException.Type.USER_ID_NOT_FOUND);
 
+        if (friendRelation.getUserId() == friendRelation.getFriendId())
+            throw new FriendException("You cannot be friend of yourself", FriendException.Type.CANNOT_BE_FRIEND);
+
         List<FriendRelation> friends = friendRelationRepository.findByUserId(friendRelation.getUserId());
         if (friends.contains(friendRelation))
             throw new FriendException("Friend with id: %s already exists".formatted(friendRelation.getFriendId()), FriendException.Type.FRIEND_ALREADY_EXISTS);

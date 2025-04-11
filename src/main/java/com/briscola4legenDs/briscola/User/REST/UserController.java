@@ -1,6 +1,7 @@
 package com.briscola4legenDs.briscola.User.REST;
 
 import com.briscola4legenDs.briscola.Assets.RESTInfo;
+import com.briscola4legenDs.briscola.User.Friends.FriendException;
 import com.briscola4legenDs.briscola.User.Friends.FriendRelation;
 import com.briscola4legenDs.briscola.User.User;
 import lombok.RequiredArgsConstructor;
@@ -48,8 +49,14 @@ public class UserController {
     }
 
     @PostMapping("/friend")
-    public void addFriend(@RequestBody FriendRelation friendRelation) {
-        userService.addFriend(friendRelation);
+    public ResponseEntity<Void> addFriend(@RequestBody FriendRelation friendRelation) {
+        try {
+            userService.addFriend(friendRelation);
+            return ResponseEntity.ok().build();
+        } catch (FriendException e) {
+            System.out.println(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @DeleteMapping("/friend")
