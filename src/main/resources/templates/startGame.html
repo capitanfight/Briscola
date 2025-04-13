@@ -60,20 +60,48 @@ Quando clicco sul pulsante aggiungi:
                             <button id="add-friend">Add</button>
                         </div>
 
-                        <div id="friends-container">
-<!--                            <div class="user" userId="">-->
-<!--                                <div class="profile-picture-container">-->
-<!--                                    <img src="/img/ProfilePictures/blankProfilePicture.png" alt="Profile Picture" class="profile-picture">-->
-<!--                                </div>-->
-<!--                                <span class="username">Username</span>-->
-<!--                                <div class="friend-btn-pair">-->
-<!--                                    <button class="invite">Invite</button>-->
-<!--                                    <button class="remove">Remove</button>-->
-<!--                                </div>-->
-<!--                            </div>-->
+                        <div id="friends-container"></div>
+                    </div>
+                    <div class="section rooms hide" id="rooms-container">
+                        <div id="main-screen" >
+                            <button class="change-section-btn" id="create-room-btn" correlated-section="create-room-section">Create</button>
+                            <button class="change-section-btn" id="join-room-btn" correlated-section="join-room-section">Join</button>
+                        </div>
+                        <div id="create-room-section" class="hide">
+                            <div class="input-group" id="room-name-group">
+                                <label for="room-name-inp">Name</label>
+                                <input type="text" id="room-name-inp" name="room-name">
+                            </div>
+                            <div class="input-group" id="room-visibility-group">
+                                <h1>Visibility</h1>
+                                <div id="visibility-list">
+                                    <button class="checklist-button-like active">Public</button>
+                                    <button class="checklist-button-like">Private</button>
+                                </div>
+                            </div>
+                            <div class="hide">
+                                <input type="radio" name="visibility" class="correlated-check-btn" value="PUBLIC" checked>
+                                <input type="radio" name="visibility" class="correlated-check-btn" value="PRIVATE">
+                            </div>
+
+                            <div class="pair">
+                                <button class="back-to-main" correlated-section="create-room-section">Back</button>
+                                <button id="create-room">Create</button>
+                            </div>
+                        </div>
+                        <div id="join-room-section" class="hide">
+                            <div class="input-group">
+                                <label for="join-room-inp">Join by id</label>
+                                <input type="text" id="join-room-inp" name="join-room-inp">
+                                <button id="join-room">Join</button>
+                            </div>
+                            <button id="refresh-rooms">
+                                <img src="/img/Logo/refresh-logo.svg" alt="Refresh logo">
+                            </button>
+                            <div id="room-container"></div>
+                            <button class="back-to-main" correlated-section="join-room-section">Back</button>
                         </div>
                     </div>
-                    <div class="section rooms hide" id="rooms-container"></div>
                 </div>
             </div>
         </div>
