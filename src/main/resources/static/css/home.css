@@ -227,6 +227,7 @@ button:hover{
     animation: fadeIn 1s ease-out forwards;
 }
 
+
 @keyframes fadeIn {
     to {
         opacity: 1;
