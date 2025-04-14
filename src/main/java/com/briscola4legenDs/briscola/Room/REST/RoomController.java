@@ -5,6 +5,7 @@ import com.briscola4legenDs.briscola.Room.Room;
 import com.briscola4legenDs.briscola.Room.Token;
 import game.Card;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
@@ -32,8 +33,9 @@ public class RoomController {
     }
 
     @GetMapping(path = "{id:\\d+}")
-    public Room getRoomById(@PathVariable long id) {
-        return roomService.getRoomById(id);
+    public ResponseEntity<Room> getRoomById(@PathVariable long id) {
+        Room room = roomService.getRoomById(id);
+        return room == null ? ResponseEntity.badRequest().build() : ResponseEntity.ok(room);
     }
 
     @GetMapping(path = "{id:\\d+}/name")
@@ -41,14 +43,19 @@ public class RoomController {
         return roomService.getName(id);
     }
 
-    @GetMapping(path = "{name:^(?=.*\\D).+$}")
-    public long createRoom(@PathVariable String name) {
-        return roomService.createRoom(name);
+    @GetMapping(path = "{name:^(?=.*\\D).+$}/{visibility}")
+    public long createRoom(@PathVariable String name, @PathVariable Room.Visibility visibility) {
+        return roomService.createRoom(name, visibility);
     }
 
     @PostMapping(path = "player")
-    public void addPlayer(@RequestBody Token token) {
-        roomService.addPlayer(token);
+    public ResponseEntity<Void> addPlayer(@RequestBody Token token) {
+        try {
+            roomService.addPlayer(token);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @DeleteMapping(path = "player")
@@ -131,10 +138,10 @@ public class RoomController {
                         "Get the name of the room with the specified ID."
                 ),
                 new RESTInfo(
-                        "api/room/{name}",
+                        "api/room/{name}/{visibility}",
                         "GET",
-                        "createRoom(name): long",
-                        "Name: String -> The name of the new room",
+                        "createRoom(name, visibility): long",
+                        "Name: String -> The name of the new room, visibility: Visibility -> Visibility of the room",
                         "Generate a new room and return the id."
                 ),
                 new RESTInfo(

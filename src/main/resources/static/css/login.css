@@ -1,9 +1,16 @@
+:root {
+    --background-color: #043920;
+    --light-red: #8b0101;
+    --dark-red: #520000;
+    --border-color: #c28c46;
+    --transparent: rgba(0, 0, 0, 0);
+}
 * {
     box-sizing: border-box;
 }
 
 body {
-    background-color: #043920; /* Verde scuro */
+    background-color: var(--background-color); /* Verde scuro */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -13,13 +20,13 @@ body {
 }
 
 .container {
-    background-color: #800000; /* Rosso scuro */
+    background-color: var(--light-red); /* Rosso scuro */
     padding: 20px;
     border-radius: 15px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
     text-align: center;
-    color: #FFD700; /* Oro */
-    border: 2px solid #FFD700;
+    color: var(--border-color);
+    border: 2px solid var(--border-color);
 
     width: clamp(300px, 50%, 400px);
     height: clamp(312px, 50%, 400px);
@@ -32,7 +39,7 @@ body {
 .container h2 {
     margin: 0;
     padding: 10px;
-    background-color: #660000;
+    background-color: var(--dark-red);
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
 }
@@ -52,19 +59,19 @@ body {
     padding: 8px;
     border: 2px transparent;
     border-radius: 5px;
-    background-color: #550000;
+    background-color: var(--dark-red);
     color: white;
 }
 
 .input-group input:focus {
     outline: none;
-    border: 2px solid #FFD700;
+    border: 2px solid var(--border-color);
 }
 
 .button {
-    background-color: #550000;
-    color: #FFD700;
-    border: 2px solid #FFD700;
+    background-color: #750000;
+    color: var(--border-color);
+    border: 2px solid var(--border-color);
     padding: 10px;
     width: 100%;
     cursor: pointer;
@@ -75,27 +82,27 @@ body {
 }
 
 .button:hover {
-    background-color: #660000;
+    background-color: var(--dark-red);
 }
 
 .register-link {
     margin-top: 10px;
     font-size: 12px;
-    color: #FFD700;
+    color: var(--border-color);
 }
 
 .register-link a {
-    color: #FFD700;
+    color: var(--border-color);
     text-decoration: none;
     font-weight: bold;
-    border: 1px solid #FFD700;
+    border: 1px solid var(--border-color);
     padding: 3px;
     border-radius: 3px;
 }
 
 .register-link a:hover {
-    background-color: #FFD700;
-    color:#550000;
+    background-color: var(--border-color);
+    color: var(--dark-red);
 }
 
 .msg {
@@ -105,11 +112,11 @@ body {
 
     padding: 10px;
 
-    border: 2px solid #FFD700;
+    border: 2px solid var(--border-color);
     border-radius: 5px;
 
-    background-color: #550000;
-    color: #FFD700;
+    background-color: var(--dark-red);
+    color: var(--border-color);
 }
 
 .msg::after {
@@ -125,8 +132,8 @@ body {
     height: 20px;
     border-radius: 50%;
 
-    color: #FFD700;
-    border: 1px solid #FFD700;
+    color: var(--border-color);
+    border: 1px solid var(--border-color);
 }
 
 .msg.error::after {

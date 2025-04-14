@@ -3,18 +3,26 @@ package com.briscola4legenDs.briscola.Room;
 import com.briscola4legenDs.briscola.Room.WebSocket.RoomSocketHandler;
 import game.Game;
 import game.Player;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Room extends Game {
+    public enum Visibility {
+        PUBLIC, PRIVATE
+    }
+
     private static long idGen = 1;
 
     private final RoomSocketHandler roomSocketHandler;
 
     private final String name;
+    @Enumerated(EnumType.STRING)
+    private final Visibility visibility;
     private final CopyOnWriteArrayList<Boolean> isPlayerReady;
 
-    public Room(String name) {
+    public Room(String name, Visibility visibility) {
         super(idGen++);
         if (name == null || name.isEmpty())
             throw new NullPointerException("Room name is null or empty");
@@ -22,6 +30,8 @@ public class Room extends Game {
 
         isPlayerReady = new CopyOnWriteArrayList<>();
         roomSocketHandler = new RoomSocketHandler();
+
+        this.visibility = visibility;
     }
 
     public void setPlayerReady(int idx, boolean isPlayerReady) {
@@ -63,6 +73,10 @@ public class Room extends Game {
 
     public String getName() {
         return name;
+    }
+
+    public Visibility getVisibility() {
+        return visibility;
     }
 
     @Override

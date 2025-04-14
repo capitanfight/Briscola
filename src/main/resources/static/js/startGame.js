@@ -21,6 +21,25 @@ function throwFatalError() {
     window.location.replace("/logout");
 }
 
+const id = cookiesHandler.getCookie("userId");
+if (id === undefined || id === null) {
+    throwFatalError()
+}
+
+const user = await fetch(`/api/user/${id}`)
+    .then(response => response.json())
+    .catch(throwFatalError)
+
+document.getElementById("user-id-label").textContent = `#${id.padStart(5, "0")}`
+document.getElementById("username").textContent = user.username
+resourceExists(`/img/ProfilePictures/${user.imageUrl}`)
+    .then(exists => {
+        if (exists)
+            document.getElementById("userPic").setAttribute("src", `/img/ProfilePictures/${user.imageUrl}`)
+    })
+
+// Friends section
+
 async function updateFriends() {
     friends = await fetch(`/api/user/friend/${id}`)
         .then(response => response.json())
@@ -64,7 +83,6 @@ function renderFriends(){
                 remove_btn.classList.add("remove")
                 remove_btn.textContent = "Remove"
                 remove_btn.addEventListener("click", () => {
-                    // TODO: completare la funzione
                     fetch("api/user/friend", {
                         method: "DELETE",
                         headers: {"Content-Type": "application/json"},
@@ -81,23 +99,6 @@ function renderFriends(){
             })
     })
 }
-
-const id = cookiesHandler.getCookie("userId");
-if (id === undefined || id === null) {
-    throwFatalError()
-}
-
-const user = await fetch(`/api/user/${id}`)
-    .then(response => response.json())
-    .catch(throwFatalError)
-
-document.getElementById("user-id-label").textContent = `#${id.padStart(5, "0")}`
-document.getElementById("username").textContent = user.username
-resourceExists(`/img/ProfilePictures/${user.imageUrl}`)
-    .then(exists => {
-        if (exists)
-            document.getElementById("userPic").setAttribute("src", `/img/ProfilePictures/${user.imageUrl}`)
-    })
 
 updateFriends()
 
@@ -148,4 +149,113 @@ document.getElementById("add-friend").addEventListener("click", async () => {
                 } else
                     document.getElementById("friend-info-label").textContent = "Friend id is invalid"
             })
+})
+
+// Rooms section
+
+const room_container = document.getElementById("room-container")
+
+function joinRoom(roomId) {
+    fetch("api/room/player", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            roomId: Number(roomId),
+            playerId: Number(id)
+        })
+    }).then(response => {
+        if (response.ok) {
+            window.location.replace(`/room`)
+            cookiesHandler.setCookie("roomId", roomId, 1)
+        } else {
+            alert("Error in joining room")
+        }
+    })
+}
+
+function renderRooms() {
+    room_container.innerHTML = ""
+
+    fetch("/api/room")
+        .then(response => response.json())
+        .then(rooms => rooms.forEach(room => {
+            if (room.visibility === "PRIVATE")
+                return
+
+            const div = document.createElement("div")
+            div.classList.add("room")
+
+            let status = room.gameStarted ? (room.gameOver ? "ended" : "started") : "join"
+
+            div.innerHTML = `
+                <div class="pair">
+                    <span class="name">${room.name}</span>
+                    <div class="status" status="${status}"></div>
+                </div>
+                <span class="id">#${String(room.id).padStart(5, "0")}</span>
+                <span class="players">${room.nplayers}/4 Players</span>
+            `
+
+            div.addEventListener("click", () => joinRoom(room.id))
+
+            room_container.append(div)
+        }))
+}
+
+renderRooms()
+
+Array.from(document.getElementsByClassName("change-section-btn")).forEach(btn => btn.addEventListener("click", () => {
+    document.getElementById("main-screen").classList.add("hide")
+    document.getElementById(btn.getAttribute("correlated-section")).classList.remove("hide")
+}))
+
+Array.from(document.getElementsByClassName("back-to-main")).forEach(btn => btn.addEventListener("click", () => {
+    document.getElementById("main-screen").classList.remove("hide")
+    document.getElementById(btn.getAttribute("correlated-section")).classList.add("hide")
+}))
+
+const visibility_list = Array.from(document.getElementsByClassName("checklist-button-like"))
+const check_buttons = Array.from(document.getElementsByClassName("correlated-check-btn"))
+
+visibility_list.forEach((e, idx) => e.addEventListener('click', () => {
+    e.classList.add("active")
+    check_buttons[idx].checked = true
+}, true))
+
+document.getElementById("visibility-list").addEventListener('click', e => visibility_list.forEach(e => e.classList.remove("active")), true)
+
+document.getElementById("create-room").addEventListener("click", () => {
+    const name = document.getElementById("room-name-inp").value
+    if (!Number.isNaN(Number(name)) || name === "") {
+        alert("Please enter a valid name.")
+        return
+    }
+
+    const visibility = Array.from(document.getElementsByClassName("correlated-check-btn")).filter((e => e.checked))[0].value
+
+    fetch(`/api/room/${name}/${visibility}`)
+        .then(resp => resp.json())
+        .then(roomId => {
+            joinRoom(roomId)
+        })
+})
+
+document.getElementById("refresh-rooms").addEventListener("click", renderRooms)
+
+document.getElementById("join-room").addEventListener("click", () => {
+    const roomId = document.getElementById("join-room-inp").value
+
+    if (roomId === "" || Number.isNaN(Number(roomId))) {
+        alert("Please enter a valid room id.")
+        return
+    }
+
+    fetch(`/api/room/${Number(roomId)}`)
+        .then(resp => {
+            if (resp.ok)
+                joinRoom(roomId)
+            else
+                alert("Please enter an existing id.")
+        })
+
 })

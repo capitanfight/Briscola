@@ -48,11 +48,11 @@ public class RoomService {
         return roomLocalRepository.getRoomById(roomId).getName();
     }
 
-    public long createRoom(String name) {
-        Room newRoom = new Room(name);
+    public long createRoom(String name, Room.Visibility visibility) {
+        Room newRoom = new Room(name, visibility);
         roomLocalRepository.add(newRoom);
 
-        log.info("Created new room with id {}", newRoom.getId());
+        log.info("Created new room with id {} and visibility {}", newRoom.getId(), visibility);
 
         return newRoom.getId();
     }
@@ -248,7 +248,9 @@ public class RoomService {
     private void sendRoomPlayersUpdate(long roomId) {
         PayloadBuilder payload = new PayloadBuilder();
 
-        Long[] ids = getRoomPlayersIds(roomId);
+        List<Long> ids_temp = new ArrayList<>(Arrays.stream(getRoomPlayersIds(roomId)).toList());
+        ids_temp.remove(ids_temp.size() - 1);
+        Long[] ids = ids_temp.toArray(new Long[0]);
 
         payload.addLongs("playersId", ids);
 
