@@ -5,7 +5,7 @@
 
 body{
     margin: 0;
-    height: 200vh;
+    height: 150vh;
     background-color: #0B3D0B;
 }
 
@@ -201,6 +201,14 @@ button:hover{
     transform: translateY(-20px);
     animation: fadeIn 1s ease-out forwards;
 }
+
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 
 
 
