@@ -5,39 +5,10 @@
 
 body{
     margin: 0;
-    height: 200vh;
+    height: 150vh;
+    background-color: #0B3D0B;
 }
 
-div.background {
-    width: 100%;
-    height: 100vh;
-
-    filter: brightness(50%);
-
-    background-image: url("../img/background_1st_page.png");
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: cover;
-
-    position: fixed;
-    top: 0;
-    left: 0;
-}
-
-div.place-holder {
-    height: 100vh;
-}
-
-/*prima immagine con tavolo*/
-/*.bgImg{*/
-/*    width: auto;*/
-/*    height: 100%;*/
-/*}*/
-
-/*rendere l' immagine più scura*/
-#darkerImg{
-    filter: brightness(50%);
-}
 
 /*menu*/ 
 #menu-page, #menu{
@@ -51,7 +22,6 @@ div.place-holder {
     flex-direction: column;
     gap: 10px;
     padding: 10px;
-    background-color: #043920;
     transition: transform 0.5s ease-in-out;
 
     height: 100vh;
@@ -100,7 +70,7 @@ a{
 }
 
 a:hover{
-    color:#520000;
+    color:#800000;
     transform: scale(1.1);
 }
 
@@ -188,13 +158,13 @@ a:hover{
 }
 
 .overlay h1{
-    color: #520000;
+    color: #800000;
     font-size: 70px;
 }
 
 /*pulsanti*/
 button {
-    background-color: #520000;
+    background-color: #800000;
     color: #c28c46;
     border: none;
     padding: 10px 20px;
@@ -215,9 +185,14 @@ button:hover{
     width: 200px;
     border-radius: 30px;
     font-weight: bold;
-    background-color: #8b0101;
+    background-color: #800000;
     font-size: 1.2rem;
 }
+
+#new-game:hover{
+    background-color: #3c0202;
+}
+
 /*animazioni*/
 
 /*il contenuto compare gradualmente quando carico la pagina*/
@@ -227,11 +202,14 @@ button:hover{
     animation: fadeIn 1s ease-out forwards;
 }
 
+
 @keyframes fadeIn {
     to {
         opacity: 1;
         transform: translateY(0);
     }
 }
+
+
 
 
