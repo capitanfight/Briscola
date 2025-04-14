@@ -3,6 +3,7 @@ package com.briscola4legenDs.briscola.User.REST;
 import com.briscola4legenDs.briscola.Assets.RESTInfo;
 import com.briscola4legenDs.briscola.User.Friends.FriendException;
 import com.briscola4legenDs.briscola.User.Friends.FriendRelation;
+import com.briscola4legenDs.briscola.User.Friends.FriendRequest;
 import com.briscola4legenDs.briscola.User.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -48,10 +49,37 @@ public class UserController {
         }
     }
 
-    @PostMapping("/friend")
-    public ResponseEntity<Void> addFriend(@RequestBody FriendRelation friendRelation) {
+    @GetMapping("/friend/request/{id:\\d+}")
+    public List<FriendRequest> getFriendRequests(@PathVariable long id) {
+        return userService.getFriendRequests(id);
+    }
+
+    @PostMapping("/friend/request/send")
+    public ResponseEntity<Void> sendFriendRequest(@RequestBody FriendRequest friendRequest) {
         try {
-            userService.addFriend(friendRelation);
+            userService.sendFriendRequest(friendRequest);
+            return ResponseEntity.ok().build();
+        } catch (FriendException e) {
+            System.out.println(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @PostMapping("/friend/request/accept")
+    public ResponseEntity<Void> acceptFriendRequest(@RequestBody FriendRequest friendRequest) {
+        try {
+            userService.acceptFriendRequest(friendRequest);
+            return ResponseEntity.ok().build();
+        } catch (FriendException e) {
+            System.out.println(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @PostMapping("/friend/request/reject")
+    public ResponseEntity<Void> rejectFriendRequest(@RequestBody FriendRequest friendRequest) {
+        try {
+            userService.rejectFriendRequest(friendRequest);
             return ResponseEntity.ok().build();
         } catch (FriendException e) {
             System.out.println(e.getMessage());

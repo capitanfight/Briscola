@@ -3,8 +3,9 @@ import {cookiesHandler} from "./cookiesHandler.js";
 const selection_btns = Array.from(document.getElementsByClassName("selection-btn"))
 const sections = Array.from(document.getElementsByClassName("section"))
 
-const friends_container = document.getElementById("friends-container")
-let friends
+const notification_container = document.getElementById("notification-container")
+
+const main_friends_container = document.getElementById("friends-container")
 
 async function resourceExists(url) {
     try {
@@ -26,6 +27,30 @@ if (id === undefined || id === null) {
     throwFatalError()
 }
 
+const ws = new WebSocket("/ws/user");
+
+ws.onopen = () => {
+    ws.send(JSON.stringify({
+        code: "SET_ID",
+        payload: {
+            id: id,
+        },
+    }))
+}
+
+ws.onmessage = msg => {
+    let data = JSON.parse(msg.data);
+
+    switch (data.code) {
+        case "UPDATE_FRIEND_LIST":
+            renderFriends()
+            break
+        case "INVITED":
+            invited(data.payload.senderId, data.payload.roomId)
+            break
+    }
+}
+
 const user = await fetch(`/api/user/${id}`)
     .then(response => response.json())
     .catch(throwFatalError)
@@ -39,68 +64,198 @@ resourceExists(`/img/ProfilePictures/${user.imageUrl}`)
     })
 
 // Friends section
+let notificationId = 0
 
-async function updateFriends() {
-    friends = await fetch(`/api/user/friend/${id}`)
+function invited(userId, roomId) {
+    fetch(`/api/user/${userId}`)
         .then(response => response.json())
+        .then(user => {
+            const id = notificationId
 
-    renderFriends()
+            const div = document.createElement("div")
+            div.classList.add("notification")
+            div.setAttribute("notification-id", String(id))
+
+            div.innerHTML = `
+                <span class="description">You have been invited from <span class="username">${user.username}</span></span>
+            `
+
+            const btn_pair = document.createElement("div")
+            btn_pair.classList.add("pair")
+
+            const accept_btn = document.createElement("button")
+            accept_btn.classList.add("accept")
+            accept_btn.textContent = "Accept"
+            accept_btn.addEventListener("click", () => {
+                joinRoom(roomId)
+                closeNotification(id)
+            })
+            btn_pair.appendChild(accept_btn)
+
+            const reject_btn = document.createElement("button")
+            reject_btn.classList.add("reject")
+            reject_btn.textContent = "Reject"
+            reject_btn.addEventListener("click", () => closeNotification(id))
+            btn_pair.appendChild(reject_btn)
+            div.appendChild(btn_pair)
+
+            const bar = document.createElement("div")
+            bar.classList.add("bar-container")
+            bar.innerHTML = `<div class="bar"></div>`
+            div.appendChild(bar)
+
+            setTimeout(() => {
+                closeNotification(id)
+            }, 5000)
+
+            notification_container.append(div)
+
+            notificationId++
+        })
 }
 
-function renderFriends(){
-    friends_container.innerHTML = "";
+function closeNotification(notificationId) {
+    const c = Array.from(notification_container.children)
+    const e = c.find(e =>
+        e.getAttribute("notification-id") === String(notificationId))
+    notification_container.removeChild(e)
+}
 
-    friends.forEach(fr => {
-        fetch(`/api/user/${fr.friendId}`)
-            .then(response => response.json())
-            .then(async f => {
-                const container = document.createElement("div")
-                container.classList.add("user")
-                container.setAttribute("userId", f.id)
+function renderFriends() {
+    main_friends_container.innerHTML = "";
 
-                if (!await resourceExists(`/img/ProfilePictures/${f.imageUrl}`))
-                    f.imageUrl = "blankProfilePicture.png"
+    const friends_request_container = document.createElement("div")
+    friends_request_container.classList.add("container-like", "friend-requests")
+    fetch(`/api/user/friend/request/${id}`)
+        .then(response => response.json())
+        .then(friends => {
+            friends.forEach(fr => {
+                fetch(`/api/user/${fr.requesterId}`)
+                    .then(response => response.json())
+                    .then(async f => {
+                        const container = document.createElement("div")
+                        container.classList.add("user")
+                        container.setAttribute("userId", f.id)
 
-                container.innerHTML = `      
+                        if (!await resourceExists(`/img/ProfilePictures/${f.imageUrl}`))
+                            f.imageUrl = "blankProfilePicture.png"
+
+                        container.innerHTML = `      
                                 <div class="profile-picture-container">
                                     <img src="/img/ProfilePictures/${f.imageUrl}" alt="Profile Picture" class="profile-picture">
                                 </div>
                                 <span class="username">${f.username}</span>
                 `
 
-                const friend_btn_pair = document.createElement("div")
-                friend_btn_pair.classList.add("friend-btn-pair")
+                        const friend_btn_pair = document.createElement("div")
+                        friend_btn_pair.classList.add("friend-btn-pair")
 
-                const invite_btn = document.createElement("button")
-                invite_btn.classList.add("invite")
-                invite_btn.textContent = "Invite"
-                invite_btn.addEventListener("click", () => {
-                    // TODO: completare la funzione
-                })
-                friend_btn_pair.appendChild(invite_btn)
-
-                const remove_btn = document.createElement("button")
-                remove_btn.classList.add("remove")
-                remove_btn.textContent = "Remove"
-                remove_btn.addEventListener("click", () => {
-                    fetch("api/user/friend", {
-                        method: "DELETE",
-                        headers: {"Content-Type": "application/json"},
-                        body: JSON.stringify({
-                            userId: id,
-                            friendId: f.id
+                        const accept_btn = document.createElement("button")
+                        accept_btn.classList.add("accept")
+                        accept_btn.innerHTML = `<img src="/img/svg/accept-friend.svg" class="accept" alt="Accept friend">`
+                        accept_btn.addEventListener("click", () => {
+                            fetch("api/user/friend/request/accept", {
+                                method: "POST",
+                                headers: {"Content-Type": "application/json"},
+                                body: JSON.stringify({
+                                    requesterId: f.id,
+                                    friendId: Number(id)
+                                })
+                            }).then(() => renderFriends())
                         })
-                    }).then(() => updateFriends())
-                })
-                friend_btn_pair.appendChild(remove_btn)
+                        friend_btn_pair.appendChild(accept_btn)
 
-                container.append(friend_btn_pair)
-                friends_container.append(container)
+                        const reject_btn = document.createElement("button")
+                        reject_btn.classList.add("reject")
+                        reject_btn.innerHTML = `<img src="/img/svg/reject-friend.svg" class="reject" alt="Reject friend">`
+                        reject_btn.addEventListener("click", () => {
+                            fetch("api/user/friend/request/reject", {
+                                method: "POST",
+                                headers: {"Content-Type": "application/json"},
+                                body: JSON.stringify({
+                                    requesterId: f.id,
+                                    friendId: Number(id)
+                                })
+                            }).then(() => renderFriends())
+                        })
+                        friend_btn_pair.appendChild(reject_btn)
+
+                        container.append(friend_btn_pair)
+                        friends_request_container.append(container)
+                    })
             })
-    })
+            if (friends.length !== 0)
+                main_friends_container.append(friends_request_container)
+        })
+
+    const friends_container = document.createElement("div")
+    friends_container.classList.add("container-like", "friends")
+    fetch(`/api/user/friend/${id}`)
+        .then(response => response.json())
+        .then(friends => friends.forEach(fr => {
+            fetch(`/api/user/${fr.friendId}`)
+                .then(response => response.json())
+                .then(async f => {
+                    const container = document.createElement("div")
+                    container.classList.add("user")
+                    container.setAttribute("userId", f.id)
+
+                    if (!await resourceExists(`/img/ProfilePictures/${f.imageUrl}`))
+                        f.imageUrl = "blankProfilePicture.png"
+
+                    container.innerHTML = `      
+                                <div class="profile-picture-container">
+                                    <img src="/img/ProfilePictures/${f.imageUrl}" alt="Profile Picture" class="profile-picture">
+                                </div>
+                                <span class="username">${f.username}</span>
+                `
+
+                    const friend_btn_pair = document.createElement("div")
+                    friend_btn_pair.classList.add("friend-btn-pair")
+
+                    const invite_btn = document.createElement("button")
+                    invite_btn.classList.add("invite")
+                    invite_btn.textContent = "Invite"
+                    invite_btn.addEventListener("click", () => {
+                        fetch(`/api/room/Room${Math.round(Math.random() * 1000)}/PRIVATE`)
+                            .then(response => response.json())
+                            .then(roomId => {
+                                ws.send(JSON.stringify({
+                                    code: "INVITED",
+                                    payload: {
+                                        senderId: id,
+                                        id: f.id,
+                                        roomId: roomId
+                                    }
+                                }))
+                                joinRoom(roomId)
+                            })
+                    })
+                    friend_btn_pair.appendChild(invite_btn)
+
+                    const remove_btn = document.createElement("button")
+                    remove_btn.classList.add("remove")
+                    remove_btn.textContent = "Remove"
+                    remove_btn.addEventListener("click", () => {
+                        fetch("api/user/friend", {
+                            method: "DELETE",
+                            headers: {"Content-Type": "application/json"},
+                            body: JSON.stringify({
+                                userId: Number(id),
+                                friendId: f.id
+                            })
+                        }).then(() => renderFriends())
+                    })
+                    friend_btn_pair.appendChild(remove_btn)
+
+                    container.append(friend_btn_pair)
+                    friends_container.append(container)
+                })
+        }))
+        .then(() => main_friends_container.append(friends_container))
 }
 
-updateFriends()
+renderFriends()
 
 document.getElementById("back").addEventListener("click", () => window.location.replace("/"))
 
@@ -134,18 +289,18 @@ document.getElementById("add-friend").addEventListener("click", async () => {
            })
 
     if (canRun)
-        fetch("/api/user/friend", {
+        fetch("/api/user/friend/request/send", {
             method: 'POST',
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify({
-                userId: id,
+                requesterId: Number(id),
                 friendId: identifier,
             })
         })
             .then(resp => {
                 if (resp.ok) {
-                    document.getElementById("friend-info-label").textContent = "Friend added successfully"
-                    updateFriends()
+                    document.getElementById("friend-info-label").textContent = "Friend request sent"
+                    renderFriends()
                 } else
                     document.getElementById("friend-info-label").textContent = "Friend id is invalid"
             })
@@ -165,7 +320,7 @@ function joinRoom(roomId) {
         })
     }).then(response => {
         if (response.ok) {
-            window.location.replace(`/room`)
+            window.location.replace(`/lobby`)
             cookiesHandler.setCookie("roomId", roomId, 1)
         } else {
             alert("Error in joining room")

@@ -3,6 +3,7 @@ package com.briscola4legenDs.briscola.Room.REST;
 import com.briscola4legenDs.briscola.Assets.PayloadBuilder;
 import com.briscola4legenDs.briscola.Room.Room;
 import com.briscola4legenDs.briscola.Room.Token;
+import com.briscola4legenDs.briscola.Room.WebSocket.LobbySocketHandler;
 import com.briscola4legenDs.briscola.Room.WebSocket.RoomSocketHandler;
 import game.Card;
 import game.Player;
@@ -19,14 +20,17 @@ import java.util.*;
 public class RoomService {
     private final RoomLocalRepository roomLocalRepository;
     private final RoomSocketHandler roomSocketHandler;
+    private final LobbySocketHandler lobbySocketHandler;
 
     private static final Logger log = LoggerFactory.getLogger(RoomService.class.getName());
 
     @Autowired
-    public RoomService(RoomLocalRepository roomLocalRepository, RoomSocketHandler roomSocketHandler) {
+    public RoomService(RoomLocalRepository roomLocalRepository, RoomSocketHandler roomSocketHandler, LobbySocketHandler lobbySocketHandler) {
         this.roomLocalRepository = roomLocalRepository;
         this.roomSocketHandler = roomSocketHandler;
         roomSocketHandler.setRoomService(this);
+        this.lobbySocketHandler = lobbySocketHandler;
+        lobbySocketHandler.setRoomService(this);
     }
 
     public Collection<Room> getAllRooms() {
@@ -204,39 +208,6 @@ public class RoomService {
             throw new IllegalArgumentException("Player with id: " + token.getPlayerId() + " does not exist");
     }
 
-    private String createJsonMessage(RoomSocketHandler.Code code, JSONObject payload) {
-        JSONObject jsonObject = new JSONObject();
-
-        jsonObject.put("code", code);
-        jsonObject.put("payload", payload);
-
-        return jsonObject.toString();
-    }
-
-    private JSONObject createJsonPayload(PayloadBuilder.Payload payload) {
-        JSONObject jsonObject = new JSONObject();
-
-        for (Map.Entry<String, String[]> args : payload.getStrings().entrySet())
-            jsonObject.put(args.getKey(), args.getValue());
-
-        for (Map.Entry<String, String> args : payload.getString().entrySet())
-            jsonObject.put(args.getKey(), args.getValue());
-
-        for (Map.Entry<String, Long[]> args : payload.getLongs().entrySet())
-            jsonObject.put(args.getKey(), args.getValue());
-
-        for (Map.Entry<String, Long> args : payload.getLong().entrySet())
-            jsonObject.put(args.getKey(), args.getValue());
-
-        for (Map.Entry<String, Integer[]> args : payload.getIntegers().entrySet())
-            jsonObject.put(args.getKey(), args.getValue());
-
-        for (Map.Entry<String, Integer> args : payload.getInteger().entrySet())
-            jsonObject.put(args.getKey(), args.getValue());
-
-        return jsonObject;
-    }
-
     private Long[] getRoomPlayersIds(long roomId) {
         ArrayList<Long> ids = new ArrayList<>();
         for (Player player : roomLocalRepository.getRoomById(roomId).getPlayers())
@@ -255,9 +226,9 @@ public class RoomService {
         payload.addLongs("playersId", ids);
 
         try {
-            roomSocketHandler.multicastMessage(ids, createJsonMessage(
+            lobbySocketHandler.multicastMessage(ids, PayloadBuilder.createJsonMessage(
                     RoomSocketHandler.Code.GET_PLAYERS_INSIDE,
-                    createJsonPayload(payload.build())
+                    PayloadBuilder.createJsonPayload(payload.build())
             ));
         } catch (IOException e) {
             roomLocalRepository.remove(roomId);
@@ -281,9 +252,9 @@ public class RoomService {
         payload.addLongs("readyPlayersId", readyPlayersId.toArray(new Long[0]));
 
         try {
-            roomSocketHandler.multicastMessage(ids, createJsonMessage(
+            lobbySocketHandler.multicastMessage(ids, PayloadBuilder.createJsonMessage(
                     RoomSocketHandler.Code.GET_READY_PLAYERS,
-                    createJsonPayload(payload.build())
+                    PayloadBuilder.createJsonPayload(payload.build())
             ));
         } catch (IOException e) {
             roomLocalRepository.remove(r.getId());

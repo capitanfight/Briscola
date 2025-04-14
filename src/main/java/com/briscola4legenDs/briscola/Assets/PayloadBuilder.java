@@ -1,6 +1,11 @@
 package com.briscola4legenDs.briscola.Assets;
 
+import com.briscola4legenDs.briscola.Room.WebSocket.RoomSocketHandler;
+import com.briscola4legenDs.briscola.User.WebSocket.UserSocketHandler;
+import org.json.JSONObject;
+
 import java.util.HashMap;
+import java.util.Map;
 
 public class PayloadBuilder {
     public class Payload {
@@ -108,5 +113,47 @@ public class PayloadBuilder {
 
     public Payload build() {
         return payload;
+    }
+
+    public static String createJsonMessage(RoomSocketHandler.Code code, JSONObject payload) {
+        JSONObject jsonObject = new JSONObject();
+
+        jsonObject.put("code", code);
+        jsonObject.put("payload", payload);
+
+        return jsonObject.toString();
+    }
+
+    public static String createJsonMessage(UserSocketHandler.Code code, JSONObject payload) {
+        JSONObject jsonObject = new JSONObject();
+
+        jsonObject.put("code", code);
+        jsonObject.put("payload", payload);
+
+        return jsonObject.toString();
+    }
+
+    public static JSONObject createJsonPayload(PayloadBuilder.Payload payload) {
+        JSONObject jsonObject = new JSONObject();
+
+        for (Map.Entry<String, String[]> args : payload.getStrings().entrySet())
+            jsonObject.put(args.getKey(), args.getValue());
+
+        for (Map.Entry<String, String> args : payload.getString().entrySet())
+            jsonObject.put(args.getKey(), args.getValue());
+
+        for (Map.Entry<String, Long[]> args : payload.getLongs().entrySet())
+            jsonObject.put(args.getKey(), args.getValue());
+
+        for (Map.Entry<String, Long> args : payload.getLong().entrySet())
+            jsonObject.put(args.getKey(), args.getValue());
+
+        for (Map.Entry<String, Integer[]> args : payload.getIntegers().entrySet())
+            jsonObject.put(args.getKey(), args.getValue());
+
+        for (Map.Entry<String, Integer> args : payload.getInteger().entrySet())
+            jsonObject.put(args.getKey(), args.getValue());
+
+        return jsonObject;
     }
 }
