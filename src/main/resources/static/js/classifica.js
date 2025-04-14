@@ -1,0 +1,1 @@
+document.getElementById("container-back").addEventListener("click", () => window.location.replace("/"))
