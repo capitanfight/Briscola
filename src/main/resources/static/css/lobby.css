@@ -35,7 +35,11 @@ body {
     height: 50px;
     font-weight: bold;
     font-size:1.2rem;
+}
 
+#container-back:hover{
+    background-color: var(--border-color); /* Rosso scuro */
+    color: var(--dark-red);
 }
 
 .user{
