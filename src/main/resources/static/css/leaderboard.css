@@ -62,7 +62,7 @@ body {
     padding: 0 20px 20px 20px;
 }
 
-#container > #user-container > .user{
+.user {
     margin: 5px 0;
 
     width: 100%;
@@ -82,7 +82,7 @@ body {
     padding: 0 20px 0 40px;
 }
 
-#container > #user-container > .user > .position {
+.user > .position {
     position: absolute;
 
     color: var(--border-color);
@@ -94,7 +94,7 @@ body {
     font-size: 1.5rem;
 }
 
-#container > #user-container > .user > .profile-picture-container {
+.user > .profile-picture-container {
     height: 40px;
     width: 40px;
 
@@ -104,46 +104,46 @@ body {
     overflow: hidden;
 }
 
-#container > #user-container > .user > .profile-picture-container > img {
+.user > .profile-picture-container > img {
     height: inherit;
     width: inherit;
 
     transform: translate(-3px, -3px);
 }
 
-#container > #user-container > .user > .username,
-#container > #user-container > .user > .win-count-label {
+.user > .username,
+.user > .win-count-label {
     color: var(--border-color);
     font-size: 1.3rem;
 }
 
-#first {
+.first {
     border-color: #d6bd40 !important;
 }
 
-#first > .position,
-#first > .username,
-#first > .win-count-label {
+.first > .position,
+.first > .username,
+.first > .win-count-label {
     color: #d6bd40 !important;
 }
 
-#second {
+.second {
     border-color: #C0C0C0 !important;
 }
 
-#second > .position,
-#second > .username,
-#second > .win-count-label {
+.second > .position,
+.second > .username,
+.second > .win-count-label {
     color: #C0C0C0 !important;
 }
 
-#third {
+.third {
     border-color: #d6802b !important;
 }
 
-#third > .position,
-#third > .username,
-#third > .win-count-label {
+.third > .position,
+.third > .username,
+.third > .win-count-label {
     color: #d6802b !important;
 }
 
@@ -169,4 +169,12 @@ body {
 #back:hover {
     background-color: var(--border-color);
     color: var(--dark-red);
+}
+
+#myself {
+    width: clamp(430px, calc(70% - 40px), 580px);
+
+    position: absolute;
+    bottom: 20px;
+    left: clamp(calc(50% - 290px), calc(50% - (70% - 20px)), calc(50% - 215px));
 }

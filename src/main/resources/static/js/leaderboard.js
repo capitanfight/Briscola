@@ -1,4 +1,4 @@
-import {resourceExists, user} from "./user.js";
+import {resourceExists, user, id} from "./user.js";
 
 document.getElementById("back").addEventListener("click", () => window.location.replace("/"))
 
@@ -25,7 +25,7 @@ async function renderUser(stat, idx) {
             div.classList.add("user")
 
             if (valuable_pos.has(pos))
-                div.setAttribute("id", valuable_pos.get(pos))
+                div.classList.add(valuable_pos.get(pos))
 
             if (!(await resourceExists(`/img/profilePictures/${user.imageUrl}`)))
                 user.imageUrl = "blankProfilePicture.png"
@@ -41,4 +41,34 @@ async function renderUser(stat, idx) {
 
             container.appendChild(div)
     })
+}
+
+if (id !== null) {
+    let stat = await fetch(`api/user/stats/${id}`)
+        .then(response => response.json())
+
+    let pos = await fetch("api/user/stats")
+        .then(response => response.json())
+        .then(stats => stats.indexOf(stats.find(e => e.id === Number(id))) + 1)
+
+    const div = document.createElement('div');
+    div.classList.add("user")
+    div.setAttribute("id", "myself");
+
+    if (valuable_pos.has(pos))
+        div.classList.add(valuable_pos.get(pos))
+
+    if (!(await resourceExists(`/img/profilePictures/${user.imageUrl}`)))
+        user.imageUrl = "blankProfilePicture.png"
+
+    div.innerHTML = `
+                        <span class="position">${pos}</span>
+                        <div class="profile-picture-container">
+                            <img src="/img/profilePictures/${user.imageUrl}" alt="Profile pic">
+                        </div>
+                        <span class="username">${user.username}</span>
+                        <span class="win-count-label">win:<span class="win-count"></span>${stat.win}</span>
+                    `
+
+    document.body.appendChild(div)
 }

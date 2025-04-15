@@ -35,8 +35,8 @@ public class AuthenticationService {
         User user = User.builder()
                 .username(request.getUsername())
                 .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
-                //.password(request.getPassword())
+//                .password(passwordEncoder.encode(request.getPassword()))
+                .password(request.getPassword())
                 .imageUrl(request.getImgUrl())
                 .role(Role.USER)
                 .build();
