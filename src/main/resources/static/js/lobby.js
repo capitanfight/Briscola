@@ -1,3 +1,5 @@
+document.getElementById("container-back").addEventListener("click", () => window.location.replace("/"))
+
 import {cookiesHandler} from "./cookiesHandler.js";
 
 async function resourceExists(url) {

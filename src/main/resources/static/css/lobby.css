@@ -1,0 +1,117 @@
+@import "globals.css";
+
+body {
+    background-color: var(--background-color); /* Verde scuro */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    font-family: Arial, sans-serif;
+    color: var(--border-color);
+}
+
+#container {
+    padding: 20px;
+    width: 100%;
+    height: 60%;
+    justify-content: space-evenly;
+    align-items: center;
+    display: flex;
+    position: relative;
+}
+
+#container-back {
+    background-color: var(--dark-red); /* Rosso scuro */
+    border-radius: 30px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    color: var(--border-color);
+    border: 2px solid var(--border-color);
+    position: absolute;
+    top: 20px;
+    right: 40px;
+    width: 70px;
+    height: 50px;
+    font-weight: bold;
+    font-size:1.2rem;
+
+}
+
+.user{
+    background-color: var(--light-red);
+    border: 2px solid var(--border-color);
+    border-radius: 30px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    width: 20%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+.username{
+    font-weight: bold;
+    font-size:1.6rem;
+}
+
+.profile-pic-container {
+    height: 150px;
+    width: 150px;
+    border-radius: 50%;
+    border: 3px solid var(--border-color);
+    overflow: hidden;
+
+}
+
+.userPic {
+    height: 150px;
+    width: 150px;
+    transform: translate(-5px, -5px);
+}
+
+.status{
+    background-color: var(--dark-red); /* Rosso scuro */
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    color: var(--border-color);
+    border: 2px solid var(--border-color);
+    width: 50px;
+    height: 50px;
+    font-weight: bold;
+    font-size:1.4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#ready{
+    background-color: var(--dark-red); /* Rosso scuro */
+    border-radius: 30px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    color: var(--border-color);
+    border: 2px solid var(--border-color);
+    width: 100px;
+    height: 50px;
+    position: absolute;
+    bottom: 20px;
+    right: calc(50% - 50px);
+    font-weight: bold;
+    font-size:1.4rem;
+}
+
+.empty{
+    opacity: 50%;
+}
+
+.empty > .status{
+    opacity: 0;
+}
+
+.empty > .username{
+    font-weight: bold;
+    font-size:2rem;
+}
