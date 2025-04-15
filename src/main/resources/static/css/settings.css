@@ -1,93 +1,105 @@
-:root {
-  --light-yellow: #d6bd40;
-}
+@import "globals.css";
 
 * {
   box-sizing: border-box;
 }
 
 body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background-color: #004225; /* verde scuro */
-    color: var(--light-yellow);
-  }
-  
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: var(--background-color); /* verde scuro */
+  color: var(--border-color);
+}
+
 .container {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
+  height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
 }
-  
+
 .settings-box {
-  background-color: #8B0000;
-  border: 3px solid #c28c46;
-  padding: 30px;
-  width: 400px;
-  border-radius: 20px;
-  color: #FDEAA8;
-  box-shadow: 20px 20px 20px rgb(1, 30, 1);
+  background-color: var(--light-red); /* rosso scuro */
+  border: 3px solid var(--border-color);
+  border-radius: 25px;
+  padding: 20px;
+
+  display: flex;
+  flex-direction: column;
+
+  width: clamp(350px, 30%, 500px);
+  height: clamp(350px, 50%, 400px);
+
+  position: relative;
 }
 
 .settings-header {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
-  position: relative;
+  border-bottom: 2px solid var(--border-color);
+  padding-bottom: 10px;
+  margin-bottom: 20px;
 }
-  
+
 .settings-header h1 {
-  font-size: 28px;
-  text-align: center;
-  margin: 0 auto;
+  font-size: 20px;
+  margin: 0;
 }
-  
+
 #close-btn {
-  position: absolute;
-  right: 0;
-  background-color: #5A0A0A;
-  color: #c28c46;
-  border: 2px solid #c28c46;
+  background-color: var(--dark-red);
+  border: 2px solid var(--border-color);
   border-radius: 50%;
-  width: 35px;
-  height: 35px;
-  font-size: 18px;
+  color: var(--border-color);
+  width: 50px;
+  height: 50px;
+  font-weight: bold;
   cursor: pointer;
-  transition: transform 0.2s ease, background-color 0.2s ease;
+
+  font-size: 20px;
+
+  position: absolute;
+  top: -25px;
+  right: -25px;
 }
 
 #close-btn:hover {
-  transform: scale(1.2);
-  color: #5A0A0A;
-  background-color: #c28c46;
-  border: 2px solid #5A0A0A;
+  background-color: var(--border-color);
+  color: var(--dark-red);
 }
 
 .setting {
-  margin-top: 30px;
-  background-color: #5A0A0A;
-  padding: 20px;
-  border-radius: 15px;
-}
-
-.setting-audio{
+  background-color: var(--dark-red);
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 15px;
   display: flex;
   align-items: center;
-  gap: 20px; /* spazio tra icona e slider */
-  background-color: #5A0A0A;
-  padding: 20px;
-  border-radius: 15px;
+  gap: 10px;
+
+  flex: 1;
+
+  font-size: 1.5rem;
+
+  position: relative;
+}
+
+.setting.audio {
+  display: flex;
+}
+.setting.audio > h3 {
+  position: absolute;
+  top: 5px;
+  margin: 0;
+  left: clamp(100px, calc((100% - 100px) / 2), 180px);
 }
 
 input[type="range"] {
-  width: 100%;
-  accent-color: #c28c46;
+  flex: 1;
+  accent-color: var(--border-color);
 }
-  
+
 .icon {
   height: 40px;
   width: 40px;
@@ -108,45 +120,47 @@ button {
 }
 
 .credits {
-  margin-top: 30px;
-  background-color: #5A0A0A;
-  padding: 20px;
-  border-radius: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .pair {
   width: 100%;
   display: flex;
-  align-items: center; /* centra verticalmente */
-  gap: 10px; /* spazio tra icona e testo */
 }
 
 .pair a,
-  .pair span {
+.pair span {
   display: block;
 
+  text-align: center;
   text-decoration: none;
-  color: #c28c46;
-  font-weight: bold;
-  transition: color 0.3s ease, text-shadow 0.3s ease;
+  color: var(--border-color);
 
   width: 100%;
-}
-
-.pair:not(:last-child) {
-  margin-bottom: 15px;
 }
 
 .a-container {
   display: flex;
+  justify-content: center;
   width: 100%;
 }
 
-a:hover {
-  color: #d00e0e;
-  text-shadow: 0 0 5px #d00e0e;
-}
+#title {
+  position: absolute;
+  top: -30px;
+  left: clamp(45px, calc((100% - 250px) / 2 ), 125px);
 
-.title{
-  color: #c28c46;
+  width: 250px;
+  height: 50px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background-color: var(--dark-red);
+  border: 3px solid var(--border-color);
+  border-radius: 30px;
 }
