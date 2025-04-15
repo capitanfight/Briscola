@@ -16,9 +16,11 @@ export function throwFatalError() {
 }
 
 export const id = cookiesHandler.getCookie("userId");
-if (id === undefined || id === null) {
-    throwFatalError()
+export function checkUserId() {
+    if (id === undefined || id === null)
+        throwFatalError()
 }
+
 
 export const user = await fetch(`/api/user/${id}`)
     .then(response => response.json())

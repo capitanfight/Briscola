@@ -30,7 +30,9 @@ public class SecurityConfig {
                                 "/api/auth/**",
                                 // info api
                                 "/api/user/info",
-                                "/api/room/info"
+                                "/api/room/info",
+                                "/api/user/stats",
+                                "/api/user/*"
                         ).permitAll()
                         .requestMatchers(
                                 // home page (html)
@@ -38,7 +40,9 @@ public class SecurityConfig {
                                 // resources
                                 "/css/**", "/js/**", "/img/**",
                                 // register page (html)
-                                "/register"
+                                "/register",
+                                "/leaderboard",
+                                "/settings"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

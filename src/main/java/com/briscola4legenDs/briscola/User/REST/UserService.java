@@ -257,4 +257,8 @@ public class UserService {
 
         return updated;
     }
+
+    public List<Stats> getAllStats() {
+        return statsRepository.findAllByOrderByWinDesc();
+    }
 }

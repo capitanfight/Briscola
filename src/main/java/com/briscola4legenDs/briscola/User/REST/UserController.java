@@ -98,6 +98,11 @@ public class UserController {
         return userService.getFriends(id);
     }
 
+    @GetMapping("/stats")
+    public List<Stats> getStats() {
+        return userService.getAllStats();
+    }
+
     @GetMapping("/stats/{id:\\d+}")
     public Stats getStats(@PathVariable long id) {
         return userService.getStats(id);

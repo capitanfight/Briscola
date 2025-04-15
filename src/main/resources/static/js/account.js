@@ -1,4 +1,6 @@
-import {resourceExists, user, id} from "./user.js";
+import {resourceExists, user, id, checkUserId} from "./user.js";
+
+checkUserId()
 
 document.getElementById("container-back").addEventListener("click", () => window.location.replace("/"))
 

@@ -7,25 +7,45 @@
     <script src="/js/leaderboard.js" type="module" defer></script>
 </head>
 <body>
-
-<div class="container">
+<div id="container">
     <h1 id="title">LEADERBOARD</h1>
 
-    <div id="container">
+    <div id="user-container">
         <div class="user" id="first">
             <span class="position">1</span>
             <div class="profile-picture-container">
                 <img src="/img/profilePictures/blankProfilePicture.png" alt="Profile pic">
             </div>
             <span class="username">Username</span>
-            <span class="win-count">win:<span class="win-count"></span>1000</span>
+            <span class="win-count-label">win:<span class="win-count"></span>1000</span>
+        </div>
+        <div class="user" id="second">
+            <span class="position">2</span>
+            <div class="profile-picture-container">
+                <img src="/img/profilePictures/blankProfilePicture.png" alt="Profile pic">
+            </div>
+            <span class="username">Username</span>
+            <span class="win-count-label">win:<span class="win-count"></span>1000</span>
+        </div>
+        <div class="user" id="third">
+            <span class="position">3</span>
+            <div class="profile-picture-container">
+                <img src="/img/profilePictures/blankProfilePicture.png" alt="Profile pic">
+            </div>
+            <span class="username">Username</span>
+            <span class="win-count-label">win:<span class="win-count"></span>1000</span>
+        </div>
+        <div class="user">
+            <span class="position">4</span>
+            <div class="profile-picture-container">
+                <img src="/img/profilePictures/blankProfilePicture.png" alt="Profile pic">
+            </div>
+            <span class="username">Username</span>
+            <span class="win-count-label">win:<span class="win-count"></span>1000</span>
         </div>
     </div>
-
-    <div id="container-back">
-      <button>X</button>
-    </div>
-
 </div>
+
+<button id="back">back</button>
 </body>
 </html>

@@ -1,5 +1,7 @@
 import {cookiesHandler} from "./cookiesHandler.js";
-import {resourceExists, user, id} from "./user.js";
+import {resourceExists, user, id, checkUserId} from "./user.js";
+
+checkUserId()
 
 const selection_btns = Array.from(document.getElementsByClassName("selection-btn"))
 const sections = Array.from(document.getElementsByClassName("section"))
@@ -117,12 +119,12 @@ function renderFriends() {
                         if (!await resourceExists(`/img/profilePictures/${f.imageUrl}`))
                             f.imageUrl = "blankProfilePicture.png"
 
-                        container.innerHTML = `      
+                        container.innerHTML = `
                                 <div class="profile-picture-container">
                                     <img src="/img/profilePictures/${f.imageUrl}" alt="Profile Picture" class="profile-picture">
                                 </div>
                                 <span class="username">${f.username}</span>
-                `
+                        `
 
                         const friend_btn_pair = document.createElement("div")
                         friend_btn_pair.classList.add("friend-btn-pair")
