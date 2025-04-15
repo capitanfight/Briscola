@@ -2,6 +2,8 @@ package com.briscola4legenDs.briscola.User.REST;
 
 import com.briscola4legenDs.briscola.Assets.PayloadBuilder;
 import com.briscola4legenDs.briscola.User.Friends.*;
+import com.briscola4legenDs.briscola.User.Stats.Stats;
+import com.briscola4legenDs.briscola.User.Stats.StatsRepository;
 import com.briscola4legenDs.briscola.User.User;
 import com.briscola4legenDs.briscola.User.WebSocket.UserSocketHandler;
 import jakarta.transaction.Transactional;
@@ -21,6 +23,7 @@ public class UserService {
     private final FriendRequestRepository friendRequestRepository;
 
     private final UserSocketHandler userSocketHandler;
+    private final StatsRepository statsRepository;
 
     public List<User> getUsers() {
         return userRepository.findAll();
@@ -48,7 +51,7 @@ public class UserService {
                 user.getEmail() != null &&
                 !user.getEmail().isEmpty())
             if (userRepository.findByEmail(user.getEmail()).isEmpty()) {
-                oldUser.setUsername(user.getEmail());
+                oldUser.setEmail(user.getEmail());
                 updated = true;
             } else
                 throw new IllegalArgumentException("Email already exists");
@@ -206,5 +209,52 @@ public class UserService {
             userSocketHandler.multicastMessage(new Long[]{ id }, PayloadBuilder.createJsonMessage(
                 UserSocketHandler.Code.UPDATE_FRIEND_LIST, null));
         } catch (IOException ignored) {}
+    }
+
+    public Stats getStats(long id) {
+        Optional<Stats> optionalStats = statsRepository.findById(id);
+
+        if (optionalStats.isEmpty()) {
+            Stats stats = Stats.builder()
+                    .id(id)
+                    .loss(0)
+                    .win(0)
+                    .matches(0)
+                    .build();
+
+            statsRepository.save(stats);
+            return stats;
+        }
+
+        return optionalStats.get();
+    }
+
+    @Transactional
+    public boolean updateStats(Stats stats) {
+        boolean updated = false;
+
+        if (statsRepository.findById(stats.getId()).isEmpty())
+            throw new IllegalArgumentException("User with id: " + stats.getId() + " not found");
+
+        Stats oldStats = statsRepository.findById(stats.getId()).get();
+        if (!(oldStats.getMatches() == stats.getWin()) &&
+                stats.getMatches() > 0) {
+            oldStats.setMatches(stats.getMatches());
+            updated = true;
+        }
+
+        if (!(oldStats.getWin() == stats.getWin()) &&
+                stats.getWin() > 0) {
+            oldStats.setWin(stats.getWin());
+            updated = true;
+        }
+
+        if (!(oldStats.getLoss() == stats.getLoss()) &&
+                stats.getLoss() > 0) {
+            oldStats.setLoss(stats.getLoss());
+            updated = true;
+        }
+
+        return updated;
     }
 }

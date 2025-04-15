@@ -13,27 +13,31 @@
             <h2>ACCOUNT</h2>
         </div>
 
-        <div class="img-container" id="profile-pic-container">
-            <img id="userPic" src="/img/profilePictures/blankProfilePicture.png" alt="Profile picture">
-        </div>
-        <h1 id="username"></h1>
-        <div id="user-id">
-            <p id="p_id">ID</p>
-            <span id="user-id-label"></span>
+        <div id="user">
+            <div class="img-container" id="profile-pic-container">
+                <img id="userPic" src="/img/profilePictures/blankProfilePicture.png" alt="Profile picture">
+            </div>
+            <h1 id="username"></h1>
+            <div id="user-id">
+                <p id="p_id">ID</p>
+                <span id="user-id-label"></span>
+            </div>
         </div>
         <div id="container-statics">
-            <h2>STATISTICHE:</h2>
-        </div>
-        <div id="container-match">
-            <h2>Matches:</h2>
-        </div>
-        <div id="container-win">
-            <h2>win:</h2>
-        </div>
-        <div id="container-lose">
-            <h2>lose:</h2>
-        </div>
+            <h2>STATISTICS:</h2>
+            <div id="container-match">
+                <h2>Matches: <span id="match-number"></span></h2>
+            </div>
+            <div class="pair">
+                <div id="container-win">
+                    <h2>win: <span id="win-number"></span></h2>
+                </div>
+                <div id="container-lose">
+                    <h2>lose: <span id="lose-number"></span></h2>
+                </div>
+            </div>
 
+        </div>
         <div id="container-back">
             <button>X</button>
         </div>

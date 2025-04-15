@@ -1,4 +1,5 @@
 import {cookiesHandler} from "./cookiesHandler.js";
+import {resourceExists, user, id} from "./user.js";
 
 const selection_btns = Array.from(document.getElementsByClassName("selection-btn"))
 const sections = Array.from(document.getElementsByClassName("section"))
@@ -6,26 +7,6 @@ const sections = Array.from(document.getElementsByClassName("section"))
 const notification_container = document.getElementById("notification-container")
 
 const main_friends_container = document.getElementById("friends-container")
-
-async function resourceExists(url) {
-    try {
-        const response = await fetch(url, { method: 'HEAD' });
-        return response.ok;
-    } catch (error) {
-        console.error('Error checking resource:', error);
-        return false;
-    }
-}
-
-function throwFatalError() {
-    alert("Fatal error occurred. You have been logged out")
-    window.location.replace("/logout");
-}
-
-const id = cookiesHandler.getCookie("userId");
-if (id === undefined || id === null) {
-    throwFatalError()
-}
 
 const ws = new WebSocket("/ws/user");
 
@@ -50,10 +31,6 @@ ws.onmessage = msg => {
             break
     }
 }
-
-const user = await fetch(`/api/user/${id}`)
-    .then(response => response.json())
-    .catch(throwFatalError)
 
 document.getElementById("user-id-label").textContent = `#${id.padStart(5, "0")}`
 document.getElementById("username").textContent = user.username

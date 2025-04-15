@@ -1,5 +1,6 @@
 package com.briscola4legenDs.briscola.User;
 
+import com.briscola4legenDs.briscola.User.Stats.Stats;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;

@@ -4,6 +4,7 @@ import com.briscola4legenDs.briscola.Assets.RESTInfo;
 import com.briscola4legenDs.briscola.User.Friends.FriendException;
 import com.briscola4legenDs.briscola.User.Friends.FriendRelation;
 import com.briscola4legenDs.briscola.User.Friends.FriendRequest;
+import com.briscola4legenDs.briscola.User.Stats.Stats;
 import com.briscola4legenDs.briscola.User.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -95,6 +96,19 @@ public class UserController {
     @GetMapping("/friend/{id:\\d+}")
     public List<FriendRelation> getFriends(@PathVariable long id) {
         return userService.getFriends(id);
+    }
+
+    @GetMapping("/stats/{id:\\d+}")
+    public Stats getStats(@PathVariable long id) {
+        return userService.getStats(id);
+    }
+
+    @PutMapping("/stats")
+    public ResponseEntity<Void> updateStats(@RequestBody Stats stats) {
+        if (userService.updateStats(stats))
+            return ResponseEntity.ok().build();
+        else
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
     @GetMapping("/info")
