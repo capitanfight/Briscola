@@ -1,17 +1,4 @@
-:root {
-    --background-color: #043920;
-    --light-red: #8b0101;
-    --dark-red: #520000;
-    --border-color: #c28c46;
-    --transparent: rgba(0, 0, 0, 0);
-}
-
-*{
-    /*border: 1px solid black;*/
-    box-sizing: border-box;
-
-    font-family: "Arial", sans-serif;
-}
+@import "globals.css";
 
 body{
     margin: 0;
@@ -116,9 +103,9 @@ button {
 #back button {
     display: block;
 
-    background-color: #550000;
-    color: #c28c46;
-    border: 2px solid #c28c46;
+    background-color: var(--dark-red);
+    color: var(--border-color);
+    border: 2px solid var(--border-color);
 
     padding: 12px;
 
@@ -134,10 +121,8 @@ button {
 }
 
 #back button:hover{
-    color: #5A0A0A;
-    background-color: #c28c46;
-    border: 2px solid #5A0A0A;
-    transform: translateY(-2px);
+    color: var(--dark-red);
+    background-color: var(--border-color);
 }
 
 #friend-box {

@@ -1,7 +1,4 @@
-*{
-    box-sizing: border-box;
-    /*border: 2px solid black;*/
-}
+@import "globals.css";
 
 body{
     margin: 0;
@@ -28,19 +25,14 @@ div.place-holder {
     height: 100vh;
 }
 
-/*prima immagine con tavolo*/
-/*.bgImg{*/
-/*    width: auto;*/
-/*    height: 100%;*/
-/*}*/
-
 /*rendere l' immagine più scura*/
 #darkerImg{
     filter: brightness(50%);
 }
 
 /*menu*/
-#menu-page, #menu{
+#menu {
+    flex: 2;
     display: flex;
     width: 100%;
     justify-content: center;
@@ -51,7 +43,7 @@ div.place-holder {
     flex-direction: column;
     gap: 10px;
     padding: 10px;
-    background-color: #043920;
+    background-color: var(--background-color);
     transition: transform 0.5s ease-in-out;
 
     height: 100vh;
@@ -70,7 +62,6 @@ div.place-holder {
     width: 100%;
     max-width: 100%;
     text-align: center;
-    line-height: 150px;
     padding: 20px;
     margin: 60px;
 }
@@ -92,15 +83,15 @@ div.place-holder {
 }
 
 /*voci di navigazione*/
-a{
+a {
     text-decoration: none;
-    color: #c28c46;
+    color: var(--border-color);
     font-weight: bold;
     transition: color 0.3s ease, transform 0.2s ease;
 }
 
 a:hover{
-    color:#520000;
+    color: var(--dark-red);
     transform: scale(1.1);
 }
 
@@ -116,7 +107,7 @@ a:hover{
 /*immagine decorazione parte alta*/
 #decorations img{
     width: 100%;
-    height: 250px;
+    height: 70%;
 }
 
 /*parte bassa del menu*/
@@ -133,6 +124,8 @@ a:hover{
     text-align: center;
     position: relative;
     display: inline-block;
+
+    max-height: 70%;
 }
 
 /*immagine che inserisce un frame*/
@@ -146,13 +139,17 @@ a:hover{
     width: 100%;
 }
 
+#title {
+    height: 30%;
+}
+
 /*logo carte*/
 #logoDalNegro{
     display: flex;
     justify-content: center;
     align-items: center;
     width: 100%;
-    height: 250px;
+    height: 30%;
 
     overflow: hidden;
 }
@@ -184,18 +181,18 @@ a:hover{
 }
 
 .overlay p{
-    color: #c28c46;
+    color: var(--border-color);
 }
 
 .overlay h1{
-    color: #520000;
+    color: var(--dark-red);
     font-size: 70px;
 }
 
 /*pulsanti*/
 button {
-    background-color: #520000;
-    color: #c28c46;
+    background-color: var(--dark-red);
+    color: var(--border-color);
     border: none;
     padding: 10px 20px;
     cursor: pointer;
@@ -215,13 +212,26 @@ button:hover{
     width: 200px;
     border-radius: 30px;
     font-weight: bold;
-    background-color: #8b0101;
+    background-color: var(--light-red);
     font-size: 1.2rem;
 }
 /*animazioni*/
 
 /*il contenuto compare gradualmente quando carico la pagina*/
-#menu-page, #content {
+#menu-page {
+    opacity: 0;
+    transform: translateY(-20px);
+    animation: fadeIn 1s ease-out forwards;
+
+    display: flex;
+    flex-direction: column;
+
+    overflow: hidden;
+}
+
+#content {
+    flex: 2;
+
     opacity: 0;
     transform: translateY(-20px);
     animation: fadeIn 1s ease-out forwards;
