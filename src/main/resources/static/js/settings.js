@@ -9,7 +9,7 @@ function toggleAudio() {
     audio = !audio
 
     cookiesHandler.setCookie("audio", audio);
-    document.getElementById("audio-logo").setAttribute("src", `/img/Logo/audio-${audio ? "on" : "off"}-logo.svg`);
+    document.getElementById("audio-logo").setAttribute("src", `/img/svg/audio-${audio ? "on" : "off"}-logo.svg`);
 }
 
 const volumeSlider = document.getElementById("volumeRange");

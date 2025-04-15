@@ -57,10 +57,10 @@ const user = await fetch(`/api/user/${id}`)
 
 document.getElementById("user-id-label").textContent = `#${id.padStart(5, "0")}`
 document.getElementById("username").textContent = user.username
-resourceExists(`/img/ProfilePictures/${user.imageUrl}`)
+resourceExists(`/img/profilePictures/${user.imageUrl}`)
     .then(exists => {
         if (exists)
-            document.getElementById("userPic").setAttribute("src", `/img/ProfilePictures/${user.imageUrl}`)
+            document.getElementById("userPic").setAttribute("src", `/img/profilePictures/${user.imageUrl}`)
     })
 
 // Friends section
@@ -137,12 +137,12 @@ function renderFriends() {
                         container.classList.add("user")
                         container.setAttribute("userId", f.id)
 
-                        if (!await resourceExists(`/img/ProfilePictures/${f.imageUrl}`))
+                        if (!await resourceExists(`/img/profilePictures/${f.imageUrl}`))
                             f.imageUrl = "blankProfilePicture.png"
 
                         container.innerHTML = `      
                                 <div class="profile-picture-container">
-                                    <img src="/img/ProfilePictures/${f.imageUrl}" alt="Profile Picture" class="profile-picture">
+                                    <img src="/img/profilePictures/${f.imageUrl}" alt="Profile Picture" class="profile-picture">
                                 </div>
                                 <span class="username">${f.username}</span>
                 `
@@ -200,12 +200,12 @@ function renderFriends() {
                     container.classList.add("user")
                     container.setAttribute("userId", f.id)
 
-                    if (!await resourceExists(`/img/ProfilePictures/${f.imageUrl}`))
+                    if (!await resourceExists(`/img/profilePictures/${f.imageUrl}`))
                         f.imageUrl = "blankProfilePicture.png"
 
                     container.innerHTML = `      
                                 <div class="profile-picture-container">
-                                    <img src="/img/ProfilePictures/${f.imageUrl}" alt="Profile Picture" class="profile-picture">
+                                    <img src="/img/profilePictures/${f.imageUrl}" alt="Profile Picture" class="profile-picture">
                                 </div>
                                 <span class="username">${f.username}</span>
                 `
