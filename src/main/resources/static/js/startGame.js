@@ -85,7 +85,7 @@ function invited(userId, roomId) {
 
             setTimeout(() => {
                 closeNotification(id)
-            }, 5000)
+            }, 10000)
 
             notification_container.append(div)
 

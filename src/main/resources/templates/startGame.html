@@ -105,6 +105,19 @@ Quando clicco sul pulsante aggiungi:
             </div>
         </div>
 
-        <div id="notification-container"></div>
+        <div id="notification-container">
+            <div th:if="${param.kicked}" class="notification" id="kicked-notification">
+                <span class="description">You have been kicked by <span class="username" th:text="${param.kicked}"></span></span>
+                <div class="pair">
+                    <button onclick="document.getElementById('notification-container').removeChild(document.getElementById('kicked-notification'))">Close</button>
+                </div>
+                <div class="bar-container">
+                    <div class="bar"></div>
+                </div>
+                <script>
+                    setTimeout(() => document.getElementById('notification-container').removeChild(document.getElementById("kicked-notification")), 10000)
+                </script>
+            </div>
+        </div>
     </body>
 </html>

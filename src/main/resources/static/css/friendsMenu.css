@@ -713,7 +713,7 @@ button {
 
     background-color: var(--dark-red);
 
-    animation: notification-timer 5s linear;
+    animation: notification-timer 10s linear;
 }
 
 @keyframes notification-timer {

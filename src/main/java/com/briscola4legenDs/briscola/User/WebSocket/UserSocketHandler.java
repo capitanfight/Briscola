@@ -18,7 +18,7 @@ public class UserSocketHandler extends TextWebSocketHandler {
     private static final ConcurrentHashMap<Long, WebSocketSession> sessions = new ConcurrentHashMap<>();
     private static final CopyOnWriteArrayList<WebSocketSession> sessionsWithoutId = new CopyOnWriteArrayList<>();
 
-    public enum Code {
+    public enum Code implements com.briscola4legenDs.briscola.Assets.Code {
         SET_ID,
         UPDATE_FRIEND_LIST,
         INVITED

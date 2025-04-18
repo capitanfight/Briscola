@@ -5,10 +5,12 @@ import com.briscola4legenDs.briscola.Room.Room;
 import com.briscola4legenDs.briscola.Room.Token;
 import com.briscola4legenDs.briscola.Room.WebSocket.LobbySocketHandler;
 import com.briscola4legenDs.briscola.Room.WebSocket.RoomSocketHandler;
+import com.briscola4legenDs.briscola.User.User;
 import game.Card;
 import game.Player;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,16 +21,13 @@ import java.util.*;
 @Service
 public class RoomService {
     private final RoomLocalRepository roomLocalRepository;
-    private final RoomSocketHandler roomSocketHandler;
     private final LobbySocketHandler lobbySocketHandler;
 
     private static final Logger log = LoggerFactory.getLogger(RoomService.class.getName());
 
     @Autowired
-    public RoomService(RoomLocalRepository roomLocalRepository, RoomSocketHandler roomSocketHandler, LobbySocketHandler lobbySocketHandler) {
+    public RoomService(RoomLocalRepository roomLocalRepository, LobbySocketHandler lobbySocketHandler) {
         this.roomLocalRepository = roomLocalRepository;
-        this.roomSocketHandler = roomSocketHandler;
-        roomSocketHandler.setRoomService(this);
         this.lobbySocketHandler = lobbySocketHandler;
         lobbySocketHandler.setRoomService(this);
     }
@@ -78,10 +77,20 @@ public class RoomService {
 
     public void rmvPlayer(Token token) {
         checkForTokenValidity(token);
-        roomLocalRepository.getRoomById(token.getRoomId()).removePlayer(token.getPlayerId());
+        Room room = roomLocalRepository.getRoomById(token.getRoomId());
 
-        if (roomLocalRepository.getRoomById(token.getRoomId()).isEmpty())
+        boolean changeHost = room.getHostId() == token.getPlayerId();
+        room.removePlayer(token.getPlayerId());
+
+        if (room.isEmpty())
             roomLocalRepository.remove(token.getRoomId());
+        else if (changeHost) {
+            try {
+                lobbySocketHandler.multicastMessage(lobbySocketHandler.getPlayersInRoom(room.getId()),
+                        PayloadBuilder.createJsonMessage(LobbySocketHandler.Code.NEW_HOST,
+                                PayloadBuilder.createJsonPayload(new PayloadBuilder().addLong("hostId", room.getHostId()).build())));
+            } catch (IOException ignored) {}
+        }
 
         sendRoomPlayersUpdate(token.getRoomId());
 
@@ -173,7 +182,7 @@ public class RoomService {
      * @param gameId Id of the room to check.
      * @return True if all players are ready, false otherwise.
      */
-    private boolean checkIfGameCanStart(long gameId) {
+    public boolean checkIfGameCanStart(long gameId) {
         checkForRoomIdValidity(gameId);
 
         Room room = roomLocalRepository.getRoomById(gameId);
@@ -261,5 +270,25 @@ public class RoomService {
 
             throw new RuntimeException(e);
         }
+    }
+
+    public List<Long> getPlayers(long roomId) {
+        ArrayList<Long> ids = new ArrayList<>();
+
+        for (Player player : roomLocalRepository.getRoomById(roomId).getPlayers())
+            ids.add(player.getId());
+
+        return ids;
+    }
+
+    public boolean getPlayerState(long roomId, long userId) {
+        Room room = roomLocalRepository.getRoomById(roomId);
+        Player p =  room.getPlayer(userId).orElseThrow(() -> new UsernameNotFoundException("user not found"));
+        int idx = room.getPlayers().indexOf(p);
+        return room.getIsPlayerReady().get(idx);
+    }
+
+    public long getHostId(long id) {
+        return roomLocalRepository.getRoomById(id).getHostId();
     }
 }

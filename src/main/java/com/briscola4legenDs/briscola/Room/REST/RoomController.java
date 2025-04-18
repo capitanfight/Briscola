@@ -3,12 +3,15 @@ package com.briscola4legenDs.briscola.Room.REST;
 import com.briscola4legenDs.briscola.Assets.RESTInfo;
 import com.briscola4legenDs.briscola.Room.Room;
 import com.briscola4legenDs.briscola.Room.Token;
+import com.briscola4legenDs.briscola.User.User;
 import game.Card;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 
 @RestController
 @RequestMapping(path = "api/room")
@@ -48,6 +51,16 @@ public class RoomController {
         return roomService.createRoom(name, visibility);
     }
 
+    @GetMapping("/{id:\\d+}/host")
+    public long getHostId(@PathVariable long id) {
+        return roomService.getHostId(id);
+    }
+
+    @GetMapping("/{id:\\d+}/players")
+    public List<Long> getPlayers(@PathVariable long id) {
+        return roomService.getPlayers(id);
+    }
+
     @PostMapping(path = "player")
     public ResponseEntity<Void> addPlayer(@RequestBody Token token) {
         try {
@@ -61,6 +74,11 @@ public class RoomController {
     @DeleteMapping(path = "player")
     public void removePlayer(@RequestBody Token token) {
         roomService.rmvPlayer(token);
+    }
+
+    @GetMapping(path = "{roomId:\\d+}/player/{userId:\\d+}/state")
+    public boolean getPlayerState(@PathVariable long roomId, @PathVariable long userId) {
+        return roomService.getPlayerState(roomId, userId);
     }
 
     @PutMapping(path = "player/{state}")
@@ -91,6 +109,11 @@ public class RoomController {
     @GetMapping(path = "{id:\\d+}/board")
     public Card[] getBoard(@PathVariable long id) {
         return roomService.getBoard(id);
+    }
+
+    @GetMapping("/{id:\\d+}/canStart")
+    public boolean canGameStart(@PathVariable long id) {
+        return roomService.checkIfGameCanStart(id);
     }
 
     @GetMapping(path = "{id:\\d+}/gameOver")

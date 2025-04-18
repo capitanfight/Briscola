@@ -5,9 +5,11 @@ import game.Game;
 import game.Player;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import lombok.Getter;
 
 import java.util.concurrent.CopyOnWriteArrayList;
 
+@Getter
 public class Room extends Game {
     public enum Visibility {
         PUBLIC, PRIVATE
@@ -15,11 +17,11 @@ public class Room extends Game {
 
     private static long idGen = 1;
 
-    private final RoomSocketHandler roomSocketHandler;
-
     private final String name;
     @Enumerated(EnumType.STRING)
     private final Visibility visibility;
+    private long hostId;
+
     private final CopyOnWriteArrayList<Boolean> isPlayerReady;
 
     public Room(String name, Visibility visibility) {
@@ -29,7 +31,6 @@ public class Room extends Game {
         this.name = name;
 
         isPlayerReady = new CopyOnWriteArrayList<>();
-        roomSocketHandler = new RoomSocketHandler();
 
         this.visibility = visibility;
     }
@@ -46,11 +47,19 @@ public class Room extends Game {
     }
 
     public void addPlayer(Player player) throws IllegalArgumentException {
+        if (getPlayers().isEmpty())
+            hostId = player.getId();
+
         super.addPlayer(player);
         isPlayerReady.add(false);
     }
 
     public void removePlayer(Long id) {
+        if (hostId == id)
+            for (Player p : getPlayers())
+                if (!p.getId().equals(id))
+                    hostId = p.getId();
+
         int idx = super.getPlayerIdx(id);
 
         super.removePlayer(id);
@@ -66,18 +75,6 @@ public class Room extends Game {
 //
 //        return ids;
 //    }
-
-    public CopyOnWriteArrayList<Boolean> getIsPlayerReady() {
-        return isPlayerReady;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public Visibility getVisibility() {
-        return visibility;
-    }
 
     @Override
     public String toString() {

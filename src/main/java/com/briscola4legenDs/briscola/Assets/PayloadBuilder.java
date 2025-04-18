@@ -115,16 +115,7 @@ public class PayloadBuilder {
         return payload;
     }
 
-    public static String createJsonMessage(RoomSocketHandler.Code code, JSONObject payload) {
-        JSONObject jsonObject = new JSONObject();
-
-        jsonObject.put("code", code);
-        jsonObject.put("payload", payload);
-
-        return jsonObject.toString();
-    }
-
-    public static String createJsonMessage(UserSocketHandler.Code code, JSONObject payload) {
+    public static String createJsonMessage(Code code, JSONObject payload) {
         JSONObject jsonObject = new JSONObject();
 
         jsonObject.put("code", code);

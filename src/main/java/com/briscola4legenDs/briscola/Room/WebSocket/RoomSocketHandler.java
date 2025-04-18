@@ -21,7 +21,7 @@ public class RoomSocketHandler extends TextWebSocketHandler {
     private static final ConcurrentHashMap<Long, WebSocketSession> sessions = new ConcurrentHashMap<>();
     private static final CopyOnWriteArrayList<WebSocketSession> sessionsWithoutId = new CopyOnWriteArrayList<>();
 
-    public enum Code {
+    public enum Code implements com.briscola4legenDs.briscola.Assets.Code {
         SET_ID,
         GET_PLAYERS_INSIDE,
         GET_READY_PLAYERS,

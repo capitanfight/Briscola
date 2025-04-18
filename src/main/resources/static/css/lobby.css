@@ -44,11 +44,15 @@ body {
 
 .user{
     background-color: var(--light-red);
-    border: 2px solid var(--border-color);
+    border: 5px solid var(--border-color);
     border-radius: 30px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-    width: 20%;
-    height: 100%;
+
+    width: clamp(0px, 20%, 400px);
+    height: 90%;
+
+    position: relative;
+
     display: flex;
     flex-direction: column;
     justify-content: space-evenly;
@@ -57,7 +61,7 @@ body {
 
 .username{
     font-weight: bold;
-    font-size:1.6rem;
+    font-size:2rem;
 }
 
 .profile-pic-container {
@@ -105,17 +109,72 @@ body {
     right: calc(50% - 50px);
     font-weight: bold;
     font-size:1.4rem;
+
+    cursor: pointer;
 }
 
 .empty{
     opacity: 50%;
+    border-style: dashed;
 }
 
-.empty > .status{
-    opacity: 0;
-}
-
-.empty > .username{
+#info {
+    font-size: 1.2rem;
     font-weight: bold;
-    font-size:2rem;
+
+    color: var(--border-color);
+
+    position: absolute;
+    top: 20px;
+    left: 20px;
+
+    display: flex;
+    flex-direction: column;
+}
+
+.host:before {
+    content: "Host";
+
+    height: 40px;
+    width: 80px;
+
+    font-size: 1.3rem;
+    font-weight: bold;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    position: absolute;
+    top: 10px;
+    right: 10px;
+
+    background-color: var(--dark-red);
+    color: var(--border-color);
+    border-radius: 15px;
+}
+
+.kick-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+
+    height: 40px;
+    width: 40px;
+
+    border-radius: 10px;
+
+    background-color: var(--dark-red);
+    background-image: url("../img/svg/boot-kick.svg");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 30px;
+
+    border: 1px solid var(--transparent);
+
+    cursor: pointer;
+}
+
+.kick-btn {
+    border-color: var(--border-color);
 }

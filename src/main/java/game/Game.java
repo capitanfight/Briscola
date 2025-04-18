@@ -144,7 +144,8 @@ public class Game {
      */
     public void start() throws RuntimeException {
         if (players.size() != 2 && players.size() != 4)
-            throw new RuntimeException("Invalid number of players");
+            return;
+            // throw new RuntimeException("Invalid number of players");
 
         isGameStarted = true;
         cardIdx = 0;
