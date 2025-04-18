@@ -10,7 +10,7 @@ body {
     font-family: Arial, sans-serif;
 }
 
-.container {
+#main-container {
     background-color: var(--light-red); /* Rosso scuro */
     padding: 20px;
     border-radius: 15px;
@@ -124,31 +124,16 @@ body {
     flex: 3;
 }
 
-#container-match {
-    background-color: var(--dark-red); /* Rosso scuro */
-    border-radius: 15px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-    text-align: center;
-    width: 200px;
-    height: 70px;
+#container-statics span {
+    font-size: 1.5rem;
 }
 
-#container-win {
+.container {
     background-color: var(--dark-red); /* Rosso scuro */
     border-radius: 15px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
     text-align: center;
-    width: 150px;
-    height: 70px;
-}
-
-#container-lose {
-    background-color: var(--dark-red); /* Rosso scuro */
-    border-radius: 15px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-    text-align: center;
-    width: 150px;
-    height: 70px;
+    padding: 15px;
 }
 
 .pair {

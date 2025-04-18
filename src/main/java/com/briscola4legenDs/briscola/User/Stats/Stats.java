@@ -19,5 +19,8 @@ public class Stats {
     private int loss;
     private int matches;
 
+    private int maxPoints;
+    private int totalPoints;
+
     // TODO: aggiungere: punteggio massimo e punteggio medio
 }

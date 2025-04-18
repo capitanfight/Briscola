@@ -18,4 +18,6 @@ fetch(`api/user/stats/${id}`)
         document.getElementById("match-number").textContent = data.matches
         document.getElementById("win-number").textContent = data.win
         document.getElementById("lose-number").textContent = data.loss
+        document.getElementById("max-points-number").textContent = data.maxPoints
+        document.getElementById("avg-points-number").textContent = (data.totalPoints / data.matches).toFixed(1)
     })
