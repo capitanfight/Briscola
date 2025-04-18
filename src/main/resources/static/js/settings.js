@@ -12,9 +12,13 @@ let tempVolume = Number(cookiesHandler.getCookie("audio"))
 
 const volumeSlider = document.getElementById("volumeRange");
 volumeSlider.value = tempVolume === null || tempVolume === undefined ? 50 : tempVolume
-let prevVolume = volumeSlider.value;
+let prevVolume = Number(volumeSlider.value);
 
 let audio = true
+
+if (Number(volumeSlider.value) === 0)
+    toggleAudio()
+
 function toggleAudio() {
     audio = !audio
 
@@ -23,11 +27,11 @@ function toggleAudio() {
     if (audio) {
         volumeSlider.value = prevVolume
     } else {
-        prevVolume = volumeSlider.value;
+        prevVolume = Number(volumeSlider.value);
         volumeSlider.value = 0;
     }
 
-    setAudio(volumeSlider.value);
+    setAudio(Number(volumeSlider.value));
 }
 
 volumeSlider.addEventListener("input", function () {
