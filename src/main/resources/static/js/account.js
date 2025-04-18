@@ -2,8 +2,6 @@ import {resourceExists, user, id, checkUserId} from "./user.js";
 
 checkUserId()
 
-document.getElementById("container-back").addEventListener("click", () => window.location.replace("/"))
-
 document.getElementById("user-id-label").textContent = `#${id.padStart(5, "0")}`
 document.getElementById("username").textContent = user.username
 resourceExists(`/img/profilePictures/${user.imageUrl}`)

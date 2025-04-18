@@ -1,7 +1,5 @@
 import {resourceExists, user, id} from "./user.js";
 
-document.getElementById("back").addEventListener("click", () => window.location.replace("/"))
-
 const container = document.getElementById('user-container');
 
 let valuable_pos = new Map([[1, "first"], [2, "second"], [3, "third"]])

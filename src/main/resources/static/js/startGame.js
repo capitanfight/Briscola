@@ -236,8 +236,6 @@ function renderFriends() {
 
 renderFriends()
 
-document.getElementById("back").addEventListener("click", () => window.location.replace("/"))
-
 selection_btns.forEach((btn, idx) => btn.addEventListener("click", () => {
     btn.classList.add("selected")
     sections[idx].classList.remove("hide")

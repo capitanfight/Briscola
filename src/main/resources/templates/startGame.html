@@ -9,6 +9,7 @@
 
         <link rel="stylesheet" href="/css/friendsMenu.css">
         <script src="/js/startGame.js" type="module" defer></script>
+        <script src="/js/globals.js" type="module" defer></script>
     </head>
     <body>
         <div id="new-game">
@@ -25,10 +26,7 @@
                 <img src="/img/decoration2.png" alt="Decorative image">
             </div>
             
-            <div id="right">    
-                <div id="back">
-                    <button>back</button>
-                </div>
+            <div id="right">
                 <div id="friend-box">
                     <div class="header">
                         <button class="selection-btn friends selected" id="friends-selector">Friends</button>
@@ -89,6 +87,8 @@
                 </div>
             </div>
         </div>
+
+        <button id="back-btn">back</button>
 
         <div id="notification-container">
             <div th:if="${param.kicked}" class="notification" id="kicked-notification">

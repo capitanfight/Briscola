@@ -1,5 +1,7 @@
 import {cookiesHandler} from "./cookiesHandler.js";
 
+
+// TODO: da modificare
 function redirectHome() {
     window.location.replace('/');
 }

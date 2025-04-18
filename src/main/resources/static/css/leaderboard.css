@@ -147,30 +147,6 @@ body {
     color: #d6802b !important;
 }
 
-#back {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-
-    width: 70px;
-    height: 50px;
-
-    border-radius: 30px;
-    border: 2px solid var(--border-color);
-
-    background-color: var(--dark-red);
-    color: var(--border-color);
-
-    font-size: 1.2rem;
-
-    cursor: pointer;
-}
-
-#back:hover {
-    background-color: var(--border-color);
-    color: var(--dark-red);
-}
-
 #myself {
     width: clamp(430px, calc(70% - 40px), 580px);
 

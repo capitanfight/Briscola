@@ -57,27 +57,6 @@ body {
     justify-content: center;
 }
 
-#container-back button {
-    background-color: var(--dark-red); /* Rosso scuro */
-    border-radius: 50%;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-    text-align: center;
-    color: var(--border-color);
-    border: 2px solid var(--border-color);
-    position: absolute;
-    top: -25px;
-    left: clamp(0px, calc(100% - 25px), 670px);
-    width: 50px;
-    height: 50px;
-    font-weight: bold;
-    font-size:1.2rem;
-}
-
-#container-back button:hover {
-    background-color: var(--border-color); /* Rosso scuro */
-    color: var(--dark-red);
-}
-
 #profile-pic-container {
     height: 75px;
     width: 75px;

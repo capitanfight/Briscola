@@ -10,6 +10,7 @@ document.getElementById("info").innerHTML = `
         <span id="id">Id: ${roomId.padStart(6, "0")}</span>
 `
 
+// TODO: da modificare
 document.getElementById("container-back").addEventListener("click", () => window.location.replace("/startGame"))
 
 async function resourceExists(url) {
