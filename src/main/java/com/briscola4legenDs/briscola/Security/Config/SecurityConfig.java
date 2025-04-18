@@ -39,10 +39,13 @@ public class SecurityConfig {
                                 "/", "/index",
                                 // resources
                                 "/css/**", "/js/**", "/img/**",
-                                // register page (html)
+                                // other pages (html)
                                 "/register",
                                 "/leaderboard",
-                                "/settings"
+                                "/settings",
+                                "/FAQ",
+                                "/rules",
+                                "/history"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

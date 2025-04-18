@@ -28,7 +28,7 @@
         </div>
         <div class="menu">
             <a href="">SIMULATION</a>
-            <a href="">FAQ</a>
+            <a th:href="@{/FAQ}">FAQ</a>
             <a th:href="@{/settings}"><img src="/img/settingsIcon.png" alt="settings"></a>
         </div>
     </div>
@@ -38,8 +38,10 @@
             <img class="frame" src="/img/frame.png" alt="frame">
             <div class="overlay">
                 <h1>History</h1>
-                <p>Questo è un paragrafo</p>
-                <button>Show more</button>
+                <div class="pair">
+                    <p>Questo è un paragrafo</p>
+                    <a th:href="@{/history}"><button>Show more</button></a>
+                </div>
             </div>
         </div>
         <div class="content-card">
@@ -55,8 +57,10 @@
             <img class="frame" src="/img/frame.png" alt="frame">
             <div class="overlay">
                 <h1>Rules</h1>
-                <p>Questo è un paragrafo</p>
-                <button>Show more</button>
+                <div class="pair">
+                    <p>Questo è un paragrafo</p>
+                    <a th:href="@{/rules}"><button>Show more</button></a>
+                </div>
             </div>
         </div>
     </div>
