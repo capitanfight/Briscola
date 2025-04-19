@@ -1,86 +1,206 @@
 package com.briscola4legenDs.briscola.Room;
 
-import com.briscola4legenDs.briscola.Room.WebSocket.RoomSocketHandler;
-import game.Game;
-import game.Player;
+import Application.Game.Card;
+import Application.Game.Game;
+import Application.Game.GamePlayer;
+import Application.Game.GameTeam;
+import Application.GameException;
+import Application.Lobby.Lobby;
+import Application.Lobby.LobbyPlayer;
+import Application.Lobby.LobbyTeam;
+import Application.Models.Container;
+import Application.Models.Player;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.Getter;
 
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Optional;
 
 @Getter
-public class Room extends Game {
+public class Room {
     public enum Visibility {
         PUBLIC, PRIVATE
     }
 
-    private static long idGen = 1;
+    private static long idGenerator = 1;
 
-    private final String name;
+    private final long id;
+
     @Enumerated(EnumType.STRING)
     private final Visibility visibility;
+    private final String name;
     private long hostId;
 
-    private final CopyOnWriteArrayList<Boolean> isPlayerReady;
+    private Lobby lobby;
+    private Game game;
+    private long[] winner;
+    private int[] points;
 
     public Room(String name, Visibility visibility) {
-        super(idGen++);
-        if (name == null || name.isEmpty())
-            throw new NullPointerException("Room name is null or empty");
+        this.id = idGenerator++;
+        lobby = new Lobby();
+
         this.name = name;
-
-        isPlayerReady = new CopyOnWriteArrayList<>();
-
         this.visibility = visibility;
     }
 
-    public void setPlayerReady(int idx, boolean isPlayerReady) {
-        this.isPlayerReady.set(idx, isPlayerReady);
-    }
-
-    public boolean areAllPlayersReady() throws IllegalArgumentException{
-        boolean areAllPlayersReady = true;
-        for (boolean b : isPlayerReady)
-            areAllPlayersReady = areAllPlayersReady && b;
-        return areAllPlayersReady;
-    }
-
-    public void addPlayer(Player player) throws IllegalArgumentException {
-        if (getPlayers().isEmpty())
+    public void addPlayer(LobbyPlayer player, int team) {
+        if (lobby == null)
+            throw new GameException("Cannot add player because game is already started", GameException.Type.GAME_ALREADY_STARTED);
+        if (lobby.isEmpty())
             hostId = player.getId();
 
-        super.addPlayer(player);
-        isPlayerReady.add(false);
+        lobby.getTeam(team).addPlayer(player);
     }
 
-    public void removePlayer(Long id) {
+    public void removePlayer(long id) {
+        if (lobby == null)
+            throw new GameException("Cannot remove player because game is already started", GameException.Type.GAME_ALREADY_STARTED);
         if (hostId == id)
-            for (Player p : getPlayers())
-                if (!p.getId().equals(id))
-                    hostId = p.getId();
+            for (LobbyTeam team : lobby.getTeams())
+                for (LobbyPlayer p : team.getPlayers())
+                    if (p.getId() != id) {
+                        hostId = p.getId();
+                        break;
+                    }
 
-        int idx = super.getPlayerIdx(id);
+        LobbyPlayer player = null;
+        int team = -1;
+        for (int i = 0; i < lobby.getTeams().length; i++)
+            for (LobbyPlayer p : lobby.getTeam(i).getPlayers())
+                if (p.getId() == id) {
+                    team = i;
+                    player = p;
+                    break;
+                }
 
-        super.removePlayer(id);
-        isPlayerReady.remove(idx);
+        lobby.getTeam(team).removePlayer(player);
     }
 
-//    public long[] getPlayersIds() {
-//        CopyOnWriteArrayList<Player> players = getPlayers();
-//        long[] ids = new long[players.size()];
-//
-//        for (int i = 0; i < players.size(); i++)
-//            ids[i] = players.get(i).getId();
-//
-//        return ids;
-//    }
+    @JsonIgnore
+    public boolean canGameStart() {
+        if (lobby == null)
+            throw new GameException("Cannot start game because is already started", GameException.Type.GAME_ALREADY_STARTED);
+        return lobby.canGameStart();
+    }
 
-    @Override
-    public String toString() {
-        return "Room{" + '\n' +
-                "name='" + name + "'\n" +
-                "isPlayerReady=" + isPlayerReady + "\n\n" +
-                super.toString() + "\n}";
+    public void startGame() {
+        if (!canGameStart())
+            throw new GameException("Cannot start game", GameException.Type.GAME_CANNOT_START);
+
+        GameTeam[] teams = new GameTeam[] {
+                new GameTeam(),
+                new GameTeam(),
+        };
+        for (int i = 0; i < 2; i++)
+            for (LobbyPlayer player : lobby.getTeam(i).getPlayers())
+                teams[i].addPlayer(new GamePlayer(player.getId()));
+        game = new Game(teams);
+        game.start();
+
+        lobby = null;
+    }
+
+    public void playCard(Card card, long playerId) {
+        try {
+            game.playCard(card, playerId);
+        } catch (GameException e) {
+            if (e.getType() == GameException.Type.GAME_END) {
+                winner = game.getWinner();
+                points = game.getPoints();
+                game = null;
+            } else
+                throw e;
+        }
+    }
+
+    @JsonIgnore
+    public void changeTeam(long playerId, int team) {
+        lobby.changeTeam(playerId, team);
+    }
+
+    public boolean isGameStarted() {
+        return lobby == null && game != null;
+    }
+
+    public boolean isGameEnded() {
+        return lobby == null && game == null;
+    }
+
+    @JsonIgnore
+    public Player getPlayer(long playerId) {
+        if (lobby != null)
+            return lobby.getTeamByPlayerId(playerId).getPlayer(playerId);
+        else if (game != null)
+            return game.getTeamByPlayerId(playerId).getPlayer(playerId);
+        return null;
+    }
+
+    @JsonIgnore
+    public boolean isLobbyEmpty() {
+        Lobby lobby = getLobby().orElseThrow(() -> new GameException("", GameException.Type.GAME_ALREADY_STARTED));
+        return lobby.isEmpty();
+    }
+
+    @JsonIgnore
+    private Optional<Lobby> getLobby() {
+        return Optional.ofNullable(lobby);
+    }
+
+    @JsonIgnore
+    private Optional<Game> getGame() {
+        return Optional.ofNullable(game);
+    }
+
+    public int getNPlayers() {
+        return lobby != null ? lobby.getNPlayers() : game.getNPlayers();
+    }
+
+    @JsonIgnore
+    public Card getBriscolaCard() {
+        return game.getBriscolaCard();
+    }
+
+    @JsonIgnore
+    public long getTurnPlayerId() {
+        return game.getTurnPlayerId();
+    }
+
+    @JsonIgnore
+    public Card[] getHand(long playerId) {
+        return game.getHand(playerId);
+    }
+
+    @JsonIgnore
+    public Card[] getBoard() {
+        return game.getBoard();
+    }
+
+    @JsonIgnore
+    public Player[] getPlayers() {
+        if (lobby != null)
+            return lobby.getPlayers();
+        else if (game != null)
+            return game.getPlayers();
+        return null;
+    }
+
+    @JsonIgnore
+    public long[] getPlayersIds() {
+        if (lobby != null)
+            return lobby.getPlayersId();
+        else if (game != null)
+            return game.getPlayersId();
+        return null;
+    }
+
+    @JsonIgnore
+    public long[][] getTeamPlayersId() {
+        if (lobby != null)
+            return lobby.getTeamPlayersId();
+        else if (game != null)
+            return game.getTeamPlayersId();
+        return null;
     }
 }

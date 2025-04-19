@@ -1,4 +1,4 @@
-package game;
+package Application.Game;
 
 import java.util.Objects;
 
@@ -63,8 +63,8 @@ public class Card {
                         || !(card1.getValue().isCountedForPoints() || card2.getValue().isCountedForPoints())) ?
                         (card1.getValue().getValue() > card2.getValue().getValue() ? card1 : card2) :
                         (card1.getValue().isCountedForPoints()) ?
-                            card1 :
-                            card2 :
+                                card1 :
+                                card2 :
                 card1;
     }
 

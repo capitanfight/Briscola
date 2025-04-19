@@ -1,8 +1,9 @@
 package com.briscola4legenDs.briscola.Room.WebSocket;
 
+import Application.Models.Player;
 import com.briscola4legenDs.briscola.Assets.PayloadBuilder;
 import com.briscola4legenDs.briscola.Room.REST.RoomService;
-import game.Player;
+import com.briscola4legenDs.briscola.Room.Token;
 import lombok.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
@@ -31,7 +32,8 @@ public class LobbySocketHandler extends TextWebSocketHandler {
         GET_READY_PLAYERS,
         REMOVE_PLAYER,
         YOU_ARE_KICKED,
-        NEW_HOST
+        NEW_HOST,
+        UPDATE_TEAMS,
     }
 
     @Override
@@ -59,8 +61,9 @@ public class LobbySocketHandler extends TextWebSocketHandler {
             }
             case GET_PLAYERS_INSIDE -> multicastMessage(getPlayersInRoom(payload.getLong("roomId")), PayloadBuilder.createJsonMessage(Code.GET_PLAYERS_INSIDE, null));
             case GET_READY_PLAYERS -> multicastMessage(getPlayersInRoom(payload.getLong("roomId")), PayloadBuilder.createJsonMessage(Code.GET_READY_PLAYERS, null));
-            case REMOVE_PLAYER -> removePlayer(payload.getLong("playerId"));
+            case REMOVE_PLAYER -> removePlayer(payload.getLong("playerId"), payload.getLong("roomId"));
             case YOU_ARE_KICKED -> multicastMessage(new Long[]{payload.getLong("playerId")}, PayloadBuilder.createJsonMessage(Code.YOU_ARE_KICKED, null));
+            case UPDATE_TEAMS -> multicastMessage(getPlayersInRoom(payload.getLong("roomId")), PayloadBuilder.createJsonMessage(Code.UPDATE_TEAMS, null));
         }
     }
 
@@ -99,8 +102,8 @@ public class LobbySocketHandler extends TextWebSocketHandler {
         return ids.toArray(new Long[0]);
     }
 
-    private void removePlayer(long id) {
-        rs.rmvPlayer(id);
-        sessions.remove(id);
+    private void removePlayer(long playerId, long roomId) {
+        rs.rmvPlayer(new Token(roomId, playerId));
+        sessions.remove(playerId);
     }
 }

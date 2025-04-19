@@ -1,6 +1,7 @@
 package com.briscola4legenDs.briscola.Room.WebSocket;
 
 import com.briscola4legenDs.briscola.Room.REST.RoomService;
+import lombok.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -33,13 +34,9 @@ public class RoomSocketHandler extends TextWebSocketHandler {
     }
 
     @Override
-    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
-        if (sessions.contains(session)) {
-            rs.rmvPlayer(getId(session));
-            sessions.remove(findId(session));
-        }
-        else if (sessionsWithoutId.contains(session))
-            sessionsWithoutId.remove(session);
+    public void afterConnectionClosed(@NonNull WebSocketSession session, CloseStatus status) {
+        sessions.remove(findId(session));
+        sessionsWithoutId.remove(session);
     }
 
     @Override

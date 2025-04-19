@@ -1,6 +1,8 @@
 import {cookiesHandler} from "./cookiesHandler.js";
 import {checkUserId, id, throwFatalError, user} from "./user.js";
 
+const team_names = new Map([[0, "Blue"], [1, "Red"]])
+
 const roomId = cookiesHandler.getCookie("roomId")
 if (roomId == null)
     throwFatalError()
@@ -9,9 +11,7 @@ document.getElementById("info").innerHTML = `
         <span id="name">Name: ${await fetch(`/api/room/${roomId}/name`).then(response => response.text())}</span>
         <span id="id">Id: ${roomId.padStart(6, "0")}</span>
 `
-
-// TODO: da modificare
-document.getElementById("container-back").addEventListener("click", () => window.location.replace("/startGame"))
+document.getElementById("back-btn").addEventListener("click", () => window.location.replace("/startGame"))
 
 async function resourceExists(url) {
     try {
@@ -48,7 +48,8 @@ window.onbeforeunload = () => {
     ws.send(JSON.stringify({
         code: "REMOVE_PLAYER",
         payload: {
-            playerId: Number(id)
+            playerId: Number(id),
+            roomId: Number(roomId)
         }
     }))
     ws.send(JSON.stringify({
@@ -93,13 +94,36 @@ ws.onmessage = async msg => {
             break
         case "NEW_HOST":
             hostId = payload.hostId
-
             if (hostId === Number(id)) {
                 enableHostCommands = true
                 myself.classList.add("host")
             }
-
             break
+        case "UPDATE_TEAMS":
+            updateTeams()
+            break
+    }
+
+    if (code !== "GET_READY_PLAYERS") {
+        state = false
+        fetch(`/api/room/player/${state}`, {
+            method: "PUT",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+                roomId: Number(roomId),
+                playerId: Number(id),
+            })
+        }).then(() => {
+            document.querySelector(".status").textContent = "X"
+            document.querySelector(".status").classList.remove("ready")
+
+            ws.send(JSON.stringify({
+                code: "GET_READY_PLAYERS",
+                payload: {
+                    roomId: Number(roomId),
+                }
+            }))
+        })
     }
 }
 
@@ -124,7 +148,7 @@ function updateUser() {
             for (let [idx, player] of players.entries()) {
                 await renderUser(player, idx);
             }
-        })
+        }).then(updateTeams)
 }
 
 async function createUser(user, div) {
@@ -136,6 +160,8 @@ async function createUser(user, div) {
 
     let state = await fetch(`api/room/${roomId}/player/${id}/state`).then(response => response.json())
 
+    div.setAttribute("userId", user.id)
+
     div.innerHTML = `
                 <div class="profile-pic-container">
                     <img class="userPic" src="/img/profilePictures/${user.imageUrl}" alt="Profile pic">
@@ -145,6 +171,58 @@ async function createUser(user, div) {
                     ${state ? "✔" : "X"}
                 </div>
             `
+    if (enableHostCommands) {
+        const team = document.createElement("div")
+        team.classList.add("team-select")
+
+        const select_btn = document.createElement("button")
+        select_btn.classList.add("team-tag")
+        select_btn.textContent = "Team"
+        select_btn.addEventListener("click", e => Array.from(e.target.parentElement.children).find(e => e.tagName.toLowerCase() === "div").classList.toggle("hide"))
+        team.appendChild(select_btn)
+
+        const container = document.createElement("div")
+        container.classList.add("hide")
+
+        for (let i = 0; i < team_names.size; i++) {
+            const btn = document.createElement("button")
+
+            btn.classList.add("possible-tag")
+            btn.setAttribute("team", String(i))
+
+            btn.textContent = team_names.get(i)
+
+            btn.addEventListener("click", e => {
+                e.target.parentElement.classList.add("hide")
+                // e.target.parentElement.parentElement.setAttribute("team", String(i))
+
+                fetch(`api/room/player/team/${i}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        roomId: Number(roomId),
+                        playerId: Number(user.id),
+                    })
+                }).then(() =>
+                    ws.send(JSON.stringify({
+                        code: "UPDATE_TEAMS",
+                        payload: {
+                            roomId: roomId,
+                        }
+                    }))
+                )
+            })
+            container.appendChild(btn)
+        }
+        team.appendChild(container)
+
+        div.appendChild(team)
+    } else {
+        const team = document.createElement("span")
+        team.classList.add("team-tag")
+        team.textContent = "Team"
+        div.appendChild(team)
+    }
 
     if (enableHostCommands && user.id !== hostId) {
         const kick_btn = document.createElement("button");
@@ -180,7 +258,7 @@ async function createUser(user, div) {
 }
 
 async function renderUser(player, idx) {
-    await fetch(`api/user/${player}`)
+    await fetch(`/api/user/${player}`)
         .then(response => response.json())
         .then(async user => {
             const div = otherPlayers[idx]
@@ -244,5 +322,20 @@ async function checkIfGameCanStart() {
         .then(canStart => {
             if (canStart)
                 window.location.replace("/room")
+        })
+}
+
+function updateTeams() {
+    fetch(`/api/room/${roomId}/player/team`)
+        .then(response => response.json())
+        .then(teams => {
+            teams.forEach((team, idxTeam) => {
+                team.forEach(player => {
+                    Array.from(document.getElementsByClassName("user")).forEach(e => {
+                        if (Number(e.getAttribute("userId")) === player)
+                            e.setAttribute("team", idxTeam)
+                    })
+                })
+            })
         })
 }

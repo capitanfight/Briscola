@@ -1,15 +1,13 @@
 package com.briscola4legenDs.briscola.Room.REST;
 
+import Application.Game.Card;
 import com.briscola4legenDs.briscola.Assets.RESTInfo;
 import com.briscola4legenDs.briscola.Room.Room;
 import com.briscola4legenDs.briscola.Room.Token;
-import com.briscola4legenDs.briscola.User.User;
-import game.Card;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 
@@ -77,13 +75,23 @@ public class RoomController {
     }
 
     @GetMapping(path = "{roomId:\\d+}/player/{userId:\\d+}/state")
-    public boolean getPlayerState(@PathVariable long roomId, @PathVariable long userId) {
-        return roomService.getPlayerState(roomId, userId);
+    public Boolean getPlayerState(@PathVariable long roomId, @PathVariable long userId) {
+        return roomService.getPlayerState(new Token(roomId, userId));
     }
 
     @PutMapping(path = "player/{state}")
     public void setPlayerReady(@RequestBody Token token, @PathVariable boolean state) {
         roomService.setPlayerReady(token, state);
+    }
+
+    @GetMapping("{id:\\d+}/player/team")
+    public long[][] getTeams(@PathVariable long id) {
+        return roomService.getTeams(id);
+    }
+
+    @PutMapping("/player/team/{team:\\d+}")
+    public void changeTeam(@RequestBody Token token, @PathVariable int team) {
+        roomService.changeTeam(token, team);
     }
     
     @GetMapping(path = "{id:\\d+}/briscola")
@@ -101,9 +109,9 @@ public class RoomController {
         return roomService.getTurnPlayerId(id);
     }
 
-    @PostMapping(path = "{id:\\d+}/playCard")
-    public void playCard(@PathVariable long id, @RequestBody Card card) {
-        roomService.playCard(id, card);
+    @PostMapping(path = "{roomId:\\d+}/{playerId:\\d+}/playCard")
+    public void playCard(@PathVariable long roomId, @PathVariable long playerId, @RequestBody Card card) {
+        roomService.playCard(new Token(roomId, playerId), card);
     }
 
     @GetMapping(path = "{id:\\d+}/board")

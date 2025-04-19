@@ -1,14 +1,14 @@
 package com.briscola4legenDs.briscola.Room.REST;
 
+import Application.Game.Card;
+import Application.Lobby.Lobby;
+import Application.Lobby.LobbyPlayer;
+import Application.Models.Player;
 import com.briscola4legenDs.briscola.Assets.PayloadBuilder;
 import com.briscola4legenDs.briscola.Room.Room;
 import com.briscola4legenDs.briscola.Room.Token;
 import com.briscola4legenDs.briscola.Room.WebSocket.LobbySocketHandler;
 import com.briscola4legenDs.briscola.Room.WebSocket.RoomSocketHandler;
-import com.briscola4legenDs.briscola.User.User;
-import game.Card;
-import game.Player;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -66,9 +66,9 @@ public class RoomService {
 
         checkForRoomIdValidity(token.getRoomId());
 
-        roomLocalRepository.getRoomById(token.getRoomId()).addPlayer(
-                new Player(token.getPlayerId())
-        );
+        Room room = roomLocalRepository.getRoomById(token.getRoomId());
+
+        room.addPlayer(new LobbyPlayer(token.getPlayerId()), room.getNPlayers());
 
         sendRoomPlayersUpdate(token.getRoomId());
 
@@ -82,7 +82,7 @@ public class RoomService {
         boolean changeHost = room.getHostId() == token.getPlayerId();
         room.removePlayer(token.getPlayerId());
 
-        if (room.isEmpty())
+        if (room.isLobbyEmpty())
             roomLocalRepository.remove(token.getRoomId());
         else if (changeHost) {
             try {
@@ -97,35 +97,25 @@ public class RoomService {
         log.info("Player {} removed from room {}", token.getPlayerId(), token.getRoomId());
     }
 
-    public void rmvPlayer(long playerId) {
-        Long roomId = null;
-        for (Room r :roomLocalRepository.getAllRooms())
-            for (Player p : r.getPlayers())
-                if (p.getId() == playerId)
-                    roomId = r.getId();
-
-        if (roomId == null)
-            throw new IllegalArgumentException("There is no room with a player that has this id: " + playerId);
-
-        Token token = new Token(roomId, playerId);
-        rmvPlayer(token);
-    }
-
     public void setPlayerReady(Token token, boolean ready) throws RuntimeException {
         checkForTokenValidity(token);
-        Room r = roomLocalRepository.getRoomById(token.getRoomId());
+        Room room = roomLocalRepository.getRoomById(token.getRoomId());
 
-        if (r.getIsPlayerReady().get((r.getPlayerIdx(token.getPlayerId()))) == ready)
+        if (room.isLobbyEmpty())
+            return;
+        LobbyPlayer player = (LobbyPlayer) room.getPlayer(token.getPlayerId());
+
+        if (player.isReady() == ready)
             return;
 
-        r.setPlayerReady(r.getPlayerIdx(token.getPlayerId()), ready);
+        player.setReady(ready);
 
         log.info("Player {} in room {} is now {}", token.getPlayerId(), token.getRoomId(), ready ? "ready" : "not ready");
 
-        sendRoomPlayersStateUpdate(r);
+        sendRoomPlayersStateUpdate(room);
 
         if (checkIfGameCanStart(token.getRoomId())) {
-            r.start();
+            room.startGame();
             log.info("Game in room {} has started", token.getRoomId());
         }
     }
@@ -139,9 +129,7 @@ public class RoomService {
     public Card[] getHand(Token token) {
         checkForTokenValidity(token);
 
-        return roomLocalRepository.getRoomById(token.getRoomId())
-                .getPlayer(token.getPlayerId()).get()
-                .getHand();
+        return roomLocalRepository.getRoomById(token.getRoomId()).getHand(token.getPlayerId());
     }
 
     public long getTurnPlayerId(long gameId) {
@@ -150,10 +138,10 @@ public class RoomService {
         return roomLocalRepository.getRoomById(gameId).getTurnPlayerId();
     }
 
-    public void playCard(long gameId, Card card) {
-        checkForRoomIdValidity(gameId);
+    public void playCard(Token token, Card card) {
+        checkForTokenValidity(token);
 
-        roomLocalRepository.getRoomById(gameId).playCard(card);
+        roomLocalRepository.getRoomById(token.getRoomId()).playCard(card, token.getPlayerId());
     }
 
     public Card[] getBoard(long gameId) {
@@ -164,7 +152,7 @@ public class RoomService {
 
     public boolean isGameOver(long gameId) {
         checkForRoomIdValidity(gameId);
-        return roomLocalRepository.getRoomById(gameId).isGameOver();
+        return roomLocalRepository.getRoomById(gameId).isGameEnded();
     }
 
     public long[] getWinner(long gameId) {
@@ -187,7 +175,7 @@ public class RoomService {
 
         Room room = roomLocalRepository.getRoomById(gameId);
 
-        return room.areAllPlayersReady();
+        return room.canGameStart();
     }
 
     /**
@@ -213,22 +201,24 @@ public class RoomService {
         checkForRoomIdValidity(token.getRoomId());
 
         Room room = roomLocalRepository.getRoomById(token.getRoomId());
-        if (!room.playerExists(token.getPlayerId()))
+        if (room.getPlayer(token.getPlayerId()) == null)
             throw new IllegalArgumentException("Player with id: " + token.getPlayerId() + " does not exist");
     }
 
-    private Long[] getRoomPlayersIds(long roomId) {
-        ArrayList<Long> ids = new ArrayList<>();
-        for (Player player : roomLocalRepository.getRoomById(roomId).getPlayers())
-            ids.add(player.getId());
+    private long[] getRoomPlayersIds(long roomId) {
+        checkForRoomIdValidity(roomId);
 
-        return ids.toArray(ids.toArray(new Long[0]));
+        return roomLocalRepository.getRoomById(roomId).getPlayersIds();
     }
 
     private void sendRoomPlayersUpdate(long roomId) {
+        checkForRoomIdValidity(roomId);
+
         PayloadBuilder payload = new PayloadBuilder();
 
-        List<Long> ids_temp = new ArrayList<>(Arrays.stream(getRoomPlayersIds(roomId)).toList());
+        ArrayList<Long> ids_temp = new ArrayList<>();
+        for (Player player : roomLocalRepository.getRoomById(roomId).getPlayers())
+            ids_temp.add(player.getId());
         ids_temp.remove(ids_temp.size() - 1);
         Long[] ids = ids_temp.toArray(new Long[0]);
 
@@ -249,16 +239,10 @@ public class RoomService {
     private void sendRoomPlayersStateUpdate(Room r) {
         PayloadBuilder payload = new PayloadBuilder();
 
-        Long[] ids = getRoomPlayersIds(r.getId());
-        Boolean[] states = r.getIsPlayerReady().toArray(new Boolean[0]);
+        Long[] ids = Arrays.stream(r.getPlayersIds()).boxed().toArray(Long[]::new);
+        Long[] readyPlayersId = Arrays.stream(((LobbyPlayer[]) r.getPlayers())).filter(LobbyPlayer::isReady).map(LobbyPlayer::getId).toArray(Long[]::new);
 
-        ArrayList<Long> readyPlayersId = new ArrayList<>();
-
-        for (int i = 0; i < ids.length; i++)
-            if (states[i])
-                readyPlayersId.add(ids[i]);
-
-        payload.addLongs("readyPlayersId", readyPlayersId.toArray(new Long[0]));
+        payload.addLongs("readyPlayersId", readyPlayersId);
 
         try {
             lobbySocketHandler.multicastMessage(ids, PayloadBuilder.createJsonMessage(
@@ -266,13 +250,15 @@ public class RoomService {
                     PayloadBuilder.createJsonPayload(payload.build())
             ));
         } catch (IOException e) {
-            roomLocalRepository.remove(r.getId());
+//            roomLocalRepository.remove(r.getId());
 
             throw new RuntimeException(e);
         }
     }
 
     public List<Long> getPlayers(long roomId) {
+        checkForRoomIdValidity(roomId);
+
         ArrayList<Long> ids = new ArrayList<>();
 
         for (Player player : roomLocalRepository.getRoomById(roomId).getPlayers())
@@ -281,14 +267,31 @@ public class RoomService {
         return ids;
     }
 
-    public boolean getPlayerState(long roomId, long userId) {
-        Room room = roomLocalRepository.getRoomById(roomId);
-        Player p =  room.getPlayer(userId).orElseThrow(() -> new UsernameNotFoundException("user not found"));
-        int idx = room.getPlayers().indexOf(p);
-        return room.getIsPlayerReady().get(idx);
+    public Boolean getPlayerState(Token token) {
+        checkForTokenValidity(token);
+
+        Room room = roomLocalRepository.getRoomById(token.getRoomId());
+        if (room.getPlayer(token.getPlayerId()) instanceof LobbyPlayer p)
+            return p.isReady();
+        return null;
     }
 
     public long getHostId(long id) {
+        checkForRoomIdValidity(id);
         return roomLocalRepository.getRoomById(id).getHostId();
+    }
+
+    public void changeTeam(Token token, int team) {
+        checkForTokenValidity(token);
+        if (!(team == 0 || team == 1))
+            throw new IllegalArgumentException("Invalid team");
+
+        roomLocalRepository.getRoomById(token.getRoomId()).changeTeam(token.getPlayerId(), team);
+    }
+
+    public long[][] getTeams(long id) {
+        checkForRoomIdValidity(id);
+
+        return roomLocalRepository.getRoomById(id).getTeamPlayersId();
     }
 }
