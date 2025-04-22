@@ -1,5 +1,8 @@
 package Application.Game;
 
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+
 import java.util.Objects;
 
 public class Card {
@@ -36,7 +39,9 @@ public class Card {
         }
     }
 
+    @Enumerated(EnumType.STRING)
     private final Suit suit;
+    @Enumerated(EnumType.STRING)
     private final Value value;
 
     /**

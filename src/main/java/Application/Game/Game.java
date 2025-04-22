@@ -22,6 +22,8 @@ public class Game extends Container<GameTeam> {
     private int turn;
     private long firsPlayer;
 
+    private boolean shouldBeNewTurn;
+
     private int winner;
     private int[] points;
 
@@ -46,6 +48,8 @@ public class Game extends Container<GameTeam> {
         turn = (int) Math.floor(Math.random() * totalPlayers);
         firsPlayer = getTurnPlayerId();
 
+        shouldBeNewTurn = false;
+
         board = new Card[totalPlayers];
         shuffleDeck();
 
@@ -64,11 +68,11 @@ public class Game extends Container<GameTeam> {
         board[turn] = card;
 
         incrementTurn();
-        if (getTurnPlayerId() == firsPlayer)
-            newTurn();
+        if (firsPlayer != playerId)
+            shouldBeNewTurn = true;
     }
 
-    private void newTurn() throws GameException {
+    public void newTurn() throws GameException {
         boolean allHandEmpty = true;
         for (GameTeam team: teams)
             for (GamePlayer player : team.getPlayers())
@@ -88,6 +92,8 @@ public class Game extends Container<GameTeam> {
                 drawCard();
         } else
             end();
+
+        shouldBeNewTurn = false;
     }
 
     private void drawCards() {
@@ -225,8 +231,19 @@ public class Game extends Container<GameTeam> {
         };
     }
 
+    public int[] getTotalCollectedCards() {
+        return new int[] {
+            teams[0].getNCollectedCards(),
+                teams[1].getNCollectedCards()
+        };
+    }
+
     @Override
     public String toString() {
         return "Game{\n %s \n}".formatted(super.toString());
+    }
+
+    public int getNRemainingCards() {
+        return deck.length - cardIdx;
     }
 }

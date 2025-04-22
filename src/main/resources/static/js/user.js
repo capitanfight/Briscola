@@ -21,7 +21,6 @@ export function checkUserId() {
         throwFatalError()
 }
 
-
 export const user = await fetch(`/api/user/${id}`)
     .then(response => response.json())
     .catch(throwFatalError)

@@ -22,14 +22,17 @@ import java.util.*;
 public class RoomService {
     private final RoomLocalRepository roomLocalRepository;
     private final LobbySocketHandler lobbySocketHandler;
+    private final RoomSocketHandler roomSocketHandler;
 
     private static final Logger log = LoggerFactory.getLogger(RoomService.class.getName());
 
     @Autowired
-    public RoomService(RoomLocalRepository roomLocalRepository, LobbySocketHandler lobbySocketHandler) {
+    public RoomService(RoomLocalRepository roomLocalRepository, LobbySocketHandler lobbySocketHandler, RoomSocketHandler roomSocketHandler) {
         this.roomLocalRepository = roomLocalRepository;
         this.lobbySocketHandler = lobbySocketHandler;
         lobbySocketHandler.setRoomService(this);
+        this.roomSocketHandler = roomSocketHandler;
+        roomSocketHandler.setRoomService(this);
     }
 
     public Collection<Room> getAllRooms() {
@@ -70,7 +73,7 @@ public class RoomService {
 
         room.addPlayer(new LobbyPlayer(token.getPlayerId()), room.getNPlayers());
 
-        sendRoomPlayersUpdate(token.getRoomId());
+        sendRoomPlayersUpdate(token.getRoomId(), new long[]{token.getPlayerId()});
 
         log.info("Player {} added to room {}", token.getPlayerId(), token.getRoomId());
     }
@@ -86,13 +89,13 @@ public class RoomService {
             roomLocalRepository.remove(token.getRoomId());
         else if (changeHost) {
             try {
-                lobbySocketHandler.multicastMessage(lobbySocketHandler.getPlayersInRoom(room.getId()),
+                lobbySocketHandler.multicastMessage(lobbySocketHandler.getPlayersInRoom(room.getId(), -1),
                         PayloadBuilder.createJsonMessage(LobbySocketHandler.Code.NEW_HOST,
                                 PayloadBuilder.createJsonPayload(new PayloadBuilder().addLong("hostId", room.getHostId()).build())));
             } catch (IOException ignored) {}
         }
 
-        sendRoomPlayersUpdate(token.getRoomId());
+        sendRoomPlayersUpdate(token.getRoomId(), null);
 
         log.info("Player {} removed from room {}", token.getPlayerId(), token.getRoomId());
     }
@@ -211,22 +214,30 @@ public class RoomService {
         return roomLocalRepository.getRoomById(roomId).getPlayersIds();
     }
 
-    private void sendRoomPlayersUpdate(long roomId) {
+    private void sendRoomPlayersUpdate(long roomId, long[] playerIdToNotInclude) {
         checkForRoomIdValidity(roomId);
 
         PayloadBuilder payload = new PayloadBuilder();
 
         ArrayList<Long> ids_temp = new ArrayList<>();
-        for (Player player : roomLocalRepository.getRoomById(roomId).getPlayers())
-            ids_temp.add(player.getId());
-        ids_temp.remove(ids_temp.size() - 1);
+        for (Player player : roomLocalRepository.getRoomById(roomId).getPlayers()) {
+            boolean canBeIncluded = true;
+            for (long playerId : playerIdToNotInclude)
+                if (player.getId() == playerId) {
+                    canBeIncluded = false;
+                    break;
+                }
+            if (canBeIncluded)
+                ids_temp.add(player.getId());
+        }
+
         Long[] ids = ids_temp.toArray(new Long[0]);
 
         payload.addLongs("playersId", ids);
 
         try {
             lobbySocketHandler.multicastMessage(ids, PayloadBuilder.createJsonMessage(
-                    RoomSocketHandler.Code.GET_PLAYERS_INSIDE,
+                    LobbySocketHandler.Code.GET_PLAYERS_INSIDE,
                     PayloadBuilder.createJsonPayload(payload.build())
             ));
         } catch (IOException e) {
@@ -246,7 +257,7 @@ public class RoomService {
 
         try {
             lobbySocketHandler.multicastMessage(ids, PayloadBuilder.createJsonMessage(
-                    RoomSocketHandler.Code.GET_READY_PLAYERS,
+                    LobbySocketHandler.Code.GET_READY_PLAYERS,
                     PayloadBuilder.createJsonPayload(payload.build())
             ));
         } catch (IOException e) {
@@ -293,5 +304,17 @@ public class RoomService {
         checkForRoomIdValidity(id);
 
         return roomLocalRepository.getRoomById(id).getTeamPlayersId();
+    }
+
+    public int[] getNCollectedCards(long id) {
+        checkForRoomIdValidity(id);
+
+        return roomLocalRepository.getRoomById(id).getTotalCollectedCards();
+    }
+
+    public int getNRemainingCards(long id) {
+        checkForRoomIdValidity(id);
+
+        return roomLocalRepository.getRoomById(id).getNRemainingCards();
     }
 }

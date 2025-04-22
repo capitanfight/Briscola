@@ -54,17 +54,40 @@ public class LobbySocketHandler extends TextWebSocketHandler {
         Code code = Code.valueOf(messageJson.getString("code"));
         JSONObject payload = messageJson.getJSONObject("payload");
 
-        switch (code) {
-            case SET_ID -> {
-                sessionsWithoutId.remove(session);
-                sessions.put(payload.getLong("id"), session);
+        long roomId = payload.getLong("roomId");
+        long playerId = payload.getLong("playerId");
+
+        if (!rs.checkIfGameCanStart(roomId)) {
+            switch (code) {
+                case SET_ID -> {
+                    sessionsWithoutId.remove(session);
+                    sessions.put(playerId, session);
+                }
+                case GET_PLAYERS_INSIDE ->
+                        multicastMessage(getPlayersInRoom(payload.getLong("roomId"), playerId), PayloadBuilder.createJsonMessage(Code.GET_PLAYERS_INSIDE, null));
+                case GET_READY_PLAYERS -> {
+                    Long[] ids = getPlayersInRoom(payload.getLong("roomId"), playerId);
+                    boolean canSendMessage = true;
+
+                    for (Long id : ids) {
+                        if (!sessionsWithoutId.contains(session) && !sessions.containsKey(id)) {
+                            canSendMessage = false;
+                            break;
+                        }
+                    }
+
+                    if (canSendMessage)
+                        multicastMessage(ids, PayloadBuilder.createJsonMessage(Code.GET_READY_PLAYERS, null));
+                }
+                case REMOVE_PLAYER ->
+                        removePlayer(playerId, roomId);
+                case YOU_ARE_KICKED ->
+                        multicastMessage(new Long[]{payload.getLong("playerId")}, PayloadBuilder.createJsonMessage(Code.YOU_ARE_KICKED, null));
+                case UPDATE_TEAMS ->
+                        multicastMessage(getPlayersInRoom(payload.getLong("roomId"), playerId), PayloadBuilder.createJsonMessage(Code.UPDATE_TEAMS, null));
             }
-            case GET_PLAYERS_INSIDE -> multicastMessage(getPlayersInRoom(payload.getLong("roomId")), PayloadBuilder.createJsonMessage(Code.GET_PLAYERS_INSIDE, null));
-            case GET_READY_PLAYERS -> multicastMessage(getPlayersInRoom(payload.getLong("roomId")), PayloadBuilder.createJsonMessage(Code.GET_READY_PLAYERS, null));
-            case REMOVE_PLAYER -> removePlayer(payload.getLong("playerId"), payload.getLong("roomId"));
-            case YOU_ARE_KICKED -> multicastMessage(new Long[]{payload.getLong("playerId")}, PayloadBuilder.createJsonMessage(Code.YOU_ARE_KICKED, null));
-            case UPDATE_TEAMS -> multicastMessage(getPlayersInRoom(payload.getLong("roomId")), PayloadBuilder.createJsonMessage(Code.UPDATE_TEAMS, null));
-        }
+        } else
+            sessions.remove(playerId);
     }
 
     public void multicastMessage(Long[] ids, String message) throws IOException {
@@ -95,10 +118,11 @@ public class LobbySocketHandler extends TextWebSocketHandler {
         return -1;
     }
 
-    public Long[] getPlayersInRoom(long roomId) {
+    public Long[] getPlayersInRoom(long roomId, long playerToExclude) {
         ArrayList<Long> ids = new ArrayList<>();
         for (Player player: rs.getRoomById(roomId).getPlayers())
-            ids.add(player.getId());
+            if (player.getId() != playerToExclude)
+                ids.add(player.getId());
         return ids.toArray(new Long[0]);
     }
 

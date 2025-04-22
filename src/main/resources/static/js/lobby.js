@@ -7,10 +7,6 @@ const roomId = cookiesHandler.getCookie("roomId")
 if (roomId == null)
     throwFatalError()
 
-document.getElementById("info").innerHTML = `
-        <span id="name">Name: ${await fetch(`/api/room/${roomId}/name`).then(response => response.text())}</span>
-        <span id="id">Id: ${roomId.padStart(6, "0")}</span>
-`
 document.getElementById("back-btn").addEventListener("click", () => window.location.replace("/startGame"))
 
 async function resourceExists(url) {
@@ -24,13 +20,6 @@ async function resourceExists(url) {
 }
 
 checkUserId();
-let hostId = await fetch(`api/room/${roomId}/host`)
-    .then(response => response.text())
-    .then(hostId => Number(hostId));
-
-let enableHostCommands = false
-if (hostId === Number(id))
-    enableHostCommands = true;
 
 if (await fetch(`/api/room`)
         .then(response => response.json())
@@ -41,6 +30,26 @@ if (await fetch(`/api/room/${roomId}/players`)
         .then(response => response.json())
         .then(players => players == null || !players.includes(Number(id))))
     window.location.replace("/startGame")
+
+let hostId = await fetch(`api/room/${roomId}/host`)
+    .then(response => response.text())
+    .then(hostId => Number(hostId));
+
+let enableHostCommands = false
+if (hostId === Number(id))
+    enableHostCommands = true;
+
+document.getElementById("info").innerHTML = `
+        <span id="name">Name: ${await fetch(`/api/room/${roomId}/name`).then(response => response.text())}</span>
+        <span id="id">Id: ${roomId.padStart(6, "0")}</span>
+`
+
+let state = await fetch(`/api/room/${roomId}/player/${id}/state`).then(response => response.json())
+const myself = document.getElementById("myself")
+const otherPlayers = Array.from(document.getElementsByClassName("empty"))
+
+createUser(user, myself)
+await updateUser()
 
 const ws = new WebSocket("/ws/lobby")
 
@@ -55,7 +64,8 @@ window.onbeforeunload = () => {
     ws.send(JSON.stringify({
         code: "GET_PLAYERS_INSIDE",
         payload: {
-            roomId: roomId,
+            playerId: Number(id),
+            roomId: Number(roomId),
         },
     }))
 }
@@ -65,13 +75,15 @@ ws.onopen = () => {
     ws.send(JSON.stringify({
         code: "SET_ID",
         payload: {
-            id: id,
+            playerId: Number(id),
+            roomId: Number(roomId),
         },
     }))
     ws.send(JSON.stringify({
         code: "GET_PLAYERS_INSIDE",
         payload: {
-            roomId: roomId,
+            playerId: Number(id),
+            roomId: Number(roomId),
         },
     }))
 }
@@ -104,7 +116,7 @@ ws.onmessage = async msg => {
             break
     }
 
-    if (code !== "GET_READY_PLAYERS") {
+    if (code !== "GET_READY_PLAYERS" && state !== undefined) {
         state = false
         fetch(`/api/room/player/${state}`, {
             method: "PUT",
@@ -120,6 +132,7 @@ ws.onmessage = async msg => {
             ws.send(JSON.stringify({
                 code: "GET_READY_PLAYERS",
                 payload: {
+                    playerId: Number(id),
                     roomId: Number(roomId),
                 }
             }))
@@ -127,20 +140,14 @@ ws.onmessage = async msg => {
     }
 }
 
-const myself = document.getElementById("myself")
-
-createUser(user, myself)
-
-const otherPlayers = Array.from(document.getElementsByClassName("empty"))
-
-function updateUser() {
+async function updateUser() {
     otherPlayers.forEach(e => {
         e.classList.add("empty")
         e.classList.remove("host")
         e.innerHTML = "<span class=\"username\">Empty</span>"
     })
 
-    fetch(`/api/room/${roomId}/players`)
+    await fetch(`/api/room/${roomId}/players`)
         .then(res => res.json())
         .then(async players => {
             players.splice(players.indexOf(Number(id)), 1);
@@ -207,7 +214,8 @@ async function createUser(user, div) {
                     ws.send(JSON.stringify({
                         code: "UPDATE_TEAMS",
                         payload: {
-                            roomId: roomId,
+                            playerId: Number(id),
+                            roomId: Number(roomId),
                         }
                     }))
                 )
@@ -239,13 +247,15 @@ async function createUser(user, div) {
                 ws.send(JSON.stringify({
                     code: "GET_PLAYERS_INSIDE",
                     payload: {
-                        roomId: roomId,
+                        playerId: Number(id),
+                        roomId: Number(roomId),
                     },
                 }))
                 ws.send(JSON.stringify({
                     code: "YOU_ARE_KICKED",
                     payload: {
-                        playerId: Number(user.id),
+                        playerId: Number(id),
+                        roomId: Number(roomId),
                     }
                 }))
             })
@@ -268,8 +278,6 @@ async function renderUser(player, idx) {
         })
 }
 
-updateUser()
-
 function updateState() {
     fetch(`/api/room/${roomId}/players`)
         .then(res => res.json())
@@ -291,7 +299,6 @@ function updateState() {
         })
 }
 
-let state = await fetch(`/api/room/${roomId}/player/${id}/state`).then(response => response.json())
 document.getElementById("ready").addEventListener("click", async () => {
     state = !state
     fetch(`/api/room/player/${state}`, {
@@ -308,6 +315,7 @@ document.getElementById("ready").addEventListener("click", async () => {
         ws.send(JSON.stringify({
             code: "GET_READY_PLAYERS",
             payload: {
+                playerId: Number(id),
                 roomId: Number(roomId),
             }
         }))
@@ -320,8 +328,9 @@ async function checkIfGameCanStart() {
     fetch(`/api/room/${roomId}/canStart`)
         .then(resp => resp.json())
         .then(canStart => {
-            if (canStart)
+            if (canStart) {
                 window.location.replace("/room")
+            }
         })
 }
 

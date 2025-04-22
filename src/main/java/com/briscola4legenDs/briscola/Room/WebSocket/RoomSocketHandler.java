@@ -1,5 +1,8 @@
 package com.briscola4legenDs.briscola.Room.WebSocket;
 
+import Application.GameException;
+import Application.Models.Player;
+import com.briscola4legenDs.briscola.Assets.PayloadBuilder;
 import com.briscola4legenDs.briscola.Room.REST.RoomService;
 import lombok.NonNull;
 import org.springframework.stereotype.Component;
@@ -11,21 +14,24 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 import org.json.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @Component
 public class RoomSocketHandler extends TextWebSocketHandler {
-    private RoomService rs;
+    private static RoomService rs;
 
     private static final ConcurrentHashMap<Long, WebSocketSession> sessions = new ConcurrentHashMap<>();
     private static final CopyOnWriteArrayList<WebSocketSession> sessionsWithoutId = new CopyOnWriteArrayList<>();
 
     public enum Code implements com.briscola4legenDs.briscola.Assets.Code {
         SET_ID,
-        GET_PLAYERS_INSIDE,
-        GET_READY_PLAYERS,
+        UPDATE,
+        UPDATE_MID_TURN,
+        UPDATE_END_TURN,
+        END_GAME
     }
 
     @Override
@@ -51,6 +57,24 @@ public class RoomSocketHandler extends TextWebSocketHandler {
                 sessionsWithoutId.remove(session);
                 sessions.put(payload.getLong("id"), session);
             }
+            case UPDATE -> {
+                long roomId = payload.getLong("roomId");
+                if (!rs.getRoomById(roomId).shouldBeNewTurn())
+                    multicastMessage(getPlayersInRoom(roomId), PayloadBuilder.createJsonMessage(Code.UPDATE_MID_TURN, null));
+                else {
+                    multicastMessage(getPlayersInRoom(roomId), PayloadBuilder.createJsonMessage(Code.UPDATE_MID_TURN, null));
+                    Thread.sleep(2000);
+                    try {
+                        rs.getRoomById(roomId).newTurn();
+                        multicastMessage(getPlayersInRoom(roomId), PayloadBuilder.createJsonMessage(Code.UPDATE_END_TURN, null));
+                    } catch (GameException e) {
+                        if (!e.getType().equals(GameException.Type.GAME_END))
+                            throw e;
+                        multicastMessage(getPlayersInRoom(roomId), PayloadBuilder.createJsonMessage(Code.UPDATE_END_TURN, null));
+                        multicastMessage(getPlayersInRoom(roomId), PayloadBuilder.createJsonMessage(Code.END_GAME, null));
+                    }
+                }
+            }
         }
     }
 
@@ -72,7 +96,7 @@ public class RoomSocketHandler extends TextWebSocketHandler {
     }
 
     public void setRoomService(RoomService rs) {
-        this.rs = rs;
+        RoomSocketHandler.rs = rs;
     }
 
     private long getId(WebSocketSession session) {
@@ -88,5 +112,12 @@ public class RoomSocketHandler extends TextWebSocketHandler {
             if (entry.getValue().equals(session))
                 return entry.getKey();
         return -1;
+    }
+
+    public Long[] getPlayersInRoom(long roomId) {
+        ArrayList<Long> ids = new ArrayList<>();
+        for (Player player: rs.getRoomById(roomId).getPlayers())
+            ids.add(player.getId());
+        return ids.toArray(new Long[0]);
     }
 }

@@ -41,6 +41,10 @@ public class GameTeam extends Team<GamePlayer> {
         stack.clear();
     }
 
+    public int getNCollectedCards() {
+        return stack.size();
+    }
+
     @Override
     public String toString() {
         return "GameTeam{\n stack= %S \n %s \n}".formatted(stack, super.toString());

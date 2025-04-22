@@ -37,6 +37,9 @@ public class Room {
     private long[] winner;
     private int[] points;
 
+    @JsonIgnore
+    private Player[] players;
+
     public Room(String name, Visibility visibility) {
         this.id = idGenerator++;
         lobby = new Lobby();
@@ -80,9 +83,9 @@ public class Room {
 
     @JsonIgnore
     public boolean canGameStart() {
-        if (lobby == null)
-            throw new GameException("Cannot start game because is already started", GameException.Type.GAME_ALREADY_STARTED);
-        return lobby.canGameStart();
+        if (lobby != null)
+            return lobby.canGameStart();
+        return true;
     }
 
     public void startGame() {
@@ -103,16 +106,7 @@ public class Room {
     }
 
     public void playCard(Card card, long playerId) {
-        try {
-            game.playCard(card, playerId);
-        } catch (GameException e) {
-            if (e.getType() == GameException.Type.GAME_END) {
-                winner = game.getWinner();
-                points = game.getPoints();
-                game = null;
-            } else
-                throw e;
-        }
+        game.playCard(card, playerId);
     }
 
     @JsonIgnore
@@ -183,7 +177,7 @@ public class Room {
             return lobby.getPlayers();
         else if (game != null)
             return game.getPlayers();
-        return null;
+        return players;
     }
 
     @JsonIgnore
@@ -202,5 +196,45 @@ public class Room {
         else if (game != null)
             return game.getTeamPlayersId();
         return null;
+    }
+
+    @JsonIgnore
+    public int[] getTotalCollectedCards() {
+        if (lobby != null)
+            return new int[] {0, 0};
+        else if (game != null)
+            return game.getTotalCollectedCards();
+        return null;
+    }
+
+    @JsonIgnore
+    public void newTurn() {
+        if (game != null)
+            try {
+                game.newTurn();
+            } catch (GameException e) {
+                if (e.getType() == GameException.Type.GAME_END) {
+                    winner = game.getWinner();
+                    points = game.getPoints();
+                    players = game.getPlayers();
+                    game = null;
+                } else
+                    throw e;
+            }
+    }
+
+    public boolean shouldBeNewTurn() {
+        if (game != null)
+            return game.isShouldBeNewTurn();
+        return false;
+    }
+
+    @JsonIgnore
+    public int getNRemainingCards() {
+        if (lobby != null)
+            return 40;
+        else if (game != null)
+            return game.getNRemainingCards();
+        return 0;
     }
 }

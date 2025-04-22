@@ -114,6 +114,16 @@ public class RoomController {
         roomService.playCard(new Token(roomId, playerId), card);
     }
 
+    @GetMapping("/{id:\\d+}/nCollectedCards")
+    public int[] getNCollectedCards(@PathVariable long id) {
+        return roomService.getNCollectedCards(id);
+    }
+
+    @GetMapping("/{id:\\d+}/nRemainingCards")
+    public int getNRemainingCards(@PathVariable long id) {
+        return roomService.getNRemainingCards(id);
+    }
+
     @GetMapping(path = "{id:\\d+}/board")
     public Card[] getBoard(@PathVariable long id) {
         return roomService.getBoard(id);

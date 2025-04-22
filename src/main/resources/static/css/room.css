@@ -1,0 +1,199 @@
+@import "globals.css";
+
+* {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+
+    font-family: Arial, sans-serif;
+}
+
+body {
+    --card-height: 180px;
+
+    background-color: var(--background-color);
+
+    height: 100vh;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#game-container {
+    height: 100%;
+    width: 100%;
+
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 200px 1fr 200px;
+
+    place-items: center;
+}
+
+#board {
+    width: inherit;
+    height: inherit;
+
+    overflow: hidden;
+
+    position: relative;
+
+    grid-column: 2 / 3;
+    grid-row: 2 / 3;
+
+    background-image: url("../img/DalManfro.png");
+    background-position: center;
+    background-repeat: no-repeat;
+
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 1fr calc(var(--card-height) / 2 + 3px) 1fr;
+    place-items: center;
+}
+
+#deck-container {
+    display: flex;
+    justify-content: start;
+    align-items: center;
+}
+
+#deck-container[n-players="2"] {
+    grid-row: 2 / 3;
+    grid-column: 1 / 2;
+}
+
+#deck-container[n-players="4"] {
+    position: absolute;
+    top: 50px;
+    left: 50px;
+
+    rotate: 45deg;
+}
+
+#deck-container > #deck {
+    position: relative;
+    z-index: 2;
+}
+
+#deck-container > #briscola {
+    position: relative;
+    rotate: 90deg;
+    z-index: 1;
+    transform: translateY(40px);
+}
+
+#stacks-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+
+    height: inherit;
+    width: inherit;
+
+    margin-right: 5%;
+}
+
+#stacks-container[n-players="2"] {
+    grid-row: 2 / 3;
+    grid-column: 3 / 4;
+}
+
+.user {
+    display: flex;
+
+    width: inherit;
+    height: 200px;
+}
+
+.user > .user-info {
+    height: fit-content;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+
+    border: 3px solid var(--transparent);
+    border-radius: 20px;
+
+    padding: 10px;
+}
+
+.user.my-turn  > .user-info {
+    border-color: var(--light-red);
+}
+
+.user > .user-info > .user-avatar {
+    height: 100px;
+    width: 100px;
+
+    overflow: hidden;
+    border-radius: 50%;
+    border: 3px solid var(--border-color);
+
+    margin: 10px;
+}
+
+.user > .user-info > .user-avatar > img {
+    height: inherit;
+    width: inherit;
+    transform: translate(-3px, -3px);
+}
+
+.user > .user-info > .username {
+    color: var(--border-color);
+    font-size: 1.3rem;
+}
+
+.user > .hand {
+    width: 100%;
+
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.card {
+    height: var(--card-height);
+    width: calc(var(--card-height) / 2 + 3px);
+
+    border-radius: 10px;
+    border: 3px solid #232323;
+
+    overflow: hidden;
+
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+
+    background-color: white;
+}
+
+.card[status="hidden"] {
+    background-image: url("../img/cards/back.JPG");
+}
+
+.card[status="played"] {
+    opacity: 0;
+}
+
+.card.empty {
+    border: 3px dashed #000000;
+    background: transparent;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.card.empty:after {
+    content: "Empty";
+
+    font-size: 1.3rem;
+    font-weight: bold;
+}
+
+#myself.my-turn .card:hover {
+    border-color: var(--border-color);
+}
