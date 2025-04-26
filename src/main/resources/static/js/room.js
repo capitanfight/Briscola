@@ -66,8 +66,8 @@ async function getBoard() {
 // globals
 const playerArrangements = new Map([
     [2, [
-        // myself
         {
+            // myself
             column: "2 / 3",
             row: "3 / 4"
         },
@@ -77,8 +77,8 @@ const playerArrangements = new Map([
         }
     ]],
     [4, [
-        // myself
         {
+            // myself
             column: "2 / 3",
             row: "3 / 4"
         },
@@ -99,9 +99,10 @@ const playerArrangements = new Map([
 
 const playerContainer = document.getElementById("game-container")
 
+const isGameOver = await fetch(`api/room/${roomId}/gameOver`).then(response => response.json())
 let startIdx
 let players
-let team = await getTeam()
+let team =  await getTeam()
 let myTurn = false
 
 // web socket
@@ -124,7 +125,10 @@ ws.onmessage = msg => {
 
     switch (code) {
         case "UPDATE_MID_TURN":
-            updateTurn()
+            if (payload.updateTurn === "true")
+                updateTurn()
+            else
+                removeTurn()
             updateBoard()
             updateOtherUsersCards()
             break
@@ -147,8 +151,7 @@ ws.onmessage = msg => {
                             const hasWon = winner.includes(user.id)
 
                             updateStats(hasWon, points[team])
-
-                            // far apparire la schermata di vittoria
+                            createEndGamePopUp(hasWon, points)
                         })
                 })
             break
@@ -284,6 +287,21 @@ function createStacks() {
     }
 }
 
+function createEndGamePopUp(hasWon, points) {
+    const div = document.createElement("div")
+    div.setAttribute("id", "end-game-container")
+
+    div.innerHTML = `
+        <h1 id="main-title" class="${ hasWon ? "win" : "lose" }">You ${ hasWon ? "won" : "lost" }!</h1>
+        <div id="stats">
+            <span id="your-points">You${ players.length === 2 ? "" : "r team" } scored ${ points[team] } / 120 points</span>
+            <span id="enemy-points">The enemy team scored ${ points[team] } / 120 points</span>
+        </div>
+    `
+
+    document.body.appendChild(div)
+}
+
 function updateOtherUsersCards() {
     const otherPlayers = document.querySelectorAll(".user:not(#myself)")
 
@@ -313,7 +331,7 @@ async function updateTurn() {
     const turnPlayerIdx = players.indexOf(players.find(player => player.id === turnPlayerId))
     Array.from(playerContainer.children).filter(e => e.classList.contains("user")).forEach((player, idx) => {
         player.classList.remove("my-turn")
-        if (idx === (turnPlayerIdx + startIdx) % players.length)
+        if (turnPlayerIdx !== -1 && idx === (turnPlayerIdx + startIdx) % players.length)
             player.classList.add("my-turn")
     })
 }
@@ -350,7 +368,7 @@ function updateBoard() {
 }
 
 async function updateStats(hasWon, points) {
-    await fetch(`api/user/stats/${user.id}`)
+     fetch(`api/user/${user.id}/stats`)
         .then(response => response.json())
         .then(stats => {
             console.log(stats)
@@ -365,7 +383,25 @@ async function updateStats(hasWon, points) {
             if (points > stats.maxPoints)
                 stats.maxPoints = points
             stats.totalPoints += points
+
+            return stats
         })
+        .then(stats => {
+            fetch(`api/user/${user.id}/stats`, {
+                method: "PUT",
+                headers: { "Content-Type" : "application/json" },
+                body: JSON.stringify(stats)
+            })
+        })
+}
+
+function removeTurn() {
+    myTurn = false
+    Array.from(playerContainer.children)
+        .filter(e => e.classList.contains("user"))
+        .forEach(player  => {
+        player.classList.remove("my-turn")
+    })
 }
 
 async function renderHand() {
@@ -374,9 +410,7 @@ async function renderHand() {
     const hand = await getHand(user.id)
     hand.forEach((card, idx) => {
         const card_element = handContainer.children.item(idx)
-        if (card_element.getAttribute("status") === "played") {
-            createCard(card_element, card)
-        }
+        createCard(card_element, card)
     })
 }
 
@@ -404,11 +438,21 @@ async function playCard(card, playerId) {
 
 // init functions
 await createPlayers()
-createDeck()
 createStacks()
-
-await updateTurn()
-updateStacksLength()
-updateDeckLength()
 updateOtherUsersCards()
-updateBoard()
+updateStacksLength()
+
+if (!isGameOver) {
+    createDeck()
+
+    await updateTurn()
+    updateDeckLength()
+    updateBoard()
+} else {
+    fetch(`api/room/${roomId}/winner`)
+        .then(response => response.json())
+        .then(winner => fetch(`api/room/${roomId}/points`)
+                .then(response => response.json())
+                .then(points => createEndGamePopUp(winner.includes(user.id), points))
+        )
+}

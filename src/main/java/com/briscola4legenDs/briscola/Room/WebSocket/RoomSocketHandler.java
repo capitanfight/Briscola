@@ -60,9 +60,11 @@ public class RoomSocketHandler extends TextWebSocketHandler {
             case UPDATE -> {
                 long roomId = payload.getLong("roomId");
                 if (!rs.getRoomById(roomId).shouldBeNewTurn())
-                    multicastMessage(getPlayersInRoom(roomId), PayloadBuilder.createJsonMessage(Code.UPDATE_MID_TURN, null));
+                    multicastMessage(getPlayersInRoom(roomId), PayloadBuilder.createJsonMessage(Code.UPDATE_MID_TURN,
+                            PayloadBuilder.createJsonPayload(new PayloadBuilder().addString("updateTurn", "true").build())));
                 else {
-                    multicastMessage(getPlayersInRoom(roomId), PayloadBuilder.createJsonMessage(Code.UPDATE_MID_TURN, null));
+                    multicastMessage(getPlayersInRoom(roomId), PayloadBuilder.createJsonMessage(Code.UPDATE_MID_TURN,
+                            PayloadBuilder.createJsonPayload(new PayloadBuilder().addString("updateTurn", "false").build())));
                     Thread.sleep(2000);
                     try {
                         rs.getRoomById(roomId).newTurn();

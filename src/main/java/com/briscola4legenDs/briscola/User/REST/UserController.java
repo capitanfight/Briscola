@@ -103,13 +103,14 @@ public class UserController {
         return userService.getAllStats();
     }
 
-    @GetMapping("/stats/{id:\\d+}")
+    @GetMapping("/{id:\\d+}/stats")
     public Stats getStats(@PathVariable long id) {
         return userService.getStats(id);
     }
 
-    @PutMapping("/stats")
-    public ResponseEntity<Void> updateStats(@RequestBody Stats stats) {
+    @PutMapping("/{id:\\d+}/stats")
+    public ResponseEntity<Void> updateStats(@PathVariable long id, @RequestBody Stats stats) {
+        stats.setId(id);
         if (userService.updateStats(stats))
             return ResponseEntity.ok().build();
         else

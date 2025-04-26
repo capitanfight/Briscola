@@ -272,7 +272,7 @@ button {
     flex-direction: column;
     align-items: center;
 
-    height: 73%;
+    height: 33vh;
 
     background-color: var(--dark-red);
     border-radius: 30px;
@@ -606,7 +606,7 @@ button {
 
 .section.rooms > #join-room-section > #refresh-rooms {
     position: absolute;
-    top: 18%;
+    top: 15vh;
     right: -10px;
 
     height: 50px;

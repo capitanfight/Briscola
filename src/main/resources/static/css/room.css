@@ -9,7 +9,7 @@
 }
 
 body {
-    --card-height: 180px;
+    --card-height: 20vh;
 
     background-color: var(--background-color);
 
@@ -26,7 +26,7 @@ body {
 
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
-    grid-template-rows: 200px 1fr 200px;
+    grid-template-rows: 22vh 1fr 22vh;
 
     place-items: center;
 }
@@ -196,4 +196,58 @@ body {
 
 #myself.my-turn .card:hover {
     border-color: var(--border-color);
+}
+
+#end-game-container {
+    position: fixed;
+
+    background-color: var(--light-red);
+    border: 3px solid var(--border-color);
+
+    border-radius: 20px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    width: 50vw;
+    height: 50vh;
+
+    padding: 30px;
+}
+
+#main-title {
+    font-size: 5rem;
+    font-weight: bold;
+    color: var(--border-color);
+
+    margin-bottom: 10%;
+}
+
+#stats {
+    background-color: var(--dark-red);
+    width: 90%;
+    height: 60%;
+
+    border-radius: 20px;
+
+    display: flex;
+    flex-direction: column;
+
+    padding: 20px;
+}
+
+#stats > span {
+    font-size: 1.4rem;
+    color: var(--border-color);
+
+    margin-bottom: 10px;
+
+    border-bottom: 2px solid var(--border-color);
+
+    padding-bottom: 10px;
+
+    overflow-y: auto;
+    overflow-x: hidden;
 }

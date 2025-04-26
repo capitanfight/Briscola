@@ -48,7 +48,7 @@ let state = await fetch(`/api/room/${roomId}/player/${id}/state`).then(response 
 const myself = document.getElementById("myself")
 const otherPlayers = Array.from(document.getElementsByClassName("empty"))
 
-createUser(user, myself)
+await createUser(user, myself)
 await updateUser()
 
 const ws = new WebSocket("/ws/lobby")

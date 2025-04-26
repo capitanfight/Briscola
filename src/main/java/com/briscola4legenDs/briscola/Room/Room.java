@@ -15,6 +15,8 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.Getter;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Optional;
 
 @Getter
@@ -36,6 +38,7 @@ public class Room {
     private Game game;
     private long[] winner;
     private int[] points;
+    private int[] stacksLength;
 
     @JsonIgnore
     private Player[] players;
@@ -128,7 +131,7 @@ public class Room {
             return lobby.getTeamByPlayerId(playerId).getPlayer(playerId);
         else if (game != null)
             return game.getTeamByPlayerId(playerId).getPlayer(playerId);
-        return null;
+        return Arrays.stream(players).filter(player -> player.getId() == playerId).findFirst().orElse(null);
     }
 
     @JsonIgnore
@@ -148,7 +151,11 @@ public class Room {
     }
 
     public int getNPlayers() {
-        return lobby != null ? lobby.getNPlayers() : game.getNPlayers();
+        if (lobby != null)
+            return lobby.getNPlayers();
+        else if (game != null)
+            return game.getNPlayers();
+        return 0;
     }
 
     @JsonIgnore
@@ -158,17 +165,23 @@ public class Room {
 
     @JsonIgnore
     public long getTurnPlayerId() {
-        return game.getTurnPlayerId();
+        if (game != null)
+            return game.getTurnPlayerId();
+        return -1;
     }
 
     @JsonIgnore
     public Card[] getHand(long playerId) {
-        return game.getHand(playerId);
+        if (game != null)
+            return game.getHand(playerId);
+        return new Card[3];
     }
 
     @JsonIgnore
     public Card[] getBoard() {
-        return game.getBoard();
+        if (game != null)
+            return game.getBoard();
+        return new Card[0];
     }
 
     @JsonIgnore
@@ -195,7 +208,19 @@ public class Room {
             return lobby.getTeamPlayersId();
         else if (game != null)
             return game.getTeamPlayersId();
-        return null;
+
+        ArrayList<Player>[] teams = new ArrayList[] {
+                new ArrayList<Player>(),
+                new ArrayList<Player>()
+        };
+        for (int i = 0; i < getPlayers().length; i++)
+            teams[i % teams.length].add(getPlayers()[i]);
+
+        long[][] ids = new long[teams.length][];
+        for (int i = 0; i < teams.length; i++)
+            ids[i] = teams[i].stream().mapToLong(Player::getId).toArray();
+
+        return ids;
     }
 
     @JsonIgnore
@@ -204,7 +229,7 @@ public class Room {
             return new int[] {0, 0};
         else if (game != null)
             return game.getTotalCollectedCards();
-        return null;
+        return stacksLength;
     }
 
     @JsonIgnore
@@ -217,9 +242,10 @@ public class Room {
                     winner = game.getWinner();
                     points = game.getPoints();
                     players = game.getPlayers();
+                    stacksLength = game.getTotalCollectedCards();
                     game = null;
-                } else
-                    throw e;
+                }
+                throw e;
             }
     }
 
