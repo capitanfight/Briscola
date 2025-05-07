@@ -324,7 +324,7 @@ document.getElementById("ready").addEventListener("click", async () => {
     })
 })
 
-async function checkIfGameCanStart() {
+function checkIfGameCanStart() {
     fetch(`/api/room/${roomId}/canStart`)
         .then(resp => resp.json())
         .then(canStart => {
