@@ -126,3 +126,85 @@ button {
     cursor: pointer;
 }
 
+#sub-container {
+    height: 100%;
+    width: 100%;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+/* Tablet */
+@media (max-width: 768px) {}
+
+/* Phone */
+@media (max-width: 480px) {
+    body {
+        align-items: normal;
+    }
+
+    #main-container {
+        flex-direction: column;
+
+        background-color: transparent;
+        border: none;
+        box-shadow: none;
+    }
+
+    #container-acc {
+        display: none;
+    }
+
+    #user {
+        background-color: var(--light-red);
+
+        border-radius: 15px;
+        border: 2px solid var(--border-color);
+
+        width: min-content;
+        height: min-content;
+
+        padding: 20px;
+        margin: auto;
+
+    }
+
+    #container-statics {
+        padding: 20px;
+    }
+
+    h2 {
+        margin-top: 0;
+    }
+
+    #sub-container {
+        background-color: var(--dark-red);
+
+        width: 100%;
+        border-radius: 20px;
+
+        padding: 0 20px 20px;
+
+        justify-content: start;
+
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .container {
+        box-shadow: none;
+
+        border-radius: 0;
+        border-bottom: 1px solid var(--border-color);
+
+        background-color: transparent;
+
+        width: 100%;
+    }
+
+    #back-btn {
+        display: none;
+    }
+}
