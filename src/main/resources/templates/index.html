@@ -17,16 +17,35 @@
 <div class="place-holder"></div>
 
 <div id="menu-page">
-    <div id="menu">
-        <div class="menu">
+    <div id="header">
+        <div class="header">
             <img id="logo" src="/img/logo.png" alt="logo">
             <a th:href="@{/account}">ACCOUNT</a>
             <a th:href="@{/leaderboard}"><img src="/img/podiumIcon.png" alt="podium"></a>
         </div>
+        <img id="logo-for-responsiveness" src="/img/logo.png" alt="logo">
         <div id="decorations">
             <img src="/img/menuDecorations1.png" alt="">
         </div>
-        <div class="menu">
+        <div id="menu">
+            <button id="menu-btn-open"></button>
+            <div id="menu-container" class="close">
+                <div id="menu-dark-bg" class="dark-bg"></div>
+                <div id="menu-content" class="content">
+                    <section>
+                        <a th:href="@{/account}">Account</a>
+                        <a th:href="@{/leaderboard}">Rankings</a>
+                    </section>
+                    <section>
+                        <a href="">Simulation</a>
+                        <a th:href="@{/FAQ}">FAQ</a>
+                        <a th:href="@{/settings}">Settings</a>
+                    </section>
+                    <button id="menu-btn-close">X</button>
+                </div>
+            </div>
+        </div>
+        <div class="header">
             <a href="">SIMULATION</a>
             <a th:href="@{/FAQ}">FAQ</a>
             <a th:href="@{/settings}"><img src="/img/settingsIcon.png" alt="settings"></a>
@@ -34,7 +53,7 @@
     </div>
 
     <div id="content">
-        <div class="content-card">
+        <div class="content-card content-frame">
             <img class="frame" src="/img/frame.png" alt="frame">
             <div class="overlay">
                 <h1>History</h1>
@@ -53,7 +72,7 @@
                 <button id="new-game">START NEW <br> GAME</button>
             </a>
         </div>
-        <div class="content-card">
+        <div class="content-card content-frame">
             <img class="frame" src="/img/frame.png" alt="frame">
             <div class="overlay">
                 <h1>Rules</h1>
@@ -66,6 +85,21 @@
     </div>
 </div>
 
-<script src="/js/menu.js"></script>
+<script>
+    const menu = {
+        btn_open: document.getElementById("menu-btn-open"),
+        btn_close: document.getElementById("menu-btn-close"),
+        dark: document.getElementById("menu-dark-bg"),
+        content: document.getElementById("menu-content"),
+    }
+
+    function toggleMenu() {
+        menu.content.parentElement.classList.toggle("close")
+    }
+
+    menu.btn_open.addEventListener("click", toggleMenu)
+    menu.btn_close.addEventListener("click", toggleMenu)
+    menu.dark.addEventListener("click", toggleMenu)
+</script>
 </body>
 </html>
