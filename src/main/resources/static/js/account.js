@@ -11,7 +11,18 @@ resourceExists(`/img/profilePictures/${user.imageUrl}`)
     })
 
 fetch(`api/user/stats/${id}`)
-    .then(resp => resp.json())
+    .then(resp => {
+            if (resp.ok)
+                return resp.json()
+            else
+                return {
+                    matches: 0,
+                    win: 0,
+                    loss: 0,
+                    maxPoints: 0,
+                    totalPoints: 0,
+                }
+    })
     .then(data => {
         document.getElementById("match-number").textContent = data.matches
         document.getElementById("win-number").textContent = data.win
