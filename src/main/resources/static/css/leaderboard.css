@@ -37,7 +37,7 @@ body {
     top: -55px;
 
     height: 70px;
-    width: 60%;
+    width: max(60%, 267px);
 
     background-color: var(--dark-red);
     border: 3px solid var(--border-color);
@@ -152,5 +152,26 @@ body {
 
     position: absolute;
     bottom: 20px;
-    left: clamp(calc(50% - 290px), calc(50% - (70% - 20px)), calc(50% - 215px));
+}
+
+/* Tablet */
+@media (max-width: 768px) {
+}
+
+/* Phone */
+@media (max-width: 540px) {
+    #back-btn {
+        display: none;
+    }
+
+    #container {
+        min-width: 0;
+        width: 80%;
+    }
+
+    .user,
+    #myself {
+        min-width: 0;
+        width: 70%;
+    }
 }
