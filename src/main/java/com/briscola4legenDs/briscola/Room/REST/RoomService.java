@@ -317,4 +317,14 @@ public class RoomService {
 
         return roomLocalRepository.getRoomById(id).getNRemainingCards();
     }
+
+    public void deleteEmptyRoom() {
+        ArrayList<Long> idsRoomToRemove = new ArrayList<>();
+        for (Room r: roomLocalRepository.getAllRooms())
+            if (r.isGameEnded())
+                idsRoomToRemove.add(r.getId());
+
+        for (Long id : idsRoomToRemove)
+            roomLocalRepository.remove(id);
+    }
 }

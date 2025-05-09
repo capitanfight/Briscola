@@ -43,6 +43,9 @@ public class RoomSocketHandler extends TextWebSocketHandler {
     public void afterConnectionClosed(@NonNull WebSocketSession session, CloseStatus status) {
         sessions.remove(findId(session));
         sessionsWithoutId.remove(session);
+
+        if (sessionsWithoutId.isEmpty() && sessions.isEmpty())
+            rs.deleteEmptyRoom();
     }
 
     @Override
