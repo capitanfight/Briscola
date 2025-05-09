@@ -38,7 +38,6 @@ function toggleAudio() {
 
 volumeSlider.addEventListener("input", function () {
     const volume = Number(this.value);
-    // Supponendo che tu abbia un elemento <audio> con id="audio"
     const audio = document.getElementById("audio");
     if (audio) audio.volume = volume;
 
@@ -52,5 +51,5 @@ volumeSlider.addEventListener("input", function () {
     setAudio(volume)
 });
 
-document.getElementById("close-btn").addEventListener("click", redirectHome);
+document.getElementById("back-btn").addEventListener("click", redirectHome);
 document.getElementById("audio-btn").addEventListener("click", toggleAudio);
