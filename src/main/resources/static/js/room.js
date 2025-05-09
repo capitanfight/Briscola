@@ -295,7 +295,7 @@ function createEndGamePopUp(hasWon, points) {
         <h1 id="main-title" class="${ hasWon ? "win" : "lose" }">You ${ hasWon ? "won" : "lost" }!</h1>
         <div id="stats">
             <span id="your-points">You${ players.length === 2 ? "" : "r team" } scored ${ points[team] } / 120 points</span>
-            <span id="enemy-points">The enemy team scored ${ points[team] } / 120 points</span>
+            <span id="enemy-points">The enemy team scored ${ 120 - points[team] } / 120 points</span>
         </div>
     `
 
