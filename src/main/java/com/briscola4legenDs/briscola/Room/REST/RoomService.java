@@ -71,7 +71,7 @@ public class RoomService {
 
         Room room = roomLocalRepository.getRoomById(token.getRoomId());
 
-        room.addPlayer(new LobbyPlayer(token.getPlayerId()), room.getNPlayers());
+        room.addPlayer(new LobbyPlayer(token.getPlayerId()), room.getNPlayers() % 2);
 
         sendRoomPlayersUpdate(token.getRoomId(), new long[]{token.getPlayerId()});
 
