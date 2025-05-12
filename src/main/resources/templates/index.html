@@ -11,22 +11,17 @@
 </head>
 <body>
 
-<div class="background">
-</div>
+<div id="background"></div>
 
-<div class="place-holder"></div>
-
-<div id="menu-page">
-    <div id="header">
+<div id="main-content">
+    <header>
         <div class="header">
             <img id="logo" src="/img/logo.png" alt="logo">
             <a th:href="@{/account}">ACCOUNT</a>
             <a th:href="@{/leaderboard}"><img src="/img/podiumIcon.png" alt="podium"></a>
         </div>
         <img id="logo-for-responsiveness" src="/img/logo.png" alt="logo">
-        <div id="decorations">
-            <img src="/img/menuDecorations1.png" alt="">
-        </div>
+        <div id="decorations"></div>
         <div id="menu">
             <button id="menu-btn-open"></button>
             <div id="menu-container" class="close">
@@ -54,16 +49,13 @@
             <a th:href="@{/FAQ}">FAQ</a>
             <a th:href="@{/settings}"><img src="/img/settingsIcon.png" alt="settings"></a>
         </div>
-    </div>
+    </header>
 
     <div id="content">
         <div class="content-card content-frame">
-            <img class="frame" src="/img/frame.png" alt="frame">
-            <div class="overlay">
-                <h1>History</h1>
-                <div class="pair">
-                    <a th:href="@{/history}"><button>Show more</button></a>
-                </div>
+            <h1>History</h1>
+            <div class="pair">
+                <a th:href="@{/history}"><button>Show more</button></a>
             </div>
         </div>
         <div class="content-card">
@@ -76,12 +68,9 @@
             </a>
         </div>
         <div class="content-card content-frame">
-            <img class="frame" src="/img/frame.png" alt="frame">
-            <div class="overlay">
-                <h1>Rules</h1>
-                <div class="pair">
-                    <a th:href="@{/rules}"><button>Show more</button></a>
-                </div>
+            <h1>Rules</h1>
+            <div class="pair">
+                <a th:href="@{/rules}"><button>Show more</button></a>
             </div>
         </div>
     </div>
