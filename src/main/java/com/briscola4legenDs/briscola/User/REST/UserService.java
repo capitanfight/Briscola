@@ -237,7 +237,7 @@ public class UserService {
             throw new IllegalArgumentException("User with id: " + stats.getId() + " not found");
 
         Stats oldStats = statsRepository.findById(stats.getId()).get();
-        if (!(oldStats.getMatches() == stats.getWin()) &&
+        if (!(oldStats.getMatches() == stats.getMatches()) &&
                 stats.getMatches() > 0) {
             oldStats.setMatches(stats.getMatches());
             updated = true;
@@ -252,6 +252,18 @@ public class UserService {
         if (!(oldStats.getLoss() == stats.getLoss()) &&
                 stats.getLoss() > 0) {
             oldStats.setLoss(stats.getLoss());
+            updated = true;
+        }
+
+        if (!(oldStats.getMaxPoints() == stats.getMaxPoints()) &&
+                stats.getMaxPoints() > 0) {
+            oldStats.setMaxPoints(stats.getMaxPoints());
+            updated = true;
+        }
+
+        if (!(oldStats.getTotalPoints() == stats.getTotalPoints()) &&
+                stats.getTotalPoints() > 0) {
+            oldStats.setTotalPoints(stats.getTotalPoints());
             updated = true;
         }
 

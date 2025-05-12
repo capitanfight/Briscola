@@ -10,7 +10,7 @@ resourceExists(`/img/profilePictures/${user.imageUrl}`)
             document.getElementById("userPic").setAttribute("src", `/img/profilePictures/${user.imageUrl}`)
     })
 
-fetch(`api/user/stats/${id}`)
+fetch(`api/user/${id}/stats`)
     .then(resp => {
             if (resp.ok)
                 return resp.json()
