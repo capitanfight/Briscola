@@ -1,8 +1,6 @@
 package Application.Game;
 
 import Application.GameException;
-import Application.Lobby.LobbyPlayer;
-import Application.Lobby.LobbyTeam;
 import Application.Models.Container;
 import lombok.Getter;
 
@@ -63,7 +61,8 @@ public class Game extends Container<GameTeam> {
         if (card == null)
             throw new GameException("Card cannot be null", GameException.Type.CANNOT_BE_NULL);
 
-        GamePlayer p = getPlayerById(playerId).orElseThrow(() -> new GameException("Player not found", GameException.Type.PLAYER_NOT_FOUND));
+        GamePlayer p = getPlayerById(playerId)
+                .orElseThrow(() -> new GameException("Player not found", GameException.Type.PLAYER_NOT_FOUND));
         p.playCard(card);
         board[turn] = card;
 
@@ -104,9 +103,17 @@ public class Game extends Container<GameTeam> {
     }
 
     private void drawCard() {
-        for (GameTeam team: teams)
-            for (GamePlayer player : team.getPlayers())
-                player.drawCard(deck[cardIdx++]);
+        for (int i = 0; i < getTeamSize(); i++)
+            for (int j = 0; j < teams.length; j++) {
+                int teamIdx = (turn + j) % teams.length;
+                int playerIdx = ((turn + i) % getNPlayers()) / teams.length;
+
+                teams[teamIdx].getPlayer(playerIdx).drawCard(deck[cardIdx++]);
+            }
+    }
+
+    private int getTeamSize() {
+        return getNPlayers() / teams.length;
     }
 
     private void clearBoard() {
