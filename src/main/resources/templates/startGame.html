@@ -12,11 +12,26 @@
         <script src="/js/globals.js" type="module" defer></script>
     </head>
     <body>
+        <header>
+            <button id="show-account" class="header-item" onclick="document.getElementById('left').classList.toggle('hidden')">
+                <img src="/img/profilePictures/blankProfilePicture.png" alt="Profile pic" class="user-avatar">
+            </button>
+            <button id="show-menu" class="header-item" onclick="document.getElementById('menu-container').classList.toggle('hidden')">
+                <img src="/img/svg/menu.svg" alt="menu">
+            </button>
+        </header>
+        <div id="menu-container" class="hidden">
+            <button class="darker" onclick="document.getElementById('menu-container').classList.add('hidden')"></button>
+            <div class="content" id="menu-content">
+                <a class="menu-item" href="/settings">Settings</a>
+                <a class="menu-item" href="/index">Leave</a>
+            </div>
+        </div>
         <div id="new-game">
-            <div id="left">
+            <div id="left" class="hidden">
                 <img src="/img/decoration2.png" alt="Decorative image">
                 <div class="img-container" id="profile-pic-container">
-                    <img id="userPic" src="/img/profilePictures/blankProfilePicture.png" alt="Profile picture">
+                    <img id="main-user-avatar" class="user-avatar" src="/img/profilePictures/blankProfilePicture.png" alt="Profile picture">
                 </div>
                 <h1 id="username"></h1>
                 <div id="user-id">
@@ -25,6 +40,7 @@
                 </div>
                 <img src="/img/decoration2.png" alt="Decorative image">
             </div>
+            <button class="darker" onclick="document.getElementById('left').classList.add('hidden')"></button>
             
             <div id="right">
                 <div id="friend-box">
@@ -74,8 +90,10 @@
                         <div id="join-room-section" class="hide">
                             <div class="input-group">
                                 <label for="join-room-inp">Join by id</label>
-                                <input type="text" id="join-room-inp" name="join-room-inp">
-                                <button id="join-room">Join</button>
+                                <div class="pair">
+                                    <input type="text" id="join-room-inp" name="join-room-inp">
+                                    <button id="join-room">Join</button>
+                                </div>
                             </div>
                             <button id="refresh-rooms">
                                 <img src="/img/svg/refresh-logo.svg" alt="Refresh logo">
