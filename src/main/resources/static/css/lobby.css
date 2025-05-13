@@ -1,11 +1,11 @@
 @import "globals.css";
 
 body {
-    background-color: var(--background-color); /* Verde scuro */
+    background-color: var(--background-color);
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    height: 100%;
     margin: 0;
     font-family: Arial, sans-serif;
     color: var(--border-color);

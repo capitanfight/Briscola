@@ -2,7 +2,7 @@
 
 body{
     margin: 0;
-    height: 100vh;
+    height: 100%;
 
     background-color: var(--background-color);
 }
@@ -23,7 +23,7 @@ button {
     padding: 20px;
     background-color:  var(--background-color);
     flex: 1;
-    height: 100vh;
+    height: 100%;
     margin: 0;
 }
 
@@ -827,11 +827,11 @@ header {
     flex-direction: column;
     justify-content: center;
 
-    height: 50vh;
+    height: 50%;
     width: clamp(0px, 40vw, 300px);
 
     position: absolute;
-    top: 25vh;
+    top: 25%;
     left: clamp(30vw, 100vw, calc((100vw - 300px) / 2));
 
     padding: 1rem;
@@ -864,10 +864,6 @@ header {
         padding-top: 10vh;
     }
 
-    #new-game {
-        height: 90vh;
-    }
-
     header {
         display: flex;
         z-index: 9;
@@ -879,11 +875,11 @@ header {
     }
 
     #left {
-        height: 80vh;
+        height: 80%;
         width: clamp(0px, 80vw, 532px);
 
         position: absolute;
-        top: 10vh;
+        top: 10%;
         left: clamp(10vw, 50%, calc((100vw - 532px) / 2));
 
         background-color: var(--light-red);
