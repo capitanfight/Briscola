@@ -314,13 +314,22 @@ public class RoomService {
         return roomLocalRepository.getRoomById(id).getNRemainingCards();
     }
 
-    public void deleteEmptyRoom() {
-        ArrayList<Long> idsRoomToRemove = new ArrayList<>();
-        for (Room r: roomLocalRepository.getAllRooms())
-            if (r.isGameEnded())
-                idsRoomToRemove.add(r.getId());
+    public void deleteEmptyRoom(long roomId) {
+        if (roomId == -1)
+            return;
 
-        for (Long id : idsRoomToRemove)
-            roomLocalRepository.remove(id);
+        checkForRoomIdValidity(roomId);
+
+        roomLocalRepository.remove(roomId);
+    }
+
+    public long findRoomId(long playerId) {
+        for (Room r : roomLocalRepository.getAllRooms()) {
+            Player p = r.getPlayer(playerId);
+            if (p != null)
+                return r.getId();
+        }
+
+        return -1;
     }
 }
