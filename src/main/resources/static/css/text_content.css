@@ -8,6 +8,8 @@
 }
 
 body{
+    --main-title-color: white;
+
     background-color: var(--background-color);
 
     padding: 100px 0;
@@ -17,13 +19,13 @@ body{
 }
 
 #main-container {
-    background-color: var(--dark-red);
+    background-color: var(--light-red);
     padding: 20px 50px;
 
     border-radius: 20px;
     border: 3px solid var(--border-color);
 
-    max-width: 60rem;
+    max-width: 50rem;
 
     display: flex;
     flex-direction: column;
@@ -37,7 +39,7 @@ body{
 
 h1 {
     margin: 20px 0;
-    color: white;
+    color: var(--main-title-color);
     font-size: 3rem;
 }
 
@@ -59,4 +61,22 @@ h1 {
 .sub-list {
     padding-left: 30px;
     margin: 10px 0;
+}
+
+@media (max-width: 1090px) {
+    #back-btn {
+        display: none;
+    }
+}
+
+@media (max-width: 50rem) {
+    body {
+        background-color: var(--light-red);
+        padding: 0;
+    }
+
+    #main-container {
+        border: none;
+        border-radius: 0;
+    }
 }

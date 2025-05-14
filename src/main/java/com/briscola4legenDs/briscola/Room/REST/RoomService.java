@@ -1,7 +1,6 @@
 package com.briscola4legenDs.briscola.Room.REST;
 
 import Application.Game.Card;
-import Application.Lobby.Lobby;
 import Application.Lobby.LobbyPlayer;
 import Application.Models.Player;
 import com.briscola4legenDs.briscola.Assets.PayloadBuilder;
@@ -10,7 +9,6 @@ import com.briscola4legenDs.briscola.Room.Token;
 import com.briscola4legenDs.briscola.Room.WebSocket.LobbySocketHandler;
 import com.briscola4legenDs.briscola.Room.WebSocket.RoomSocketHandler;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +20,6 @@ import java.util.*;
 public class RoomService {
     private final RoomLocalRepository roomLocalRepository;
     private final LobbySocketHandler lobbySocketHandler;
-    private final RoomSocketHandler roomSocketHandler;
 
     private static final Logger log = LoggerFactory.getLogger(RoomService.class.getName());
 
@@ -31,7 +28,6 @@ public class RoomService {
         this.roomLocalRepository = roomLocalRepository;
         this.lobbySocketHandler = lobbySocketHandler;
         lobbySocketHandler.setRoomService(this);
-        this.roomSocketHandler = roomSocketHandler;
         roomSocketHandler.setRoomService(this);
     }
 
@@ -71,7 +67,7 @@ public class RoomService {
 
         Room room = roomLocalRepository.getRoomById(token.getRoomId());
 
-        room.addPlayer(new LobbyPlayer(token.getPlayerId()), room.getNPlayers());
+        room.addPlayer(new LobbyPlayer(token.getPlayerId()), room.getNPlayers() % 2);
 
         sendRoomPlayersUpdate(token.getRoomId(), new long[]{token.getPlayerId()});
 
@@ -208,11 +204,11 @@ public class RoomService {
             throw new IllegalArgumentException("Player with id: " + token.getPlayerId() + " does not exist");
     }
 
-    private long[] getRoomPlayersIds(long roomId) {
-        checkForRoomIdValidity(roomId);
-
-        return roomLocalRepository.getRoomById(roomId).getPlayersIds();
-    }
+//    private long[] getRoomPlayersIds(long roomId) {
+//        checkForRoomIdValidity(roomId);
+//
+//        return roomLocalRepository.getRoomById(roomId).getPlayersIds();
+//    }
 
     private void sendRoomPlayersUpdate(long roomId, long[] playerIdToNotInclude) {
         checkForRoomIdValidity(roomId);
@@ -316,5 +312,15 @@ public class RoomService {
         checkForRoomIdValidity(id);
 
         return roomLocalRepository.getRoomById(id).getNRemainingCards();
+    }
+
+    public void deleteEmptyRoom() {
+        ArrayList<Long> idsRoomToRemove = new ArrayList<>();
+        for (Room r: roomLocalRepository.getAllRooms())
+            if (r.isGameEnded())
+                idsRoomToRemove.add(r.getId());
+
+        for (Long id : idsRoomToRemove)
+            roomLocalRepository.remove(id);
     }
 }

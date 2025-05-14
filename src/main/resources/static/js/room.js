@@ -97,6 +97,8 @@ const playerArrangements = new Map([
     ]]
 ])
 
+
+
 const playerContainer = document.getElementById("game-container")
 
 const isGameOver = await fetch(`api/room/${roomId}/gameOver`).then(response => response.json())
@@ -190,6 +192,9 @@ async function createPlayers() {
         if (isMyself)
             div.setAttribute("id", "myself")
 
+        if (i === players.length / 2)
+            div.setAttribute("id", "facingMyself")
+
         const gridPosition = playerArrangement[i]
         div.style.gridRow = gridPosition.row
         div.style.gridColumn = gridPosition.column
@@ -256,7 +261,7 @@ async function createDeck() {
     `
     createCard(Array.from(div.children).find(e => e.getAttribute("id") === "briscola"), await getBriscolaCard())
 
-    div.setAttribute("n-players", players.length)
+    // div.setAttribute("n-players", players.length)
 
     if (players.length === 2) {
         playerContainer.appendChild(div)
@@ -278,7 +283,7 @@ function createStacks() {
         container.appendChild(div)
     }
 
-    container.setAttribute("n-players", players.length)
+    // container.setAttribute("n-players", players.length)
 
     if (players.length === 2) {
         playerContainer.appendChild(container)
@@ -295,7 +300,7 @@ function createEndGamePopUp(hasWon, points) {
         <h1 id="main-title" class="${ hasWon ? "win" : "lose" }">You ${ hasWon ? "won" : "lost" }!</h1>
         <div id="stats">
             <span id="your-points">You${ players.length === 2 ? "" : "r team" } scored ${ points[team] } / 120 points</span>
-            <span id="enemy-points">The enemy team scored ${ points[team] } / 120 points</span>
+            <span id="enemy-points">The enemy team scored ${ 120 - points[team] } / 120 points</span>
         </div>
     `
 
@@ -438,6 +443,9 @@ async function playCard(card, playerId) {
 
 // init functions
 await createPlayers()
+
+document.body.setAttribute("n-players", players.length)
+
 createStacks()
 updateOtherUsersCards()
 updateStacksLength()

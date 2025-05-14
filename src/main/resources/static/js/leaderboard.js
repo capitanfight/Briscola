@@ -43,11 +43,27 @@ async function renderUser(stat, idx) {
 
 if (id !== null) {
     let stat = await fetch(`api/user/stats/${id}`)
-        .then(response => response.json())
+        .then(response => {
+            if (response.ok)
+                return response.json()
+            else
+                return {
+                    matches: 0,
+                    win: 0,
+                    loss: 0,
+                    maxPoints: 0,
+                    totalPoints: 0,
+                }
+        })
 
     let pos = await fetch("api/user/stats")
         .then(response => response.json())
-        .then(stats => stats.indexOf(stats.find(e => e.id === Number(id))) + 1)
+        .then(stats => {
+            if (stats.map(e => e.id).includes(Number(id)))
+                return stats.indexOf(stats.find(e => e.id === Number(id))) + 1
+            else
+                return "nd"
+        })
 
     const div = document.createElement('div');
     div.classList.add("user")

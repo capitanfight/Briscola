@@ -39,7 +39,9 @@ document.getElementById("username").textContent = user.username
 resourceExists(`/img/profilePictures/${user.imageUrl}`)
     .then(exists => {
         if (exists)
-            document.getElementById("userPic").setAttribute("src", `/img/profilePictures/${user.imageUrl}`)
+            document.querySelectorAll(".user-avatar")
+                .forEach(e =>
+                    e.setAttribute("src", `/img/profilePictures/${user.imageUrl}`))
     })
 
 // Friends section

@@ -4,12 +4,12 @@
 
 body{
     margin: 0;
-    height: 200vh;
+    height: 100%;
 }
 
-div.background {
+#background {
     width: 100%;
-    height: 100vh;
+    height: 100%;
 
     filter: brightness(50%);
 
@@ -21,43 +21,35 @@ div.background {
     position: fixed;
     top: 0;
     left: 0;
-}
 
-div.place-holder {
-    height: 100vh;
-}
-
-/*rendere l' immagine più scura*/
-#darkerImg{
-    filter: brightness(50%);
-}
-
-/*menu*/
-#menu {
-    flex: 2;
-    display: flex;
-    width: 100%;
-    justify-content: center;
+    z-index: -1;
 }
 
 /*intera pagina del menu*/
-#menu-page{
+#main-content{
+    margin-top: 100%;
+
     flex-direction: column;
     gap: 10px;
     padding: 10px;
     background-color: var(--background-color);
     transition: transform 0.5s ease-in-out;
 
-    height: 100vh;
+    height: 100%;
 }
 
-/*parte alta della pagina*/
-#menu{
+/* header */
+header {
+    height: 20%;
+
+    display: flex;
+    width: 100%;
+    justify-content: center;
     padding: 0;
 }
 
 /*voci di navigazione*/
-.menu{
+.header{
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -68,13 +60,13 @@ div.place-holder {
     margin: 5vh 5vw;
 }
 
-.menu img{
+.header img{
     width: 50px;
     height: auto;
     vertical-align: middle;
 }
 
-.menu > * {
+.header > * {
     font-size: 1.5rem;
 }
 
@@ -85,14 +77,14 @@ div.place-holder {
 }
 
 /*voci di navigazione*/
-a {
+header a {
     text-decoration: none;
     color: var(--border-color);
     font-weight: bold;
     transition: color 0.3s ease, transform 0.2s ease;
 }
 
-a:hover{
+header a:hover{
     color: var(--dark-red);
     transform: scale(1.1);
 }
@@ -104,6 +96,11 @@ a:hover{
     display: flex;
     justify-content: center;
     align-items: center;
+
+    background-image: url("../img/menuDecorations1.png");
+    background-size: auto 100%;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 /*immagine decorazione parte alta*/
@@ -112,39 +109,31 @@ a:hover{
     height: 70%;
 }
 
-/*parte bassa del menu*/
-#content{
-    display: flex;
-    justify-content: space-between;
-    gap: 10px;
-    /*padding: 10px;*/
-}
-
 /*contenuto della parte bassa*/
-.content-card{
+.content-card {
     --prefered-height: 60vh;
 
     flex: 1;
     text-align: center;
-    position: relative;
-    display: inline-block;
 
-    max-height: 70%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+
+    max-width: 33%;
 }
 
 /*immagine che inserisce un frame*/
-.frame{
+.frame {
     height: var(--prefered-height);
     width: 500px;
     display: block;
 }
 
-.content-card img{
-    width: 100%;
-}
-
 #title {
     height: 30%;
+    width: 100%;
 }
 
 /*logo carte*/
@@ -164,36 +153,33 @@ a:hover{
 }
 
 /*tutto ciò che si trova scritto all'interno delle content-cards*/
-.overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
+.content-frame {
+    background-image: url("../img/frame.png");
+    background-size: 130% 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+
+    max-width: 20%;
+
     width: 100%;
-    height: var(--prefered-height);
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: center;
-    text-align: center;
-    padding: 20px;
 }
 
-.overlay h1,
-.overlay p,
-.overlay button {
+.content-frame h1,
+.content-frame p,
+.content-frame button {
     z-index: 2;
 }
 
-.overlay .pair {
+.content-frame .pair {
     margin-bottom: 20%;
 }
 
-.overlay p{
+.content-frame p{
     color: var(--border-color);
     margin: 50px;
 }
 
-.overlay h1{
+.content-frame h1{
     color: var(--dark-red);
     font-size: 70px;
     font-family: "Great Vibes", serif;
@@ -228,11 +214,7 @@ button:hover{
 /*animazioni*/
 
 /*il contenuto compare gradualmente quando carico la pagina*/
-#menu-page {
-    opacity: 0;
-    transform: translateY(-20px);
-    animation: fadeIn 1s ease-out forwards;
-
+#main-content {
     display: flex;
     flex-direction: column;
 
@@ -240,16 +222,223 @@ button:hover{
 }
 
 #content {
-    flex: 2;
+    height: 80%;
+    max-height: 80%;
 
-    opacity: 0;
-    transform: translateY(-20px);
-    animation: fadeIn 1s ease-out forwards;
+    display: flex;
+    justify-content: space-evenly;
+    gap: 10px;
+
+    padding-bottom: 5%;
 }
 
-@keyframes fadeIn {
+#menu {
+    display: none;
+}
+
+#menu-btn-open {
+    background: transparent;
+
+    height: 60px;
+    width: 60px;
+
+    box-shadow: none;
+
+    background: url("../img/svg/menu.svg");
+    background-size: cover;
+}
+
+#menu-container {
+    display: flex;
+
+    position: fixed;
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+    z-index: 2;
+
+    background-color: rgba(0, 0, 0, .5);
+}
+
+#menu-container.close {
+    display: none;
+}
+
+#menu-dark-bg {
+    width: 100%;
+    height: 100%;
+}
+
+@keyframes enterScene {
+    from {
+        transform: translateX(100%);
+    }
+
     to {
-        opacity: 1;
-        transform: translateY(0);
+        transform: translateX(0);
+    }
+}
+
+#menu-container:not(.close) #menu-content {
+    animation: enterScene .2s ease-out;
+}
+
+#menu-content {
+    flex: 1;
+
+    min-width: 500px;
+    max-width: 600px;
+    height: 100%;
+
+    background-color: var(--light-red);
+    border-left: 3px solid var(--border-color);
+
+    position: relative;
+
+    padding-top: 13vh;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+}
+
+#menu-content > section {
+    display: flex;
+    flex-direction: column;
+}
+
+#menu-content > section > a{
+    border-bottom: 1px solid var(--border-color);
+
+    padding: 10px;
+    margin: 20px;
+
+    width: 100%;
+
+    font-size: 1.5rem;
+}
+
+#menu-btn-close {
+    box-shadow: none;
+
+    position: absolute;
+    top: 20px;
+    right: 20px;
+
+    height: 40px;
+    width: 40px;
+
+    border: 2px solid var(--border-color);
+    border-radius: 50%;
+
+    font-size: 1.8rem;
+    font-weight: bold;
+
+    display: grid;
+    place-content: center;
+}
+
+#logo-for-responsiveness {
+    display: none;
+
+    height: 100px;
+    margin: auto;
+}
+
+@media (max-width: 1180px) {
+    #decorations {
+        display: none;
+    }
+}
+
+/* Tablet */
+@media (max-width: 768px) {
+    #main-content {
+        margin-top: 0;
+    }
+
+    body {
+        height: 100%;
+
+        background-color: #043920;
+    }
+
+    #background {
+        display: none;
+    }
+
+    .content-card {
+        max-width: 100%;
+    }
+
+    .content-frame {
+        display: none !important;
+    }
+
+    header > .header {
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    header > .header:last-child {
+        display: none;
+    }
+
+    #menu {
+        display: block;
+        margin: auto;
+
+        padding-left: 20px;
+    }
+
+    #menu-content > section:first-child {
+        display: none;
+    }
+}
+
+/* Phone */
+@media (max-width: 480px) {
+    header > .header:first-child {
+        display: none;
+    }
+
+    #menu-content {
+        min-width: 100%;
+    }
+
+    #menu-content > section:first-child {
+        display: flex;
+    }
+
+    #logo-for-responsiveness {
+        display: block;
+    }
+
+    #content {
+        max-height: 80%;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+    .content-card {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-evenly;
+        align-items: center;
+
+        height: 100%;
+    }
+
+    #title {
+        height: 20%;
+        width: 70%;
+    }
+
+    header {
+        height: 140px;
     }
 }

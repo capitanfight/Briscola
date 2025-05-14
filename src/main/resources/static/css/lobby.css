@@ -1,11 +1,11 @@
 @import "globals.css";
 
 body {
-    background-color: var(--background-color); /* Verde scuro */
+    background-color: var(--background-color);
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    height: 100%;
     margin: 0;
     font-family: Arial, sans-serif;
     color: var(--border-color);
@@ -53,9 +53,10 @@ body {
 }
 
 .userPic {
-    height: 150px;
-    width: 150px;
-    transform: translate(-5px, -5px);
+    transform: translate(-3px, -3px);
+
+    height: inherit;
+    width: inherit;
 }
 
 .status{
@@ -102,7 +103,7 @@ body {
 }
 
 #info {
-    font-size: 1.2rem;
+    font-size: 3vh;
     font-weight: bold;
 
     color: var(--border-color);
@@ -218,4 +219,110 @@ body {
 
 .hide {
     display: none !important;
+}
+
+@media (max-width: 1030px) {
+    #container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: 1fr 1fr;
+        place-items: center;
+
+        height: 75%;
+    }
+
+    .user > .username {
+        font-size: 1.5rem;
+    }
+
+    .user > .profile-pic-container {
+        height: 70px;
+        width: 70px;
+    }
+
+    .user {
+        min-width: 0;
+        width: clamp(130px, 40%, 400px);
+        height: clamp(0px, 90%, 250px);
+        border-width: 4px;
+
+    }
+
+    .user > .status {
+        height: 35px;
+        width: 35px;
+        font-size: 1rem;
+    }
+
+    .user:not(.empty) .team-tag {
+        height: 30px;
+        width: 60px;
+        font-size: 1rem;
+    }
+
+    .user.host:after {
+        height: 30px;
+        width: 60px;
+        font-size: 1rem;
+    }
+
+    .user .possible-tag {
+        font-size: .8rem;
+        height: 20px;
+        width: 40px;
+    }
+
+    .team-select {
+        padding-top: 45px;
+        padding-left: 18px;
+    }
+
+    .kick-btn {
+        height: 35px;
+        width: 35px;
+        background-size: 25px;
+    }
+}
+
+@media (max-width: 768px) {
+    .user:not(.empty) .team-tag {
+        height: 25px;
+        width: 40px;
+        font-size: .7rem;
+    }
+
+    .user.host:after {
+        height: 25px;
+        width: 40px;
+        font-size: .7rem;
+    }
+
+    .user .possible-tag {
+        font-size: .6rem;
+        height: 20px;
+        width: 35px;
+    }
+
+    .team-select {
+        padding-top: 40px;
+        padding-left: 15px;
+    }
+
+    .kick-btn {
+        height: 35px;
+        width: 35px;
+        background-size: 25px;
+    }
+}
+
+@media (max-width: 580px) {
+    #back-btn {
+        display: none;
+    }
+
+    .kick-btn {
+        height: 30px;
+        width: 30px;
+        background-size: 20px;
+    }
 }

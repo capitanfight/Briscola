@@ -45,6 +45,7 @@
 
 .bigger {
     width: clamp(525px, 50%, 600px);
+    height: clamp(400px, 60%, 500px);
 }
 
 .checklist-button-like {
@@ -59,4 +60,31 @@
 
 .checklist-button-like.active {
     border: 3px solid #0d5300;
+}
+
+/* Tablet */
+@media (max-width: 768px) {
+    .img-container {
+        height: 80px;
+        width: 80px;
+    }
+
+    .bigger {
+        width: clamp(480px, 50%, 600px);
+    }
+}
+
+/* Phone */
+@media (max-width: 480px) {
+    .bigger {
+        height: clamp(400px, 100%, 600px);
+    }
+
+    #profile-picture-list {
+        flex-wrap: wrap;
+    }
+
+    #submit-pair {
+        margin: 0;
+    }
 }
