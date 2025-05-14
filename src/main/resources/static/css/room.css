@@ -93,9 +93,6 @@ body {
     width: inherit;
 
     margin-right: 5%;
-
-    position: absolute;
-    right: 0;
 }
 
 [n-players="2"] #stacks-container {
