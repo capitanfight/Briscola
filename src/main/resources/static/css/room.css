@@ -58,12 +58,12 @@ body {
     align-items: center;
 }
 
-#deck-container[n-players="2"] {
+[n-players="2"] #deck-container {
     grid-row: 2 / 3;
     grid-column: 1 / 2;
 }
 
-#deck-container[n-players="4"] {
+[n-players="4"] #deck-container {
     position: absolute;
     top: 50px;
     left: 50px;
@@ -93,9 +93,12 @@ body {
     width: inherit;
 
     margin-right: 5%;
+
+    position: absolute;
+    right: 0;
 }
 
-#stacks-container[n-players="2"] {
+[n-players="2"] #stacks-container {
     grid-row: 2 / 3;
     grid-column: 3 / 4;
 }
@@ -149,6 +152,7 @@ body {
 
 .user > .hand {
     width: 100%;
+    min-width: calc((var(--card-height) / 2 + 3px) * 3);
 
     display: flex;
     justify-content: space-evenly;
@@ -250,4 +254,88 @@ body {
 
     overflow-y: auto;
     overflow-x: hidden;
+}
+
+@media (max-width: 1000px) {
+    [n-players="4"] #deck-container {
+        top: 80%;
+        left: 75%;
+        rotate: -135deg;
+    }
+
+    [n-players="4"] #stacks-container {
+        position: relative;
+    }
+
+    [n-players="4"] #game-container {
+        grid-template-columns: 20% 1fr 20% !important;
+    }
+
+    .user:not(#myself):not(#facingMyself) {
+        transform: translate(-15vh, 0) !important;
+    }
+}
+
+@media (max-width: 700px) {
+    [n-players="4"] #stacks-container {
+        position: absolute;
+        top: -45%;
+        left: 0;
+        rotate: 90deg;
+    }
+
+    [n-players="4"] #game-container {
+        margin-top:  calc(var(--card-height) / 2 + 3px);
+    }
+
+    body {
+        --card-height: 18vh;
+    }
+
+    #back-btn {
+        display: none;
+    }
+
+    .user-avatar {
+        height: 70px !important;
+        width: 70px !important;
+    }
+
+    .user-info {
+        padding: 0 !important;
+        margin-left: 10%;
+    }
+
+    #myself,
+    [n-players="2"] #facingMyself {
+        grid-column: 1 / 4 !important;
+    }
+
+    [n-players="4"] #facingMyself {
+        grid-column: 2 / 4 !important;
+    }
+
+    [n-players="4"] #deck-container {
+        top: calc(var(--card-height) / 2 + 30px);
+        left: 20px;
+        rotate: 45deg;
+    }
+
+    #board {
+        max-width: 40vw;
+        background-size: contain;
+    }
+}
+
+@media (max-width: 700px) {
+    [n-players="4"] #game-container {
+        margin-top:  var(--card-height);
+        --card-height: 16vh;
+    }
+
+    [n-players="4"] #deck-container {
+        top: 0;
+        left: 40%;
+        rotate: 90deg;
+    }
 }
