@@ -313,7 +313,6 @@ button {
     justify-content: space-between;
 
     margin: 20px 0;
-    padding-right: 30px;
 }
 
 .section.friends > #friends-container .user > .profile-picture-container {
@@ -947,7 +946,6 @@ header {
     .user > .username {
         font-size: 1.3rem !important;
         max-width: 36%;
-        min-width: 36%;
         overflow: clip;
     }
 
