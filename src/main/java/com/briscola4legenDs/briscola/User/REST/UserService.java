@@ -25,8 +25,12 @@ public class UserService {
     private final UserSocketHandler userSocketHandler;
     private final StatsRepository statsRepository;
 
-    public List<User> getUsers() {
+    public List<User> getAllUsers() {
         return userRepository.findAll();
+    }
+
+    public List<User> getUsers(List<Long> userIds) {
+        return userRepository.findAllById(userIds);
     }
 
     public Optional<User> getUser(long id) {

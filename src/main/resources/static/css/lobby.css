@@ -193,6 +193,10 @@ body {
     margin-bottom: 5px;
 }
 
+.user:not([team]) .team-tag {
+    background-color: white;
+}
+
 .user[team="0"] .team-tag,
 [team="0"].possible-tag {
     background-color: #03638e;

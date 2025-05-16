@@ -12,9 +12,10 @@ await fetch("api/room")
             window.location.replace("/startGame")
     })
 
-// main code
+/***** Main Code ******/
+// fetch functions
 async function getPlayers() {
-    return await fetch(`api/room/${roomId}/players`)
+    return await fetch(`api/room/${roomId}/players/id`)
         .then(response => response.json())
         .then(async playersId => {
             let users = []
@@ -53,9 +54,9 @@ async function getStacksLength() {
 }
 
 async function getTeam() {
-    return await fetch(`api/room/${roomId}/player/team`)
+    return await fetch(`api/room/${roomId}/players/team`)
         .then(response => response.json())
-        .then(teams => teams.indexOf(teams.find(team => team.includes(user.id))))
+        .then(teams => teams.find(team => team.playerIds.includes(user.id)))
 }
 
 async function getBoard() {
@@ -96,8 +97,6 @@ const playerArrangements = new Map([
         },
     ]]
 ])
-
-
 
 const playerContainer = document.getElementById("game-container")
 
@@ -195,6 +194,8 @@ async function createPlayers() {
         if (i === players.length / 2)
             div.setAttribute("id", "facingMyself")
 
+        // TODO: implementare il controllo sulla foto profilo (se non esiste inserire quella base)
+
         const gridPosition = playerArrangement[i]
         div.style.gridRow = gridPosition.row
         div.style.gridColumn = gridPosition.column
@@ -261,8 +262,6 @@ async function createDeck() {
     `
     createCard(Array.from(div.children).find(e => e.getAttribute("id") === "briscola"), await getBriscolaCard())
 
-    // div.setAttribute("n-players", players.length)
-
     if (players.length === 2) {
         playerContainer.appendChild(div)
     } else {
@@ -282,8 +281,6 @@ function createStacks() {
 
         container.appendChild(div)
     }
-
-    // container.setAttribute("n-players", players.length)
 
     if (players.length === 2) {
         playerContainer.appendChild(container)

@@ -2,9 +2,11 @@ package Application.Game;
 
 import Application.GameException;
 import Application.Models.Container;
+import com.briscola4legenDs.briscola.Room.Team;
 import lombok.Getter;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Getter
@@ -147,8 +149,8 @@ public class Game extends Container<GameTeam> {
         }
     }
 
-    public long[] getPlayersId() {
-        long[] ids = new long[getNPlayers()];
+    public Long[] getPlayersId() {
+        Long[] ids = new Long[getNPlayers()];
         int playerN = 0;
         for (int i = 0; i < teams[0].getPlayers().size(); i++)
             for (GameTeam team : teams)
@@ -196,7 +198,7 @@ public class Game extends Container<GameTeam> {
         return getPlayersId()[turn];
     }
 
-    public long[] getWinner() {
+    public List<Long> getWinner() {
         return teams[winner].getPlayerIds();
     }
 
@@ -231,11 +233,11 @@ public class Game extends Container<GameTeam> {
         return players.toArray(new GamePlayer[0]);
     }
 
-    public long[][] getTeamPlayersId() {
-        return new long[][] {
-                teams[0].getPlayerIds(),
-                teams[1].getPlayerIds()
-        };
+    public List<Team> getTeamPlayersId() {
+        return List.of(
+                new Team(0, teams[0].getPlayerIds()),
+                new Team(1, teams[1].getPlayerIds())
+        );
     }
 
     public int[] getTotalCollectedCards() {
