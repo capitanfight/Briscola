@@ -36,6 +36,6 @@ jobs:
         context: .
         push: true
         tags: |
-          ${{ secrets.DOCKER_USERNAME }}/briscola:latest
-          ${{ secrets.DOCKER_USERNAME }}/briscola:${{ steps.get_version.outputs.VERSION }}
+          capitanfight/briscola:latest
+          capitanfight/briscola:${{ steps.get_version.outputs.VERSION }}
 
