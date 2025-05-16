@@ -2,13 +2,6 @@ name: Build and Push Docker Image from Tag
 
 on:
   push:
-    branches:
-      - main
-    tags:
-      - 'v*'
-  pull_request:
-    branches:
-      - main
     tags:
       - 'v*'
 
@@ -20,9 +13,16 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Extract version from tag
-      id: get_version
-      run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+    - name: Determine image tag
+      id: vars
+      run: |
+        if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+          echo "TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+        else
+          BRANCH=$(echo ${GITHUB_REF#refs/heads/} | tr '/' '-')
+          echo "TAG=${BRANCH}" >> $GITHUB_OUTPUT
+        fi
+
 
     - name: Log in to Docker Hub
       uses: docker/login-action@v3
@@ -37,5 +37,6 @@ jobs:
         push: true
         tags: |
           capitanfight/briscola:latest
-          capitanfight/briscola:${{ steps.get_version.outputs.VERSION }}
+          capitanfight/briscola:${{ steps.vars.outputs.TAG }}
+
 
