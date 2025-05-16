@@ -28,12 +28,12 @@ public class LobbySocketHandler extends TextWebSocketHandler {
 
     public enum Code implements com.briscola4legenDs.briscola.Assets.Code {
         SET_ID,
-        GET_PLAYERS_INSIDE,
-        GET_READY_PLAYERS,
-        REMOVE_PLAYER,
+        UPDATE_PLAYERS,
+        UPDATE_STATES,
         YOU_ARE_KICKED,
-        NEW_HOST,
+        UPDATE_HOST,
         UPDATE_TEAMS,
+        START_GAME,
     }
 
     @Override
@@ -43,8 +43,8 @@ public class LobbySocketHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionClosed(@NonNull WebSocketSession session, @NonNull CloseStatus status) {
-//        if (!sessions.contains(session))
         sessionsWithoutId.remove(session);
+        sessions.remove(findId(session));
     }
 
     @Override
@@ -63,10 +63,10 @@ public class LobbySocketHandler extends TextWebSocketHandler {
                     sessionsWithoutId.remove(session);
                     sessions.put(playerId, session);
                 }
-                case GET_PLAYERS_INSIDE ->
-                        multicastMessage(getPlayersInRoom(payload.getLong("roomId"), playerId), PayloadBuilder.createJsonMessage(Code.GET_PLAYERS_INSIDE, null));
-                case GET_READY_PLAYERS -> {
-                    Long[] ids = getPlayersInRoom(payload.getLong("roomId"), playerId);
+                case UPDATE_PLAYERS ->
+                        multicastMessage(getPlayersInRoom(roomId, playerId), PayloadBuilder.createJsonMessage(Code.UPDATE_PLAYERS, null));
+                case UPDATE_STATES -> {
+                    Long[] ids = getPlayersInRoom(roomId, playerId);
                     boolean canSendMessage = true;
 
                     for (Long id : ids) {
@@ -77,14 +77,12 @@ public class LobbySocketHandler extends TextWebSocketHandler {
                     }
 
                     if (canSendMessage)
-                        multicastMessage(ids, PayloadBuilder.createJsonMessage(Code.GET_READY_PLAYERS, null));
+                        multicastMessage(ids, PayloadBuilder.createJsonMessage(Code.UPDATE_STATES, null));
                 }
-                case REMOVE_PLAYER ->
-                        removePlayer(playerId, roomId);
                 case YOU_ARE_KICKED ->
-                        multicastMessage(new Long[]{payload.getLong("playerId")}, PayloadBuilder.createJsonMessage(Code.YOU_ARE_KICKED, null));
+                        multicastMessage(new Long[]{roomId}, PayloadBuilder.createJsonMessage(Code.YOU_ARE_KICKED, null));
                 case UPDATE_TEAMS ->
-                        multicastMessage(getPlayersInRoom(payload.getLong("roomId"), playerId), PayloadBuilder.createJsonMessage(Code.UPDATE_TEAMS, null));
+                        multicastMessage(getPlayersInRoom(roomId, -1), PayloadBuilder.createJsonMessage(Code.UPDATE_TEAMS, null));
             }
         } else
             sessions.remove(playerId);

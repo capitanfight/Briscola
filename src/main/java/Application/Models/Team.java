@@ -2,7 +2,9 @@ package Application.Models;
 
 import Application.GameException;
 
+import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 public abstract class Team<PlayerClass extends Player> {
     protected final CopyOnWriteArrayList<PlayerClass> players;
@@ -14,8 +16,6 @@ public abstract class Team<PlayerClass extends Player> {
     public void addPlayer(PlayerClass player) {
         if (player == null)
             throw new GameException("Player cannot be null", GameException.Type.CANNOT_BE_NULL);
-        if (players.size() > 2)
-            throw new GameException("Too many players", GameException.Type.ALREADY_FULL);
         if (players.contains(player))
             throw new GameException("Player is already in the stack", GameException.Type.ALREADY_CONTAINED);
 
@@ -50,8 +50,8 @@ public abstract class Team<PlayerClass extends Player> {
         return players.get(idx);
     }
 
-    public long[] getPlayerIds() {
-        return players.stream().mapToLong(PlayerClass::getId).toArray();
+    public List<Long> getPlayerIds() {
+        return players.stream().map(PlayerClass::getId).collect(Collectors.toList());
     }
 
     @Override

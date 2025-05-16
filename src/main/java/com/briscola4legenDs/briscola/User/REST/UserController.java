@@ -21,7 +21,7 @@ public class UserController {
 
     @GetMapping
     public List<User> getUsers() {
-        return userService.getUsers();
+        return userService.getAllUsers();
     }
 
     @GetMapping(path = "{id:\\d+}")

@@ -17,6 +17,7 @@ import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 @Getter
@@ -36,7 +37,7 @@ public class Room {
 
     private Lobby lobby;
     private Game game;
-    private long[] winner;
+    private List<Long> winner;
     private int[] points;
     private int[] stacksLength;
 
@@ -194,7 +195,7 @@ public class Room {
     }
 
     @JsonIgnore
-    public long[] getPlayersIds() {
+    public Long[] getPlayersIds() {
         if (lobby != null)
             return lobby.getPlayersId();
         else if (game != null)
@@ -203,24 +204,23 @@ public class Room {
     }
 
     @JsonIgnore
-    public long[][] getTeamPlayersId() {
+    public List<Team> getTeamPlayersId() {
         if (lobby != null)
             return lobby.getTeamPlayersId();
         else if (game != null)
             return game.getTeamPlayersId();
 
-        ArrayList<Player>[] teams = new ArrayList[] {
+        ArrayList<Long>[] teams = new ArrayList[] {
                 new ArrayList<Player>(),
                 new ArrayList<Player>()
         };
         for (int i = 0; i < getPlayers().length; i++)
-            teams[i % teams.length].add(getPlayers()[i]);
+            teams[i % teams.length].add(getPlayers()[i].getId());
 
-        long[][] ids = new long[teams.length][];
-        for (int i = 0; i < teams.length; i++)
-            ids[i] = teams[i].stream().mapToLong(Player::getId).toArray();
-
-        return ids;
+        return List.of(
+                new Team(0, teams[0]),
+                new Team(1, teams[1])
+        );
     }
 
     @JsonIgnore

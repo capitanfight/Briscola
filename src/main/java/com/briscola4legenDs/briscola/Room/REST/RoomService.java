@@ -5,9 +5,13 @@ import Application.Lobby.LobbyPlayer;
 import Application.Models.Player;
 import com.briscola4legenDs.briscola.Assets.PayloadBuilder;
 import com.briscola4legenDs.briscola.Room.Room;
+import com.briscola4legenDs.briscola.Room.State;
+import com.briscola4legenDs.briscola.Room.Team;
 import com.briscola4legenDs.briscola.Room.Token;
 import com.briscola4legenDs.briscola.Room.WebSocket.LobbySocketHandler;
 import com.briscola4legenDs.briscola.Room.WebSocket.RoomSocketHandler;
+import com.briscola4legenDs.briscola.User.REST.UserService;
+import com.briscola4legenDs.briscola.User.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
@@ -20,13 +24,15 @@ import java.util.*;
 public class RoomService {
     private final RoomLocalRepository roomLocalRepository;
     private final LobbySocketHandler lobbySocketHandler;
+    private final UserService userService;
 
     private static final Logger log = LoggerFactory.getLogger(RoomService.class.getName());
 
     @Autowired
-    public RoomService(RoomLocalRepository roomLocalRepository, LobbySocketHandler lobbySocketHandler, RoomSocketHandler roomSocketHandler) {
+    public RoomService(RoomLocalRepository roomLocalRepository, LobbySocketHandler lobbySocketHandler, RoomSocketHandler roomSocketHandler, UserService userService) {
         this.roomLocalRepository = roomLocalRepository;
         this.lobbySocketHandler = lobbySocketHandler;
+        this.userService = userService;
         lobbySocketHandler.setRoomService(this);
         roomSocketHandler.setRoomService(this);
     }
@@ -63,7 +69,7 @@ public class RoomService {
         if (token.isPlayerIdEmpty())
             throw new IllegalArgumentException("Player id is empty");
 
-        checkForRoomIdValidity(token.getRoomId());
+        validateRoomId(token.getRoomId());
 
         Room room = roomLocalRepository.getRoomById(token.getRoomId());
 
@@ -75,19 +81,22 @@ public class RoomService {
     }
 
     public void rmvPlayer(Token token) {
-        checkForTokenValidity(token);
+        validateToken(token);
         Room room = roomLocalRepository.getRoomById(token.getRoomId());
 
         boolean changeHost = room.getHostId() == token.getPlayerId();
         room.removePlayer(token.getPlayerId());
+
+        sendRoomPlayersUpdate(token.getRoomId(), null);
 
         if (room.isLobbyEmpty())
             roomLocalRepository.remove(token.getRoomId());
         else if (changeHost) {
             try {
                 lobbySocketHandler.multicastMessage(lobbySocketHandler.getPlayersInRoom(room.getId(), -1),
-                        PayloadBuilder.createJsonMessage(LobbySocketHandler.Code.NEW_HOST,
-                                PayloadBuilder.createJsonPayload(new PayloadBuilder().addLong("hostId", room.getHostId()).build())));
+                        PayloadBuilder.createJsonMessage(
+                                LobbySocketHandler.Code.UPDATE_HOST,
+                                null));
             } catch (IOException ignored) {}
         }
 
@@ -97,7 +106,7 @@ public class RoomService {
     }
 
     public void setPlayerReady(Token token, boolean ready) throws RuntimeException {
-        checkForTokenValidity(token);
+        validateToken(token);
         Room room = roomLocalRepository.getRoomById(token.getRoomId());
 
         if (room.isLobbyEmpty())
@@ -116,51 +125,58 @@ public class RoomService {
         if (checkIfGameCanStart(token.getRoomId())) {
             room.startGame();
             log.info("Game in room {} has started", token.getRoomId());
+
+            try {
+                lobbySocketHandler.multicastMessage(lobbySocketHandler.getPlayersInRoom(room.getId(), -1),
+                        PayloadBuilder.createJsonMessage(
+                                LobbySocketHandler.Code.START_GAME,
+                                null));
+            } catch (IOException ignored) {}
         }
     }
 
     public Card getBriscolaCard(long gameId) {
-        checkForRoomIdValidity(gameId);
+        validateRoomId(gameId);
 
         return roomLocalRepository.getRoomById(gameId).getBriscolaCard();
     }
 
     public Card[] getHand(Token token) {
-        checkForTokenValidity(token);
+        validateToken(token);
 
         return roomLocalRepository.getRoomById(token.getRoomId()).getHand(token.getPlayerId());
     }
 
     public long getTurnPlayerId(long gameId) {
-        checkForRoomIdValidity(gameId);
+        validateRoomId(gameId);
 
         return roomLocalRepository.getRoomById(gameId).getTurnPlayerId();
     }
 
     public void playCard(Token token, Card card) {
-        checkForTokenValidity(token);
+        validateToken(token);
 
         roomLocalRepository.getRoomById(token.getRoomId()).playCard(card, token.getPlayerId());
     }
 
     public Card[] getBoard(long gameId) {
-        checkForRoomIdValidity(gameId);
+        validateRoomId(gameId);
 
         return roomLocalRepository.getRoomById(gameId).getBoard();
     }
 
     public boolean isGameOver(long gameId) {
-        checkForRoomIdValidity(gameId);
+        validateRoomId(gameId);
         return roomLocalRepository.getRoomById(gameId).isGameEnded();
     }
 
-    public long[] getWinner(long gameId) {
-        checkForRoomIdValidity(gameId);
+    public List<Long> getWinner(long gameId) {
+        validateRoomId(gameId);
         return roomLocalRepository.getRoomById(gameId).getWinner();
     }
 
     public int[] getPoints(long gameId) {
-        checkForRoomIdValidity(gameId);
+        validateRoomId(gameId);
         return roomLocalRepository.getRoomById(gameId).getPoints();
     }
 
@@ -170,7 +186,7 @@ public class RoomService {
      * @return True if all players are ready, false otherwise.
      */
     public boolean checkIfGameCanStart(long gameId) {
-        checkForRoomIdValidity(gameId);
+        validateRoomId(gameId);
 
         Room room = roomLocalRepository.getRoomById(gameId);
 
@@ -181,7 +197,7 @@ public class RoomService {
      * Check if the room exist.
      * @param roomId Id of the room to check.
      */
-    private void checkForRoomIdValidity(long roomId) {
+    private void validateRoomId(long roomId) {
         if (!roomLocalRepository.existsById(roomId))
             throw new IllegalArgumentException("Room with id: " + roomId + " does not exist");
     }
@@ -190,14 +206,14 @@ public class RoomService {
      * Check if the token is valid, controlling if is null, if it has null values and if the room exist.
      * @param token The token to check.
      */
-    private void checkForTokenValidity(Token token) {
+    private void validateToken(Token token) {
         if (token == null)
             throw new IllegalArgumentException("Token is null");
 
         if (token.isEmpty())
             throw new IllegalArgumentException("Token is empty");
 
-        checkForRoomIdValidity(token.getRoomId());
+        validateRoomId(token.getRoomId());
 
         Room room = roomLocalRepository.getRoomById(token.getRoomId());
         if (room.getPlayer(token.getPlayerId()) == null)
@@ -211,9 +227,10 @@ public class RoomService {
 //    }
 
     private void sendRoomPlayersUpdate(long roomId, long[] playerIdToNotInclude) {
-        checkForRoomIdValidity(roomId);
+        if (playerIdToNotInclude == null)
+            playerIdToNotInclude = new long[0];
 
-        PayloadBuilder payload = new PayloadBuilder();
+        validateRoomId(roomId);
 
         ArrayList<Long> ids_temp = new ArrayList<>();
         for (Player player : roomLocalRepository.getRoomById(roomId).getPlayers()) {
@@ -229,13 +246,11 @@ public class RoomService {
 
         Long[] ids = ids_temp.toArray(new Long[0]);
 
-        payload.addLongs("playersId", ids);
-
         try {
             lobbySocketHandler.multicastMessage(ids, PayloadBuilder.createJsonMessage(
-                    LobbySocketHandler.Code.GET_PLAYERS_INSIDE,
-                    PayloadBuilder.createJsonPayload(payload.build())
-            ));
+                    LobbySocketHandler.Code.UPDATE_PLAYERS,
+                    null)
+            );
         } catch (IOException e) {
             roomLocalRepository.remove(roomId);
 
@@ -246,14 +261,14 @@ public class RoomService {
     private void sendRoomPlayersStateUpdate(Room r) {
         PayloadBuilder payload = new PayloadBuilder();
 
-        Long[] ids = Arrays.stream(r.getPlayersIds()).boxed().toArray(Long[]::new);
+        Long[] ids = r.getPlayersIds();
         Long[] readyPlayersId = Arrays.stream(((LobbyPlayer[]) r.getPlayers())).filter(LobbyPlayer::isReady).map(LobbyPlayer::getId).toArray(Long[]::new);
 
         payload.addLongs("readyPlayersId", readyPlayersId);
 
         try {
             lobbySocketHandler.multicastMessage(ids, PayloadBuilder.createJsonMessage(
-                    LobbySocketHandler.Code.GET_READY_PLAYERS,
+                    LobbySocketHandler.Code.UPDATE_STATES,
                     PayloadBuilder.createJsonPayload(payload.build())
             ));
         } catch (IOException e) {
@@ -263,8 +278,8 @@ public class RoomService {
         }
     }
 
-    public List<Long> getPlayers(long roomId) {
-        checkForRoomIdValidity(roomId);
+    public List<Long> getPlayersIds(long roomId) {
+        validateRoomId(roomId);
 
         ArrayList<Long> ids = new ArrayList<>();
 
@@ -275,7 +290,7 @@ public class RoomService {
     }
 
     public Boolean getPlayerState(Token token) {
-        checkForTokenValidity(token);
+        validateToken(token);
 
         Room room = roomLocalRepository.getRoomById(token.getRoomId());
         if (room.getPlayer(token.getPlayerId()) instanceof LobbyPlayer p)
@@ -284,32 +299,32 @@ public class RoomService {
     }
 
     public long getHostId(long id) {
-        checkForRoomIdValidity(id);
+        validateRoomId(id);
         return roomLocalRepository.getRoomById(id).getHostId();
     }
 
     public void changeTeam(Token token, int team) {
-        checkForTokenValidity(token);
+        validateToken(token);
         if (!(team == 0 || team == 1))
             throw new IllegalArgumentException("Invalid team");
 
         roomLocalRepository.getRoomById(token.getRoomId()).changeTeam(token.getPlayerId(), team);
     }
 
-    public long[][] getTeams(long id) {
-        checkForRoomIdValidity(id);
+    public List<Team> getTeams(long id) {
+        validateRoomId(id);
 
         return roomLocalRepository.getRoomById(id).getTeamPlayersId();
     }
 
     public int[] getNCollectedCards(long id) {
-        checkForRoomIdValidity(id);
+        validateRoomId(id);
 
         return roomLocalRepository.getRoomById(id).getTotalCollectedCards();
     }
 
     public int getNRemainingCards(long id) {
-        checkForRoomIdValidity(id);
+        validateRoomId(id);
 
         return roomLocalRepository.getRoomById(id).getNRemainingCards();
     }
@@ -318,7 +333,7 @@ public class RoomService {
         if (roomId == -1)
             return;
 
-        checkForRoomIdValidity(roomId);
+        validateRoomId(roomId);
 
         roomLocalRepository.remove(roomId);
     }
@@ -331,5 +346,25 @@ public class RoomService {
         }
 
         return -1;
+    }
+
+    public List<User> getPlayers(long roomId) {
+        validateRoomId(roomId);
+
+        return userService.getUsers(
+                Arrays.asList(roomLocalRepository
+                        .getRoomById(roomId)
+                        .getPlayersIds()));
+    }
+
+    public List<State> getPlayersState(long roomId) {
+        validateRoomId(roomId);
+        ArrayList<State> states = new ArrayList<>();
+
+        for (Player player : roomLocalRepository.getRoomById(roomId).getPlayers())
+            if (player instanceof LobbyPlayer p)
+                states.add(new State(p.getId(), p.isReady()));
+
+        return states;
     }
 }

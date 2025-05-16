@@ -3,7 +3,10 @@ package com.briscola4legenDs.briscola.Room.REST;
 import Application.Game.Card;
 import com.briscola4legenDs.briscola.Assets.RESTInfo;
 import com.briscola4legenDs.briscola.Room.Room;
+import com.briscola4legenDs.briscola.Room.State;
+import com.briscola4legenDs.briscola.Room.Team;
 import com.briscola4legenDs.briscola.Room.Token;
+import com.briscola4legenDs.briscola.User.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -49,14 +52,19 @@ public class RoomController {
         return roomService.createRoom(name, visibility);
     }
 
-    @GetMapping("/{id:\\d+}/host")
+    @GetMapping("/{id:\\d+}/host/id")
     public long getHostId(@PathVariable long id) {
         return roomService.getHostId(id);
     }
 
-    @GetMapping("/{id:\\d+}/players")
-    public List<Long> getPlayers(@PathVariable long id) {
-        return roomService.getPlayers(id);
+    @GetMapping("/{roomId:\\d+}/players")
+    public List<User> getPlayers(@PathVariable long roomId) {
+        return roomService.getPlayers(roomId);
+    }
+
+    @GetMapping("/{id:\\d+}/players/id")
+    public List<Long> getPlayersIds(@PathVariable long id) {
+        return roomService.getPlayersIds(id);
     }
 
     @PostMapping(path = "player")
@@ -74,6 +82,11 @@ public class RoomController {
         roomService.rmvPlayer(token);
     }
 
+    @GetMapping(path = "{roomId:\\d+}/players/state")
+    public List<State> getPlayersState(@PathVariable long roomId) {
+        return roomService.getPlayersState(roomId);
+    }
+
     @GetMapping(path = "{roomId:\\d+}/player/{userId:\\d+}/state")
     public Boolean getPlayerState(@PathVariable long roomId, @PathVariable long userId) {
         return roomService.getPlayerState(new Token(roomId, userId));
@@ -84,9 +97,9 @@ public class RoomController {
         roomService.setPlayerReady(token, state);
     }
 
-    @GetMapping("{id:\\d+}/player/team")
-    public long[][] getTeams(@PathVariable long id) {
-        return roomService.getTeams(id);
+    @GetMapping("{roomId:\\d+}/players/team")
+    public List<Team> getTeams(@PathVariable long roomId) {
+        return roomService.getTeams(roomId);
     }
 
     @PutMapping("/player/team/{team:\\d+}")
@@ -140,7 +153,7 @@ public class RoomController {
     }
 
     @GetMapping(path = "{id:\\d+}/winner")
-    public long[] getWinner(@PathVariable long id) {
+    public List<Long> getWinner(@PathVariable long id) {
         return roomService.getWinner(id);
     }
 

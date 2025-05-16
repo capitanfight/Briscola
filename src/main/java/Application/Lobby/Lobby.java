@@ -2,8 +2,10 @@ package Application.Lobby;
 
 import Application.Game.GameTeam;
 import Application.Models.Container;
+import com.briscola4legenDs.briscola.Room.Team;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Lobby extends Container<LobbyTeam> {
     public Lobby() {
@@ -31,8 +33,8 @@ public class Lobby extends Container<LobbyTeam> {
         teams[(team + 1) % teams.length].removePlayer(player);
     }
 
-    public long[] getPlayersId() {
-        long[] ids = new long[getNPlayers()];
+    public Long[] getPlayersId() {
+        Long[] ids = new Long[getNPlayers()];
         int playerN = 0;
         for (int i = 0; i < teams[0].getPlayers().size(); i++)
             for (LobbyTeam team : teams)
@@ -41,11 +43,11 @@ public class Lobby extends Container<LobbyTeam> {
         return ids;
     }
 
-    public long[][] getTeamPlayersId() {
-        return new long[][] {
-                teams[0].getPlayerIds(),
-                teams[1].getPlayerIds()
-        };
+    public List<Team> getTeamPlayersId() {
+        return List.of(
+                new Team(0, teams[0].getPlayerIds()),
+                new Team(1, teams[1].getPlayerIds())
+        );
     }
 
     public LobbyPlayer[] getPlayers() {
