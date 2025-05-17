@@ -200,7 +200,9 @@ public class Room {
             return lobby.getPlayersId();
         else if (game != null)
             return game.getPlayersId();
-        return null;
+        return Arrays.stream(players)
+                .map(Player::getId)
+                .toArray(Long[]::new);
     }
 
     @JsonIgnore
