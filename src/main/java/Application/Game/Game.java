@@ -54,7 +54,7 @@ public class Game extends Container<GameTeam> {
         shuffleDeck();
 
         briscola = getBriscolaCard().getSuit();
-        drawCards();
+        drawMaxCards();
     }
 
     public void playCard(Card card, long playerId) {
@@ -69,7 +69,7 @@ public class Game extends Container<GameTeam> {
         board[turn] = card;
 
         incrementTurn();
-        if (firsPlayer != playerId)
+        if (firsPlayer == getTurnPlayerId() && isBoardFull())
             shouldBeNewTurn = true;
     }
 
@@ -97,7 +97,29 @@ public class Game extends Container<GameTeam> {
         shouldBeNewTurn = false;
     }
 
-    private void drawCards() {
+    private boolean isBoardEmpty() {
+        for (Card card: board)
+            if (card != null)
+                return false;
+        return true;
+    }
+
+    private boolean isBoardFull() {
+        for (Card card: board)
+            if (card == null)
+                return false;
+        return true;
+    }
+
+    private int countBoardCards() {
+        int count = 0;
+        for (Card card: board)
+            if (card != null)
+                count++;
+        return count;
+    }
+
+    private void drawMaxCards() {
         for (GameTeam team: teams)
             for (GamePlayer player : team.getPlayers())
                 for (int i = 0; i < player.getHand().length; i++)
@@ -105,13 +127,11 @@ public class Game extends Container<GameTeam> {
     }
 
     private void drawCard() {
-        for (int i = 0; i < getTeamSize(); i++)
-            for (int j = 0; j < teams.length; j++) {
-                int teamIdx = (turn + j) % teams.length;
-                int playerIdx = ((turn + i) % getNPlayers()) / teams.length;
-
-                teams[teamIdx].getPlayer(playerIdx).drawCard(deck[cardIdx++]);
-            }
+        for (int i = 0; i < getTeamSize() * teams.length; i++) {
+            int teamIdx = (turn + i) % teams.length;
+            int playerIdx = ((turn + i) % getNPlayers()) / teams.length;
+            teams[teamIdx].getPlayer(playerIdx).drawCard(deck[cardIdx++]);
+        }
     }
 
     private int getTeamSize() {

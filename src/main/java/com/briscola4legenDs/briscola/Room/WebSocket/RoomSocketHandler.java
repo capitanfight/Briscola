@@ -5,6 +5,8 @@ import Application.Models.Player;
 import com.briscola4legenDs.briscola.Assets.PayloadBuilder;
 import com.briscola4legenDs.briscola.Room.REST.RoomService;
 import lombok.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -21,6 +23,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 @Component
 public class RoomSocketHandler extends TextWebSocketHandler {
+    private static final Logger log = LoggerFactory.getLogger(RoomSocketHandler.class.getName());
+
     private static RoomService rs;
 
     private static final ConcurrentHashMap<Long, WebSocketSession> sessions = new ConcurrentHashMap<>();
@@ -37,6 +41,7 @@ public class RoomSocketHandler extends TextWebSocketHandler {
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
         sessionsWithoutId.add(session);
+        log.info("RoomSocketHandler: Connection established for session: {}", session.getId());
     }
 
     @Override
@@ -46,6 +51,7 @@ public class RoomSocketHandler extends TextWebSocketHandler {
         sessions.remove(id);
         sessionsWithoutId.remove(session);
 
+        log.info("RoomSocketHandler: Connection closed for session: {} ({})", session.getId(), (id == -1 ? "" : "was registered with id: %s".formatted(id)));
 
         if (sessionsWithoutId.isEmpty() && sessions.isEmpty())
             rs.deleteEmptyRoom(rs.findRoomId(id));
@@ -60,8 +66,12 @@ public class RoomSocketHandler extends TextWebSocketHandler {
 
         switch (code) {
             case SET_ID -> {
+                long id = payload.getLong("id");
+
                 sessionsWithoutId.remove(session);
-                sessions.put(payload.getLong("id"), session);
+                sessions.put(id, session);
+
+                log.info("RoomSocketHandler: Session {} registered with id: {}", session.getId(), payload.getLong("id"));
             }
             case UPDATE -> {
                 long roomId = payload.getLong("roomId");
@@ -71,7 +81,7 @@ public class RoomSocketHandler extends TextWebSocketHandler {
                 else {
                     multicastMessage(getPlayersInRoom(roomId), PayloadBuilder.createJsonMessage(Code.UPDATE_MID_TURN,
                             PayloadBuilder.createJsonPayload(new PayloadBuilder().addString("updateTurn", "false").build())));
-                    Thread.sleep(2000);
+                    // Thread.sleep(2000);
                     try {
                         rs.getRoomById(roomId).newTurn();
                         multicastMessage(getPlayersInRoom(roomId), PayloadBuilder.createJsonMessage(Code.UPDATE_END_TURN, null));

@@ -62,6 +62,11 @@ public class RoomController {
         return roomService.getPlayers(roomId);
     }
 
+    @GetMapping("/{roomId:\\d+}/players/ordered")
+    public List<User> getPlayersOrdered(@PathVariable long roomId) {
+        return roomService.getPlayersOrdered(roomId);
+    }
+
     @GetMapping("/{id:\\d+}/players/id")
     public List<Long> getPlayersIds(@PathVariable long id) {
         return roomService.getPlayersIds(id);
