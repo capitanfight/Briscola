@@ -12,28 +12,21 @@ await fetch("api/room")
         if (!(rooms.map(room => room.id).includes(roomId)))
             window.location.replace("/startGame")
     })
-
-await fetch(`api/room/${roomId}/players/id`)
-    .then(response => response.json())
-    .then(playersIds => {
-        if (!(playersIds.includes(user.id)))
-            window.location.replace("/startGame")
+    .then(async () => {
+        await fetch(`api/room/${roomId}/players/id`)
+            .then(response => response.json())
+            .then(playersIds => {
+                if (!(playersIds.includes(user.id)))
+                    window.location.replace("/startGame")
+            })
     })
+
 
 /***** Main Code ******/
 // fetch functions
 async function getPlayers() {
-    return await fetch(`api/room/${roomId}/players/id`)
+    return await fetch(`api/room/${roomId}/players`)
         .then(response => response.json())
-        .then(async playersId => {
-            let users = []
-
-            for (let [idx, playerId] of playersId.entries()) {
-                users.push(await fetch(`api/user/${playerId}`).then(response => response.json()))
-            }
-
-            return users
-        })
 }
 
 async function getHand(userId) {
@@ -65,6 +58,7 @@ async function getTeam() {
     return await fetch(`api/room/${roomId}/players/team`)
         .then(response => response.json())
         .then(teams => teams.find(team => team.playerIds.includes(user.id)))
+        .then(team => team.teamId)
 }
 
 async function getBoard() {
@@ -141,6 +135,7 @@ ws.onmessage = msg => {
             updateBoard()
             updateOtherUsersCards()
             break
+
         case "UPDATE_END_TURN":
             updateTurn()
             updateStacksLength()
@@ -149,8 +144,9 @@ ws.onmessage = msg => {
             updateOtherUsersCards()
             renderHand()
             break
+
         case "END_GAME":
-            //TODO: finire
+            //TODO: spostare fetch in altro metodo
             fetch(`api/room/${roomId}/winner`)
                 .then(response => response.json())
                 .then(winner => {
@@ -239,6 +235,7 @@ async function createPlayers() {
                     value: card_element.getAttribute("value"),
                 }
 
+                // spostare fetch e ws send in altri metodi
                 fetch(`api/room/${roomId}/${user.id}/playCard`, {
                     method: "POST",
                     headers: {"Content-type": "application/json"},
@@ -313,10 +310,10 @@ function createEndGamePopUp(hasWon, points) {
 }
 
 function updateOtherUsersCards() {
-    const otherPlayers = document.querySelectorAll(".user:not(#myself)")
+    const otherPlayers = document.querySelectorAll(".user")
 
     players.forEach((player, idx) => {
-        idx = (idx + startIdx) % players.length - 1
+        idx = (idx + (players.length - startIdx)) % players.length
 
         if (player.id === user.id)
             return
@@ -324,9 +321,9 @@ function updateOtherUsersCards() {
         fetch(`api/room/${roomId}/player/${player.id}/hand`)
             .then(response => response.json())
             .then(hand => {
+                const handContainer = otherPlayers[idx].querySelector(":scope > .hand")
                 hand.forEach((card, i) => {
-                    Array.from(otherPlayers[idx].children)
-                        .find(e => e.classList.contains("hand"))
+                    handContainer
                         .children[i]
                         .setAttribute("status", card === null ? "played" : "hidden")
                 })
@@ -339,10 +336,12 @@ async function updateTurn() {
     myTurn = turnPlayerId === user.id
 
     const turnPlayerIdx = players.indexOf(players.find(player => player.id === turnPlayerId))
-    Array.from(playerContainer.children).filter(e => e.classList.contains("user")).forEach((player, idx) => {
-        player.classList.remove("my-turn")
-        if (turnPlayerIdx !== -1 && idx === (turnPlayerIdx + startIdx) % players.length)
-            player.classList.add("my-turn")
+    playerContainer
+        .querySelectorAll(":scope > .user")
+        .forEach((player, idx) => {
+            player.classList.remove("my-turn")
+            if (turnPlayerIdx !== -1 && idx === (turnPlayerIdx + (players.length - startIdx)) % players.length)
+                player.classList.add("my-turn")
     })
 }
 
@@ -368,12 +367,10 @@ function updateBoard() {
 
     getBoard()
         .then(board => {
-            for (let i = 0; i < board.length; i++) {
-                let idx = (i + startIdx) % board.length
-
-                if (board[idx] !== null)
-                    playCard(board[idx], players[idx].id)
-            }
+            board.forEach((card, idx) => {
+                if (card !== null)
+                    playCard(card, players[idx].id)
+            })
         })
 }
 
@@ -425,7 +422,7 @@ async function renderHand() {
 }
 
 async function playCard(card, playerId) {
-    const playerIdx = (players.indexOf(players.find(player => player.id === playerId)) + startIdx) % players.length
+    const playerIdx = (players.indexOf(players.find(player => player.id === playerId)) + (players.length - startIdx)) % players.length
     const playedCard = Array.from(Array.from(document.getElementsByClassName("user")[playerIdx].children)
         .find(e => e.classList.contains("hand")).children)
         .find(cardElement => playerId !== user.id ? false :

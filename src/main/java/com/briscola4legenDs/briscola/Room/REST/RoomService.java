@@ -351,6 +351,27 @@ public class RoomService {
     public List<User> getPlayers(long roomId) {
         validateRoomId(roomId);
 
+        Long[] ids = roomLocalRepository.getRoomById(roomId).getPlayersIds();
+
+        List<User> users = userService.getUsers(
+                Arrays.asList(ids));
+
+        for (int i = 0; i < users.size(); i++) {
+            if (!users.get(i).getId().equals(ids[i])) {
+                int idxForSwap = users.indexOf(User.builder().id(ids[i]).build());
+
+                User temp = users.get(idxForSwap);
+                users.set(idxForSwap, users.get(i));
+                users.set(i, temp);
+            }
+        }
+
+        return users;
+    }
+
+    public List<User> getPlayersOrdered(long roomId) {
+        validateRoomId(roomId);
+
         return userService.getUsers(
                 Arrays.asList(roomLocalRepository
                         .getRoomById(roomId)

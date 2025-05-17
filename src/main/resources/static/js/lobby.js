@@ -12,12 +12,13 @@ await fetch("api/room")
         if (!(rooms.map(room => room.id).includes(roomId)))
             window.location.replace("/startGame")
     })
-
-await fetch(`api/room/${roomId}/players/id`)
-    .then(response => response.json())
-    .then(playersIds => {
-        if (!(playersIds.includes(user.id)))
-            window.location.replace("/startGame")
+    .then(async () => {
+        await fetch(`api/room/${roomId}/players/id`)
+        .then(response => response.json())
+        .then(playersIds => {
+            if (!(playersIds.includes(user.id)))
+                window.location.replace("/startGame")
+        })
     })
 
 /***** Main Code ******/
@@ -28,7 +29,7 @@ async function getRoomName() {
 }
 
 async function getPlayers() {
-    return await fetch(`api/room/${roomId}/players`)
+    return await fetch(`api/room/${roomId}/players/ordered`)
         .then(resp => resp.json())
 }
 
@@ -89,6 +90,7 @@ async function kickPlayer(playerId) {
 const playersContainers = Array.from(document.getElementsByClassName("user"))
 const team_names = new Map([[0, "Blue"], [1, "Red"]])
 let enableHostCommands = false
+let shouldRemovePlayer = true
 
 // web socket
 const ws = new WebSocket("/ws/lobby")
@@ -143,6 +145,7 @@ ws.onmessage = async msg => {
             break
 
         case "START_GAME":
+            shouldRemovePlayer = false
             window.location
                 .replace(`/room`)
             break
@@ -155,7 +158,8 @@ ws.onerror = error => {
 
 window.onbeforeunload = () => {
     // TODO
-    kickPlayer(user.id)
+    if (shouldRemovePlayer)
+        kickPlayer(user.id)
 }
 
 function wsRegister() {
