@@ -1,5 +1,5 @@
 import {cookiesHandler} from "./cookiesHandler.js";
-import {checkUserId, id, user} from "./user.js";
+import {checkUserId, id, resourceExists, user} from "./user.js";
 
 // initial checks
 checkUserId()
@@ -68,6 +68,24 @@ async function getTeam() {
 async function getBoard() {
     return await fetch(`api/room/${roomId}/board`)
         .then(response => response.json())
+}
+
+async function getWinnerTeam() {
+    return await fetch(`api/room/${roomId}/winner`)
+        .then(response => response.json())
+}
+
+async function getPoints() {
+    return await fetch(`api/room/${roomId}/points`)
+        .then(response => response.json())
+}
+
+async function playCardRequest(card) {
+    await fetch(`api/room/${roomId}/${user.id}/playCard`, {
+        method: "POST",
+        headers: {"Content-type": "application/json"},
+        body: JSON.stringify(card)
+    })
 }
 
 // globals
@@ -150,12 +168,9 @@ ws.onmessage = msg => {
             break
 
         case "END_GAME":
-            //TODO: spostare fetch in altro metodo
-            fetch(`api/room/${roomId}/winner`)
-                .then(response => response.json())
+            getWinnerTeam()
                 .then(winner => {
-                    fetch(`api/room/${roomId}/points`)
-                        .then(response => response.json())
+                    getPoints()
                         .then(points => {
                             const hasWon = winner.includes(user.id)
 
@@ -165,6 +180,15 @@ ws.onmessage = msg => {
                 })
             break
     }
+}
+
+function wsUpdate() {
+    ws.send(JSON.stringify({
+        code: "UPDATE",
+        payload: {
+            roomId: roomId
+        }
+    }))
 }
 
 // functions
@@ -202,8 +226,6 @@ async function createPlayers() {
         if (i === players.length / 2)
             div.setAttribute("id", "facingMyself")
 
-        // TODO: implementare il controllo sulla foto profilo (se non esiste inserire quella base)
-
         const gridPosition = playerArrangement[i]
         div.style.gridRow = gridPosition.row
         div.style.gridColumn = gridPosition.column
@@ -228,6 +250,11 @@ async function createPlayers() {
             </div>
         `
 
+        if (!(await resourceExists(`/img/profilePictures/${playerInfo.imageUrl}`)))
+            div
+                .querySelector(".userPic")
+                .setAttribute("src", "/img/profilePictures/blankProfilePicture.png")
+
         const cards = Array.from(Array.from(div.children).find(e => e.classList.contains("hand")).children)
         cards.forEach(card_element => {
             card_element.addEventListener("click", () => {
@@ -239,19 +266,8 @@ async function createPlayers() {
                     value: card_element.getAttribute("value"),
                 }
 
-                // spostare fetch e ws send in altri metodi
-                fetch(`api/room/${roomId}/${user.id}/playCard`, {
-                    method: "POST",
-                    headers: {"Content-type": "application/json"},
-                    body: JSON.stringify(card)
-                }).then(() => {
-                    ws.send(JSON.stringify({
-                        code: "UPDATE",
-                        payload: {
-                            roomId: roomId
-                        }
-                    }))
-                })
+                playCardRequest(card)
+                    .then(wsUpdate)
             })
         })
 
@@ -378,7 +394,7 @@ function updateBoard() {
         })
 }
 
-async function updateStats(hasWon, points) {
+function updateStats(hasWon, points) {
      fetch(`api/user/${user.id}/stats`)
         .then(response => response.json())
         .then(stats => {
@@ -463,10 +479,9 @@ if (!isGameOver) {
     updateDeckLength()
     updateBoard()
 } else {
-    fetch(`api/room/${roomId}/winner`)
-        .then(response => response.json())
-        .then(winner => fetch(`api/room/${roomId}/points`)
-                .then(response => response.json())
+    getWinnerTeam()
+        .then(winner => {
+            getPoints()
                 .then(points => createEndGamePopUp(winner.includes(user.id), points))
-        )
+        })
 }

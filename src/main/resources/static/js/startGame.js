@@ -110,7 +110,6 @@ ws.onopen = () => {
 }
 
 ws.onerror = err => {
-    // TODO
 }
 
 ws.onmessage = msg => {
@@ -403,7 +402,6 @@ function updateAllFriendRequests() {
 }
 
 function updateRoomId(roomId) {
-    // TODO: modificarlo e inserire l'id della stanza nell url
     cookiesHandler.setCookie("roomId", roomId)
 }
 

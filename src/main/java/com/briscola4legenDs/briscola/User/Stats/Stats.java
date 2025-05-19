@@ -21,6 +21,4 @@ public class Stats {
 
     private int maxPoints;
     private int totalPoints;
-
-    // TODO: aggiungere: punteggio massimo e punteggio medio
 }

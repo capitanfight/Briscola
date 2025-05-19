@@ -156,11 +156,9 @@ ws.onmessage = async msg => {
 }
 
 ws.onerror = error => {
-    // TODO
 }
 
 window.onbeforeunload = () => {
-    // TODO
     if (shouldRemovePlayer)
         kickPlayer(user.id)
 }
