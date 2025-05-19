@@ -58,14 +58,18 @@
                             <button id="add-friend">Add</button>
                         </div>
 
-                        <div id="friends-container"></div>
+                        <div id="friends-container">
+                            <div id="friend-request-container" class="friend-container"></div>
+                            <div id="friend-list-container" class="friend-container"></div>
+                        </div>
                     </div>
+                    <!-- TODO: trasformare le sezioni da div a form -->
                     <div class="section rooms hide" id="rooms-container">
                         <div id="main-screen" >
                             <button class="change-section-btn" id="create-room-btn" correlated-section="create-room-section">Create</button>
                             <button class="change-section-btn" id="join-room-btn" correlated-section="join-room-section">Join</button>
                         </div>
-                        <div id="create-room-section" class="hide">
+                        <div id="create-room-section" class="inner-section hide">
                             <div class="input-group" id="room-name-group">
                                 <label for="room-name-inp">Name</label>
                                 <input type="text" id="room-name-inp" name="room-name">
@@ -73,13 +77,9 @@
                             <div class="input-group" id="room-visibility-group">
                                 <h1>Visibility</h1>
                                 <div id="visibility-list">
-                                    <button class="checklist-button-like active">Public</button>
-                                    <button class="checklist-button-like">Private</button>
+                                    <button class="active" value="PUBLIC">Public</button>
+                                    <button value="PRIVATE">Private</button>
                                 </div>
-                            </div>
-                            <div class="hide">
-                                <input type="radio" name="visibility" class="correlated-check-btn" value="PUBLIC" checked>
-                                <input type="radio" name="visibility" class="correlated-check-btn" value="PRIVATE">
                             </div>
 
                             <div class="pair">
@@ -87,7 +87,7 @@
                                 <button id="create-room">Create</button>
                             </div>
                         </div>
-                        <div id="join-room-section" class="hide">
+                        <div id="join-room-section" class="inner-section hide">
                             <div class="input-group">
                                 <label for="join-room-inp">Join by id</label>
                                 <div class="pair">
@@ -95,9 +95,6 @@
                                     <button id="join-room">Join</button>
                                 </div>
                             </div>
-                            <button id="refresh-rooms">
-                                <img src="/img/svg/refresh-logo.svg" alt="Refresh logo">
-                            </button>
                             <div id="room-container"></div>
                             <button class="back-to-main" correlated-section="join-room-section">Back</button>
                         </div>
@@ -112,13 +109,28 @@
             <div th:if="${param.kicked}" class="notification" id="kicked-notification">
                 <span class="description">You have been kicked by <span class="username" th:text="${param.kicked}"></span></span>
                 <div class="pair">
-                    <button onclick="document.getElementById('notification-container').removeChild(document.getElementById('kicked-notification'))">Close</button>
+                    <button id="close-kick-notification">Close</button>
                 </div>
                 <div class="bar-container">
                     <div class="bar"></div>
                 </div>
                 <script>
-                    setTimeout(() => document.getElementById('notification-container').removeChild(document.getElementById("kicked-notification")), 10000)
+                    const notificationId = setTimeout(() =>
+                        document
+                            .getElementById('notification-container')
+                            .removeChild(
+                                document.getElementById("kicked-notification")),
+                        10000)
+
+                    document.getElementById("close-kick-notification")
+                        .addEventListener("click", () => {
+                            clearTimeout(notificationId)
+
+                            document
+                                .getElementById('notification-container')
+                                .removeChild(
+                                    document.getElementById('kicked-notification'))
+                    })
                 </script>
             </div>
         </div>

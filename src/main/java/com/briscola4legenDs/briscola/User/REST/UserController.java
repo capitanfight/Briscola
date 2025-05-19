@@ -4,8 +4,10 @@ import com.briscola4legenDs.briscola.Assets.RESTInfo;
 import com.briscola4legenDs.briscola.User.Friends.FriendException;
 import com.briscola4legenDs.briscola.User.Friends.FriendRelation;
 import com.briscola4legenDs.briscola.User.Friends.FriendRequest;
+import com.briscola4legenDs.briscola.User.Friends.FriendRequestUsername;
 import com.briscola4legenDs.briscola.User.Stats.Stats;
 import com.briscola4legenDs.briscola.User.User;
+import com.briscola4legenDs.briscola.User.UserDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -50,23 +52,39 @@ public class UserController {
         }
     }
 
-    @GetMapping("/friend/request/{id:\\d+}")
-    public List<FriendRequest> getFriendRequests(@PathVariable long id) {
+    @GetMapping("{id:\\d+}/friends/requests")
+    public List<UserDTO> getFriendRequests(@PathVariable long id) {
         return userService.getFriendRequests(id);
     }
 
-    @PostMapping("/friend/request/send")
-    public ResponseEntity<Void> sendFriendRequest(@RequestBody FriendRequest friendRequest) {
+    @GetMapping("{id:\\d+}/friends/requests/relations")
+    public List<FriendRequest> getFriendRequestsRelations(@PathVariable long id) {
+        return userService.getFriendRequestsRelations(id);
+    }
+
+    @PostMapping("/friend/request/send/username")
+    public ResponseEntity<Void> sendFriendRequestUsername(@RequestBody FriendRequestUsername friendRequest) {
         try {
             userService.sendFriendRequest(friendRequest);
             return ResponseEntity.ok().build();
-        } catch (FriendException e) {
+        } catch (Exception e) {
             System.out.println(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
-    @PostMapping("/friend/request/accept")
+    @PostMapping("/friend/request/send/id")
+    public ResponseEntity<Void> sendFriendRequestId(@RequestBody FriendRequest friendRequest) {
+        try {
+            userService.sendFriendRequest(friendRequest);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @PutMapping("/friend/request/accept")
     public ResponseEntity<Void> acceptFriendRequest(@RequestBody FriendRequest friendRequest) {
         try {
             userService.acceptFriendRequest(friendRequest);
@@ -77,7 +95,7 @@ public class UserController {
         }
     }
 
-    @PostMapping("/friend/request/reject")
+    @DeleteMapping("/friend/request/reject")
     public ResponseEntity<Void> rejectFriendRequest(@RequestBody FriendRequest friendRequest) {
         try {
             userService.rejectFriendRequest(friendRequest);
@@ -93,9 +111,14 @@ public class UserController {
         userService.removeFriend(friendRelation);
     }
 
-    @GetMapping("/friend/{id:\\d+}")
-    public List<FriendRelation> getFriends(@PathVariable long id) {
+    @GetMapping("{id:\\d+}/friends")
+    public List<UserDTO> getFriends(@PathVariable long id) {
         return userService.getFriends(id);
+    }
+
+    @GetMapping("{id:\\d+}/friends/relation")
+    public List<FriendRelation> getFriendRelations(@PathVariable long id) {
+        return userService.getFriendRelations(id);
     }
 
     @GetMapping("/stats")

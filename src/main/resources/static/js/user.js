@@ -1,5 +1,8 @@
 import {cookiesHandler} from "./cookiesHandler.js";
 
+export const pathToPfPic = "/img/profilePictures/"
+export const defaultPfPic = "blankProfilePicture.png"
+
 export async function resourceExists(url) {
     try {
         const response = await fetch(url, { method: 'HEAD' });

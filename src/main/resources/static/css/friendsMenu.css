@@ -289,18 +289,34 @@ button {
     background-color: var(--dark-red);
     border-radius: 30px;
 
-
     overflow-y: auto;
     overflow-x: hidden;
 
     padding: 0 20px;
 }
 
-.section.friends > #friends-container > .container-like {
+#friend-list-container.empty {
+    font-size: 2rem;
+    color: var(--text-color);
+
+    flex: 1;
+    max-width: 85%;
+    text-align: center;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#friend-request-container.empty {
+    border-bottom: 0 !important;
+}
+
+.section.friends > #friends-container > .friend-container {
     width: 100%;
 }
 
-.section.friends > #friends-container > .container-like.friend-requests {
+.section.friends > #friends-container > .friend-container:not(:last-child) {
     border-bottom: 3px solid var(--border-color);
 }
 
@@ -472,7 +488,7 @@ button {
     width: 100%;
 }
 
-.section.rooms > #create-room-section > #room-visibility-group .checklist-button-like {
+.section.rooms > #create-room-section > #room-visibility-group button {
     background-color: var(--dark-red);
     width: 150px;
     height: 60px;
@@ -485,7 +501,7 @@ button {
     font-size: 1.3rem;
 }
 
-.section.rooms > #create-room-section > #room-visibility-group .checklist-button-like.active {
+.section.rooms > #create-room-section > #room-visibility-group button.active {
     border: 3px solid var(--border-color);
 }
 
@@ -561,6 +577,15 @@ button {
     overflow-x: hidden;
 }
 
+.section.rooms > #join-room-section > #room-container.empty {
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+
+    color: var(--text-color);
+    font-size: 2rem;
+}
+
 .section.rooms > #join-room-section > #room-container > .room {
     height: 100px;
     width: 200px;
@@ -620,33 +645,6 @@ button {
 .section.rooms > #join-room-section > #room-container > .room > * {
     color: var(--border-color);
     user-select: none;
-}
-
-.section.rooms > #join-room-section > #refresh-rooms {
-    position: absolute;
-    top: 10vh;
-    right: -10px;
-
-    height: 50px;
-    width: 50px;
-
-    background-color: var(--dark-red);
-    border-radius: 50%;
-    border: 3px solid var(--transparent);
-
-    padding: 0;
-
-    display: grid;
-    align-items: center;
-}
-
-.section.rooms > #join-room-section > #refresh-rooms:hover {
-    border-color: var(--border-color);
-}
-
-.section.rooms > #join-room-section > #refresh-rooms > img {
-    height: 45px;
-    width: 45px;
 }
 
 #notification-container {

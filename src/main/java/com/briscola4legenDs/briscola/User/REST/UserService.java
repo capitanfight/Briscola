@@ -5,15 +5,19 @@ import com.briscola4legenDs.briscola.User.Friends.*;
 import com.briscola4legenDs.briscola.User.Stats.Stats;
 import com.briscola4legenDs.briscola.User.Stats.StatsRepository;
 import com.briscola4legenDs.briscola.User.User;
+import com.briscola4legenDs.briscola.User.UserDTO;
 import com.briscola4legenDs.briscola.User.WebSocket.UserSocketHandler;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -79,6 +83,13 @@ public class UserService {
         return updated;
     }
 
+    public void sendFriendRequest(FriendRequestUsername friendRequest) {
+        sendFriendRequest(FriendRequest.builder()
+                .requesterId(friendRequest.getRequesterId())
+                .friendId(getUserIdByUsername(friendRequest.getPlayerUsername()))
+                .build());
+    }
+
     public void sendFriendRequest(FriendRequest friendRequest) {
         if (!userRepository.existsById(friendRequest.getRequesterId()))
             throw new FriendException("User with id: %s does not exist".formatted(friendRequest.getRequesterId()), FriendException.Type.USER_ID_NOT_FOUND);
@@ -94,7 +105,7 @@ public class UserService {
 
         friendRequestRepository.save(friendRequest);
 
-        sendUpdateListMsg(friendRequest.getFriendId());
+        sendUpdateFriendRequestsMsg(friendRequest.getFriendId());
     }
 
     public void acceptFriendRequest(FriendRequest friendRequest) {
@@ -116,7 +127,8 @@ public class UserService {
 
         friendRequestRepository.delete(friendRequest);
 
-        sendUpdateListMsg(friendRequest.getRequesterId());
+        sendUpdateFriendRequestsMsg(friendRequest.getFriendId());
+        sendUpdateListMsg(new Long[]{ friendRequest.getRequesterId(), friendRequest.getFriendId()});
     }
 
     public void rejectFriendRequest(FriendRequest friendRequest) {
@@ -133,7 +145,7 @@ public class UserService {
 
         friendRequestRepository.delete(friendRequest);
 
-        sendUpdateListMsg(friendRequest.getRequesterId());
+        sendUpdateFriendRequestsMsg(friendRequest.getFriendId());
     }
 
     private void addFriend(FriendRelation friendRelation) {
@@ -170,11 +182,7 @@ public class UserService {
 
         friendRelation.setId(friendRelationRepository.findIDByRelation(friendRelation.getUserId(), friendRelation.getFriendId()));
 
-        FriendRelation oppositeRelation = FriendRelation.builder()
-                .userId(friendRelation.getUserId())
-                .friendId(friendRelation.getFriendId())
-                .id(friendRelation.getId() + 1)
-                .build();
+        FriendRelation oppositeRelation = friendRelationRepository.findByUserIdAndFriendId(friendRelation.getFriendId(), friendRelation.getUserId());
 
         friendRelationRepository.delete(friendRelation);
         friendRelationRepository.delete(oppositeRelation);
@@ -182,7 +190,29 @@ public class UserService {
         sendUpdateListMsg(friendRelation);
     }
 
-    public List<FriendRelation> getFriends(long userId) {
+    public List<UserDTO> getFriends(long userId) {
+        if (!userRepository.existsById(userId))
+            throw new IllegalArgumentException("User with id: %s does not exist".formatted(userId));
+
+        List<User> users = userRepository
+                .findAllById(friendRelationRepository
+                        .findByUserId(userId)
+                        .stream()
+                        .map(FriendRelation::getFriendId)
+                        .collect(Collectors.toList()));
+
+        List<UserDTO> userDTOs = new ArrayList<>();
+        for (User user : users)
+            userDTOs.add(UserDTO.builder()
+                    .id(user.getId())
+                    .username(user.getUsername())
+                    .imageUrl(user.getImageUrl())
+                    .build());
+
+        return userDTOs;
+    }
+
+    public List<FriendRelation> getFriendRelations(long userId) {
         if (!userRepository.existsById(userId))
             throw new IllegalArgumentException("User with id: %s does not exist".formatted(userId));
 
@@ -196,8 +226,26 @@ public class UserService {
         return user.getId();
     }
 
+    public List<UserDTO> getFriendRequests(long id) {
+        List<User> users = userRepository
+                .findAllById(friendRequestRepository
+                        .findByFriendId(id)
+                        .stream()
+                        .map(FriendRequest::getRequesterId)
+                        .collect(Collectors.toList()));
 
-    public List<FriendRequest> getFriendRequests(long id) {
+        List<UserDTO> userDTOs = new ArrayList<>();
+        for (User user : users)
+            userDTOs.add(UserDTO.builder()
+                    .id(user.getId())
+                    .username(user.getUsername())
+                    .imageUrl(user.getImageUrl())
+                    .build());
+
+        return userDTOs;
+    }
+
+    public List<FriendRequest> getFriendRequestsRelations(long id) {
         return friendRequestRepository.findByFriendId(id);
     }
 
@@ -212,6 +260,20 @@ public class UserService {
         try {
             userSocketHandler.multicastMessage(new Long[]{ id }, PayloadBuilder.createJsonMessage(
                 UserSocketHandler.Code.UPDATE_FRIEND_LIST, null));
+        } catch (IOException ignored) {}
+    }
+
+    private void sendUpdateListMsg(Long[] ids) {
+        try {
+            userSocketHandler.multicastMessage(ids, PayloadBuilder.createJsonMessage(
+                    UserSocketHandler.Code.UPDATE_FRIEND_LIST, null));
+        } catch (IOException ignored) {}
+    }
+
+    private void sendUpdateFriendRequestsMsg(long id) {
+        try {
+            userSocketHandler.multicastMessage(new Long[]{ id }, PayloadBuilder.createJsonMessage(
+                    UserSocketHandler.Code.UPDATE_FRIEND_REQUESTS, null));
         } catch (IOException ignored) {}
     }
 

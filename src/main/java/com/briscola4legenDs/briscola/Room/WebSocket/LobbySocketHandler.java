@@ -125,7 +125,8 @@ public class LobbySocketHandler extends TextWebSocketHandler {
     }
 
     private void removePlayer(long playerId, long roomId) {
-        rs.rmvPlayer(new Token(roomId, playerId));
+        if (rs.getPlayersIds(roomId).contains(playerId))
+            rs.rmvPlayer(new Token(roomId, playerId));
         sessions.remove(playerId);
     }
 }
