@@ -9,16 +9,20 @@ const roomId = Number(cookiesHandler.getCookie("roomId"))
 await fetch("api/room")
     .then(response => response.json())
     .then(rooms => {
-        if (!(rooms.map(room => room.id).includes(roomId)))
+        if (!(rooms.map(room => room.id).includes(roomId))) {
             window.location.replace("/startGame")
+            return false
+        }
+        return true
     })
-    .then(async () => {
-        await fetch(`api/room/${roomId}/players/id`)
-            .then(response => response.json())
-            .then(playersIds => {
-                if (!(playersIds.includes(user.id)))
-                    window.location.replace("/startGame")
-            })
+    .then(async shouldExec => {
+        if (shouldExec)
+            await fetch(`api/room/${roomId}/players/id`)
+                .then(response => response.json())
+                .then(playersIds => {
+                    if (!(playersIds.includes(user.id)))
+                        window.location.replace("/startGame")
+                })
     })
 
 

@@ -12,6 +12,7 @@ import com.briscola4legenDs.briscola.Room.WebSocket.LobbySocketHandler;
 import com.briscola4legenDs.briscola.Room.WebSocket.RoomSocketHandler;
 import com.briscola4legenDs.briscola.User.REST.UserService;
 import com.briscola4legenDs.briscola.User.User;
+import com.briscola4legenDs.briscola.User.WebSocket.UserSocketHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
@@ -27,14 +28,16 @@ public class RoomService {
     private final UserService userService;
 
     private static final Logger log = LoggerFactory.getLogger(RoomService.class.getName());
+    private final UserSocketHandler userSocketHandler;
 
     @Autowired
-    public RoomService(RoomLocalRepository roomLocalRepository, LobbySocketHandler lobbySocketHandler, RoomSocketHandler roomSocketHandler, UserService userService) {
+    public RoomService(RoomLocalRepository roomLocalRepository, LobbySocketHandler lobbySocketHandler, RoomSocketHandler roomSocketHandler, UserService userService, UserSocketHandler userSocketHandler) {
         this.roomLocalRepository = roomLocalRepository;
         this.lobbySocketHandler = lobbySocketHandler;
         this.userService = userService;
         lobbySocketHandler.setRoomService(this);
         roomSocketHandler.setRoomService(this);
+        this.userSocketHandler = userSocketHandler;
     }
 
     public Collection<Room> getAllRooms() {
@@ -61,6 +64,9 @@ public class RoomService {
         roomLocalRepository.add(newRoom);
 
         log.info("Created new room with id {} and visibility {}", newRoom.getId(), visibility);
+
+        if (visibility == Room.Visibility.PUBLIC)
+            userSocketHandler.sendUpdateRoomMsg();
 
         return newRoom.getId();
     }
@@ -89,8 +95,10 @@ public class RoomService {
 
         sendRoomPlayersUpdate(token.getRoomId(), null);
 
-        if (room.isLobbyEmpty())
+        if (room.isLobbyEmpty()) {
             roomLocalRepository.remove(token.getRoomId());
+            userSocketHandler.sendUpdateRoomMsg();
+        }
         else if (changeHost) {
             try {
                 lobbySocketHandler.multicastMessage(lobbySocketHandler.getPlayersInRoom(room.getId(), -1),

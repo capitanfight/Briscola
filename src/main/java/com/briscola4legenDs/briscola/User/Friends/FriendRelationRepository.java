@@ -14,4 +14,7 @@ public interface FriendRelationRepository extends JpaRepository<FriendRelation, 
 
     @Query("SELECT f.id FROM FriendRelation f WHERE f.userId = ?1 AND f.friendId =?2")
     long findIDByRelation(long userId, long friendId);
+
+    @Query("SELECT f FROM FriendRelation f WHERE f.userId = ?1 AND f.friendId =?2")
+    FriendRelation findByUserIdAndFriendId(long friendId, long userId);
 }

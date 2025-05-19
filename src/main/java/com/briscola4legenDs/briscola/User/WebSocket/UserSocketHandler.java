@@ -21,6 +21,8 @@ public class UserSocketHandler extends TextWebSocketHandler {
     public enum Code implements com.briscola4legenDs.briscola.Assets.Code {
         SET_ID,
         UPDATE_FRIEND_LIST,
+        UPDATE_FRIEND_REQUESTS,
+        UPDATE_ROOM_LIST,
         INVITED
     }
 
@@ -54,7 +56,7 @@ public class UserSocketHandler extends TextWebSocketHandler {
                 multicastMessage(new Long[]{payload.getLong("id")}, PayloadBuilder.createJsonMessage(
                         Code.INVITED,
                         PayloadBuilder.createJsonPayload(new PayloadBuilder()
-                                .addLong("senderId", payload.getLong("senderId"))
+                                .addString("username", payload.getString("senderUsername"))
                                 .addLong("roomId", payload.getLong("roomId"))
                                 .build())
                 ));
@@ -85,6 +87,15 @@ public class UserSocketHandler extends TextWebSocketHandler {
             if (set.getValue().getId().equals(session.getId()))
                 id = set.getKey();
         return id;
+    }
+
+    public void sendUpdateRoomMsg() {
+        try {
+            broadcastMessage(
+                    PayloadBuilder.createJsonMessage(
+                            Code.UPDATE_ROOM_LIST,
+                            null));
+        } catch (IOException ignored) {}
     }
 
     private long findId(WebSocketSession session) {
