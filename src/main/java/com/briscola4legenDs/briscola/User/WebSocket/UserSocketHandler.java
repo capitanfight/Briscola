@@ -1,43 +1,41 @@
 package com.briscola4legenDs.briscola.User.WebSocket;
 
+import com.briscola4legenDs.briscola.Assets.WebSocket.MySocketHandler;
 import com.briscola4legenDs.briscola.Assets.PayloadBuilder;
 import org.json.JSONObject;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
-import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.io.IOException;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.List;
 
 @Component
-public class UserSocketHandler extends TextWebSocketHandler {
-    private static final ConcurrentHashMap<Long, WebSocketSession> sessions = new ConcurrentHashMap<>();
-    private static final CopyOnWriteArrayList<WebSocketSession> sessionsWithoutId = new CopyOnWriteArrayList<>();
-
+public class UserSocketHandler extends MySocketHandler {
     public enum Code implements com.briscola4legenDs.briscola.Assets.Code {
         SET_ID,
         UPDATE_FRIEND_LIST,
         UPDATE_FRIEND_REQUESTS,
         UPDATE_ROOM_LIST,
+        UPDATE_FRIEND_STATE,
+        UPDATE_LIST_FRIEND_STATE,
+        LIST_FRIEND_STATE_REQUEST,
         INVITED
     }
 
     @Override
-    public void afterConnectionEstablished(WebSocketSession session) {
-        sessionsWithoutId.add(session);
-    }
-
-    @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
-        if (sessions.contains(session)) {
-            sessions.remove(findId(session));
+        super.afterConnectionClosed(session, status);
+
+        try {
+            broadcastMessage("{ \"code\": \"UPDATE_FRIEND_STATE\", \"payload\": { \"id\": %s, \"state\": false } }".formatted(findId(session)));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-        else if (sessionsWithoutId.contains(session))
-            sessionsWithoutId.remove(session);
     }
 
     @Override
@@ -47,46 +45,33 @@ public class UserSocketHandler extends TextWebSocketHandler {
         Code code = Code.valueOf(messageJson.getString("code"));
         JSONObject payload = messageJson.getJSONObject("payload");
 
+        long id = -1;
+        if (payload.has("id"))
+            id = payload.getLong("id");
+
         switch (code) {
             case SET_ID -> {
-                sessionsWithoutId.remove(session);
-                sessions.put(payload.getLong("id"), session);
+                register(id, session);
+                broadcastMessage("{ \"code\": \"UPDATE_FRIEND_STATE\", \"payload\": { \"id\": %s, \"state\": true } }".formatted(id));
             }
-            case INVITED -> {
-                multicastMessage(new Long[]{payload.getLong("id")}, PayloadBuilder.createJsonMessage(
+            case INVITED ->
+                unicastMessage(id, PayloadBuilder.createJsonMessage(
                         Code.INVITED,
                         PayloadBuilder.createJsonPayload(new PayloadBuilder()
                                 .addString("username", payload.getString("senderUsername"))
                                 .addLong("roomId", payload.getLong("roomId"))
                                 .build())
                 ));
+            case LIST_FRIEND_STATE_REQUEST -> {
+                ArrayList<Long> ids = new ArrayList<>();
+                for (Enumeration<Long> e = sessions.keys(); e.hasMoreElements();)
+                    ids.add(e.nextElement());
+
+                String msg = "{ \"code\": \"UPDATE_LIST_FRIEND_STATE\", \"payload\": %s }".formatted(Arrays.toString(ids.toArray(Long[]::new)));
+
+                unicastMessage(id, msg);
             }
         }
-    }
-
-    public void multicastMessage(Long[] ids, String message) throws IOException {
-        for (long id : ids) {
-            if (!sessions.containsKey(id))
-                throw new IOException("Session " + id + " not found");
-
-            WebSocketSession session = sessions.get(id);
-            if (session.isOpen())
-                session.sendMessage(new TextMessage(message));
-        }
-    }
-
-    public void broadcastMessage(String message) throws IOException {
-        for (WebSocketSession session : sessions.values())
-            if (session.isOpen())
-                session.sendMessage(new TextMessage(message));
-    }
-
-    private long getId(WebSocketSession session) {
-        long id = -1;
-        for (Map.Entry<Long, WebSocketSession> set : sessions.entrySet())
-            if (set.getValue().getId().equals(session.getId()))
-                id = set.getKey();
-        return id;
     }
 
     public void sendUpdateRoomMsg() {
@@ -96,12 +81,5 @@ public class UserSocketHandler extends TextWebSocketHandler {
                             Code.UPDATE_ROOM_LIST,
                             null));
         } catch (IOException ignored) {}
-    }
-
-    private long findId(WebSocketSession session) {
-        for (Map.Entry<Long, WebSocketSession> entry : sessions.entrySet())
-            if (entry.getValue().equals(session))
-                return entry.getKey();
-        return -1;
     }
 }
