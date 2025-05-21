@@ -1,6 +1,7 @@
 package com.briscola4legenDs.briscola.User.REST;
 
 import com.briscola4legenDs.briscola.Assets.PayloadBuilder;
+import com.briscola4legenDs.briscola.Assets.WebSocket.IncludeMulticastMessageStrategy;
 import com.briscola4legenDs.briscola.User.Friends.*;
 import com.briscola4legenDs.briscola.User.Stats.Stats;
 import com.briscola4legenDs.briscola.User.Stats.StatsRepository;
@@ -14,9 +15,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -251,29 +250,38 @@ public class UserService {
 
     private void sendUpdateListMsg(FriendRelation friendRelation) {
         try {
-            userSocketHandler.multicastMessage(new Long[]{ friendRelation.getUserId(), friendRelation.getFriendId() }, PayloadBuilder.createJsonMessage(
-                    UserSocketHandler.Code.UPDATE_FRIEND_LIST, null));
+            userSocketHandler.multicastMessage(
+                    new Long[]{ friendRelation.getUserId(), friendRelation.getFriendId() },
+                    PayloadBuilder.createJsonMessage(
+                        UserSocketHandler.Code.UPDATE_FRIEND_LIST, null),
+                    new IncludeMulticastMessageStrategy());
         } catch (IOException ignored) {}
     }
 
     private void sendUpdateListMsg(long id) {
         try {
-            userSocketHandler.multicastMessage(new Long[]{ id }, PayloadBuilder.createJsonMessage(
-                UserSocketHandler.Code.UPDATE_FRIEND_LIST, null));
+            userSocketHandler.unicastMessage(
+                    id,
+                    PayloadBuilder.createJsonMessage(
+                        UserSocketHandler.Code.UPDATE_FRIEND_LIST, null));
         } catch (IOException ignored) {}
     }
 
     private void sendUpdateListMsg(Long[] ids) {
         try {
-            userSocketHandler.multicastMessage(ids, PayloadBuilder.createJsonMessage(
-                    UserSocketHandler.Code.UPDATE_FRIEND_LIST, null));
+            userSocketHandler.multicastMessage(
+                    ids,
+                    PayloadBuilder.createJsonMessage(
+                        UserSocketHandler.Code.UPDATE_FRIEND_LIST, null),
+                    new IncludeMulticastMessageStrategy());
         } catch (IOException ignored) {}
     }
 
     private void sendUpdateFriendRequestsMsg(long id) {
         try {
-            userSocketHandler.multicastMessage(new Long[]{ id }, PayloadBuilder.createJsonMessage(
-                    UserSocketHandler.Code.UPDATE_FRIEND_REQUESTS, null));
+            userSocketHandler.unicastMessage(id,
+                    PayloadBuilder.createJsonMessage(
+                        UserSocketHandler.Code.UPDATE_FRIEND_REQUESTS, null));
         } catch (IOException ignored) {}
     }
 

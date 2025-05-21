@@ -342,6 +342,10 @@ button {
     overflow: hidden;
 }
 
+.section.friends > #friends-container .user > .profile-picture-container.online {
+    border-color: green;
+}
+
 .section.friends > #friends-container .user > .profile-picture-container > img {
     height: inherit;
     width: inherit;
